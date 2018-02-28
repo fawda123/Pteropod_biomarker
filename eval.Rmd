@@ -1,0 +1,172 @@
+---
+title: "Pteropod biomarker analysis"
+author: ""
+output: 
+  html_document:
+    code_folding: hide
+self_contained: yes
+---
+
+```{r, message = F, warning = F}
+library(knitr)
+opts_chunk$set(warning = FALSE, message = FALSE, fig.path = 'figs/', dev.args = list(bg = 'transparent'), eval = T)
+
+library(tidyverse)
+library(vegan)
+library(ggord)
+
+source("R/funcs.R")
+
+data(envdat)
+data(biodat)
+```
+
+Pairs plot of biomarkers and environmental data
+```{r, fig.height = 8, fig.width = 8}
+dat <- biodat %>% 
+  left_join(envdat, by = 'CTD') %>% 
+  mutate_if(is.character, as.numeric) %>% 
+  gather('var', 'val', -CTD) %>% 
+  group_by(CTD, var) %>% 
+  summarise(val = mean(val, na.rm = TRUE)) %>% 
+  ungroup %>% 
+  spread(var, val)
+
+pairs(dat[, -1], gap = 0, cex = 1, col = 'grey')
+```
+
+RDA triplot of biomarkers and environmental data
+```{r, fig.height = 4, fig.width = 5}
+dat_frm <- dat %>% 
+  mutate(
+    CAT = ifelse(is.nan(CAT), mean(CAT, na.rm = TRUE), CAT)
+  ) %>% 
+  data.frame %>% 
+  column_to_rownames('CTD') %>%
+  decostand(method = 'range')
+
+env <- select(dat_frm, Ara, O2, pCO2, Sal, TA, Temp)
+bio <- select(dat_frm, CAT, GR, GSHonGSSG, GST, LPX, ORAC, SOD)
+
+mod <- rda(bio, env)
+ggord(mod, ptslab = T, parse = T)
+```
+
+```{r}
+
+# pearson, spearman correlation between biomarkers and env variables
+cr <- dat_frm %>%
+  gather('env_lab', 'env_val', Ara, O2, pCO2, Sal, TA, Temp) %>% 
+  gather('bio_lab', 'bio_val', CAT, GR, GSHonGSSG, GST, LPX, ORAC, SOD) %>% 
+  group_by(env_lab, bio_lab) %>% 
+  summarise(
+    sp_cr = round(cor.test(env_val, bio_val, method = 'spearman')$estimate, 2),
+    sp_pv = p_ast(cor.test(env_val, bio_val, method = 'spearman')$p.value),
+    pr_cr = round(cor.test(env_val, bio_val, method = 'pearson')$estimate, 2),
+    pr_pv = p_ast(cor.test(env_val, bio_val, method = 'pearson')$p.value)
+  ) %>% 
+  unite('sp_cr', sp_cr, sp_pv, sep = ' ') %>% 
+  unite('pr_cr', pr_cr, pr_pv, sep = ' ')
+
+sp_cr <- cr %>% 
+  select(-pr_cr) %>% 
+  spread(env_lab, sp_cr)
+
+pr_cr <- cr %>% 
+  select(-sp_cr) %>% 
+  spread(env_lab, pr_cr)
+```
+
+# {.tabset}
+
+## Spearman correlations
+```{r}
+knitr::kable(sp_cr, caption = 'Spearman rank correlations')
+```
+
+## Pearson correlations
+```{r}
+knitr::kable(pr_cr, caption = 'Pearson correlations')
+```
+
+# {.tabset}
+
+Pairwise models with interactions for each biomarker
+```{r}
+# variables to model, chr strings only
+env_cmb <- names(env) %>% 
+  combn(2) %>% 
+  t %>% 
+  data.frame(stringsAsFactors = F) %>%
+  crossing(names(bio), .) %>% 
+  t %>% 
+  data.frame(stringsAsFactors = F) %>% 
+  as.list
+
+# models
+mods <- env_cmb %>%
+  map(function(x){
+    
+    # formula
+    frm <- paste(x[1], '~', x[2], '*', x[3]) %>% 
+      as.formula
+    
+    # model, formatted
+    mod <- lm(frm, data = dat_frm) %>% 
+      summary %>% 
+      .$coefficients %>% 
+      .[-1, c(1, 4)] %>% 
+      data.frame %>% 
+      rownames_to_column('env_lab') %>% 
+      mutate(
+        bio_lab = x[1],
+        Est = round(Estimate, 2), 
+        Pvl = p_ast(Pr...t..)
+      ) %>% 
+      select(bio_lab, env_lab, Est, Pvl)
+    
+    return(mod)
+      
+  }) %>% 
+  enframe('Model') %>% 
+  unnest %>% 
+  mutate(Model = gsub('^X', 'mod', Model)) %>% 
+  group_by(bio_lab) %>% 
+  nest
+```
+
+## CAT
+```{r}
+knitr::kable(filter(mods, bio_lab %in% 'CAT')$data[[1]], caption = 'CAT')
+```
+
+## GR
+```{r}
+knitr::kable(filter(mods, bio_lab %in% 'GR')$data[[1]], caption = 'GR')
+```
+
+## GSHonGSSG
+```{r}
+knitr::kable(filter(mods, bio_lab %in% 'GSHonGSSG')$data[[1]], caption = 'GSHonGSSG')
+```
+
+## GST
+```{r}
+knitr::kable(filter(mods, bio_lab %in% 'GST')$data[[1]], caption = 'GST')
+```
+
+## LPX
+```{r}
+knitr::kable(filter(mods, bio_lab %in% 'LPX')$data[[1]], caption = 'LPX')
+```
+
+## ORAC
+```{r}
+knitr::kable(filter(mods, bio_lab %in% 'ORAC')$data[[1]], caption = 'ORAC')
+```
+
+## SOD
+```{r}
+knitr::kable(filter(mods, bio_lab %in% 'SOD')$data[[1]], caption = 'SOD')
+```
+
