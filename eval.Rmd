@@ -32,7 +32,7 @@ dat <- biodat %>%
   select(one_of(c(envchr, biochr, 'CTD'))) %>% 
   gather('var', 'val', -CTD) %>% 
   group_by(CTD, var) %>% 
-  summarise(val = mean(val, na.rm = TRUE)) %>% 
+  summarise(val = mean(val, na.rm = TRUE)) %>%
   ungroup %>% 
   spread(var, val)
 
