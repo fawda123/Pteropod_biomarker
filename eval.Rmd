@@ -14,7 +14,7 @@ opts_chunk$set(warning = FALSE, message = FALSE, fig.path = 'figs/', dev.args = 
 
 library(tidyverse)
 library(vegan)
-# library(ggord)
+library(ggord)
 library(scales)
 library(effects)
 library(shiny)
@@ -44,7 +44,7 @@ pairs(dat[, -1], gap = 0, cex = 1, col = 'grey')
 ```
 
 RDA triplot of biomarkers and environmental data
-```{r, fig.height = 4, fig.width = 5, eval = F}
+```{r, fig.height = 4, fig.width = 5, eval = T}
 dat_frm <- dat %>% 
   mutate(
     CAT = ifelse(is.nan(CAT), mean(CAT, na.rm = TRUE), CAT)
