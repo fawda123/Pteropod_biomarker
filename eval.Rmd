@@ -20,7 +20,7 @@ source("R/funcs.R")
 data(envdat)
 data(biodat)
 
-envchr <- c('Ara', 'O2', 'pH', 'Fluor', 'CO3', 'pCO2', 'Sal', 'TA', 'Temp', 'Latitude')
+envchr <- c('Ara', 'O2', 'pH', 'pCO2', 'Temp')
 biochr <- c('CAT', 'GR', 'GSHonGSSG', 'GST', 'LPX', 'ORAC', 'SOD', 'ORACvLPX')
 ```
 
