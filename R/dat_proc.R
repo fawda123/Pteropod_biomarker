@@ -18,6 +18,7 @@ envdat <- read_excel('raw/MeanSurface100m2016WCOA.xlsx') %>%
 biodat <- read_excel('raw/PteropodIntegrated_oxibiomarkers.xlsx', 
                      sheet = 'Pteropod30mbis') %>% 
   select(CTD, GSHonGSSG, GST, GR, LPX, CAT, ORAC, SOD, Latitude) %>% 
+  filter(LPX < 4) %>% 
   mutate(
     ORACvLPX = ORAC / LPX
   )
