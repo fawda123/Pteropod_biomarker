@@ -19,6 +19,9 @@ source("R/funcs.R")
 
 data(envdat)
 data(biodat)
+
+envchr <- c('Ara', 'O2', 'pH', 'Fluor', 'CO3', 'pCO2', 'Sal', 'TA', 'Temp', 'Latitude')
+biochr <- c('CAT', 'GR', 'GSHonGSSG', 'GST', 'LPX', 'ORAC', 'SOD', 'ORACvLPX')
 ```
 
 Pairs plot of biomarkers and environmental data
@@ -45,8 +48,8 @@ dat_frm <- dat %>%
   column_to_rownames('CTD') %>%
   decostand(method = 'range')
 
-env <- select(dat_frm, Ara, O2, pCO2, Sal, TA, Temp)
-bio <- select(dat_frm, CAT, GR, GSHonGSSG, GST, LPX, ORAC, SOD)
+env <- select(dat_frm, one_of(envchr))
+bio <- select(dat_frm, one_of(biochr))
 
 mod <- rda(bio, env)
 ggord(mod, ptslab = T, parse = T)
@@ -56,8 +59,8 @@ ggord(mod, ptslab = T, parse = T)
 
 # pearson, spearman correlation between biomarkers and env variables
 cr <- dat_frm %>%
-  gather('env_lab', 'env_val', Ara, O2, pCO2, Sal, TA, Temp) %>% 
-  gather('bio_lab', 'bio_val', CAT, GR, GSHonGSSG, GST, LPX, ORAC, SOD) %>% 
+  gather('env_lab', 'env_val', one_of(envchr)) %>% 
+  gather('bio_lab', 'bio_val', one_of(biochr)) %>% 
   group_by(env_lab, bio_lab) %>% 
   summarise(
     sp_cr = round(cor.test(env_val, bio_val, method = 'spearman')$estimate, 2),
@@ -170,3 +173,7 @@ knitr::kable(filter(mods, bio_lab %in% 'ORAC')$data[[1]], caption = 'ORAC')
 knitr::kable(filter(mods, bio_lab %in% 'SOD')$data[[1]], caption = 'SOD')
 ```
 
+## ORACvLPX
+```{r}
+knitr::kable(filter(mods, bio_lab %in% 'ORACvLPX')$data[[1]], caption = 'ORACvLPX')
+```
