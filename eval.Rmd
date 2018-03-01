@@ -29,6 +29,7 @@ Pairs plot of biomarkers and environmental data
 dat <- biodat %>% 
   left_join(envdat, by = 'CTD') %>% 
   mutate_if(is.character, as.numeric) %>% 
+  select(one_of(c(envchr, biochr, 'CTD'))) %>% 
   gather('var', 'val', -CTD) %>% 
   group_by(CTD, var) %>% 
   summarise(val = mean(val, na.rm = TRUE)) %>% 
