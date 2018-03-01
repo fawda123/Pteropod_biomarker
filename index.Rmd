@@ -283,7 +283,6 @@ knitr::kable(filter(mods, bio_lab %in% 'GST'), caption = 'GST')
 ```
 
 ## LPX
-
 ```{r}
 knitr::kable(filter(mods, bio_lab %in% 'LPX'), caption = 'LPX')
 ```
