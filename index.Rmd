@@ -191,6 +191,10 @@ mod_all <- env_cmb %>%
       
       # response
       yvar <- all.vars(formula(x))[1]
+     
+      # rsq
+      rsq <- summary(x) %>% 
+        .$r.squared
       
       # coeff summary
       out <- x %>% 
@@ -201,10 +205,11 @@ mod_all <- env_cmb %>%
         rownames_to_column('env_lab') %>% 
         mutate(
           bio_lab = yvar,
+          Rsq = round(rsq, 2),
           Est = round(Estimate, 2), 
           Pvl = p_ast(Pr...t..)
         ) %>% 
-        select(bio_lab, env_lab, Est, Pvl)
+        select(bio_lab, env_lab, Rsq, Est, Pvl)
     
     return(out)
       
@@ -219,7 +224,7 @@ mods <- mod_all %>%
 selectInput("mod", "Choose model:", paste0('mod', seq(1:nrow(mods))))
 
 md <- reactive({
-  
+
   md <- filter(mod_all, Model %in% input$mod) %>% 
   .$Modobj %>% 
   .[[1]]
@@ -250,8 +255,23 @@ levs2 <- reactive({
 trm <- reactive({
   
   md() %>% coefficients %>% names %>% .[4]
-  
+
 })
+
+renderPrint({summary(md())})
+
+renderPlot({
+  toplo <- md()$model %>% 
+    gather('var', 'val', -1)
+
+  ggplot(toplo, aes_string(x='val', y=names(toplo)[1])) +
+    geom_point() + 
+    facet_wrap(~var, ncol = 2, scales = 'free_x') + 
+    theme_bw(base_family = 'serif') + 
+    geom_smooth(method = 'lm') + 
+    theme(axis.title.x = element_blank())
+
+}, height = 300, width = 600)
 
 renderPlot({
   plot(effect(trm(), md(), xlevels = levs1()), multiline = T)
