@@ -280,6 +280,44 @@ renderPlot({
 renderPlot({
   plot(effect(trm(), md(), xlevels = levs2()), multiline = T)
 }, height = 300, width = 600)
+
+renderPlot({
+  
+  x <- md()$model %>% 
+    .[, -1] %>% 
+    data.frame %>% 
+    as.list %>% 
+    map(range) %>%
+    map(function(x) seq(x[1], x[2], length = 100))
+  
+  nms <- names(x) 
+  x <- crossing(x[[1]], x[[2]])
+  names(x) <- nms
+  
+  prd_vl <- predict(md(), newdata = x) %>% 
+    data.frame(., x)
+  names(prd_vl)[1] <- all.vars(formula(md()))[1]
+
+  pbase <- theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
+    axis.text.y = element_text(size = 8),
+    legend.position = 'top', 
+    plot.margin = grid::unit(c(2, 2, 2, 2), 'pt'), 
+    strip.background = element_blank(), 
+    strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5)
+  ) 
+
+  p <- ggplot(prd_vl, aes_string(y = names(prd_vl)[2], x = names(prd_vl)[3], fill = names(prd_vl)[1])) + 
+    geom_tile(colour = 'black') + 
+    pbase +
+    scale_y_discrete(expand = c(0, 0)) + 
+    scale_x_discrete(expand = c(0, 0)) +
+    scale_fill_distiller(palette = 'Spectral') +
+    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 12, angle = 0)))
+  p
+}, height = 700, width = 700)
 ```
 
 ## CAT
