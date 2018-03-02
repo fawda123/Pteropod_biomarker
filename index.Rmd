@@ -329,19 +329,23 @@ renderPlot({
 
 renderPlotly({
   
-  dat <- prd_vl()[, 1] %>% 
+  dat <- prd_vl() %>% 
+    spread_(key_col = names(.)[2], value_col = names(.)[1]) %>% 
+    .[,-1] %>% 
     as.matrix
-  
+    
   scene <- list(
     aspectmode = 'manual', 
-    aspectratio = list(x = 0.5, y = 1, z = 0.3)
-  )
+    aspectratio = list(x = 1, y = 1, z = 0.5), 
+    xaxis = list(title = names(prd_vl()[3])),
+    yaxis = list(title = names(prd_vl()[2])),
+    zaxis = list(title = names(prd_vl()[1]))
+    )
   
-  p <- plot_ly(z = ~dat) %>% add_surface() %>% 
+  p <- plot_ly(z = ~dat) %>% add_surface(colors = rev(RColorBrewer::brewer.pal(11, 'Spectral'))) %>% 
     layout(scene = scene)
   p
 
-  
 })
 ```
 
