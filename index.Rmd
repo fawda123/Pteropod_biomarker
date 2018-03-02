@@ -18,6 +18,7 @@ library(ggord)
 library(scales)
 library(effects)
 library(shiny)
+library(plotly)
 
 source("R/funcs.R")
 
@@ -258,6 +259,27 @@ trm <- reactive({
 
 })
 
+prd_vl <- reactive({
+  
+  x <- md()$model %>% 
+    .[, -1] %>% 
+    data.frame %>% 
+    as.list %>% 
+    map(range) %>%
+    map(function(x) seq(x[1], x[2], length = 100))
+  
+  nms <- names(x) 
+  x <- crossing(x[[1]], x[[2]])
+  names(x) <- nms
+  
+  prd_vl <- predict(md(), newdata = x) %>% 
+    data.frame(., x)
+  names(prd_vl)[1] <- all.vars(formula(md()))[1]
+
+  return(prd_vl)
+  
+})
+
 renderPrint({summary(md())})
 
 renderPlot({
@@ -283,21 +305,6 @@ renderPlot({
 
 renderPlot({
   
-  x <- md()$model %>% 
-    .[, -1] %>% 
-    data.frame %>% 
-    as.list %>% 
-    map(range) %>%
-    map(function(x) seq(x[1], x[2], length = 100))
-  
-  nms <- names(x) 
-  x <- crossing(x[[1]], x[[2]])
-  names(x) <- nms
-  
-  prd_vl <- predict(md(), newdata = x) %>% 
-    data.frame(., x)
-  names(prd_vl)[1] <- all.vars(formula(md()))[1]
-
   pbase <- theme(
     panel.grid.major = element_blank(), 
     panel.grid.minor = element_blank(), 
@@ -309,15 +316,33 @@ renderPlot({
     strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5)
   ) 
 
-  p <- ggplot(prd_vl, aes_string(y = names(prd_vl)[2], x = names(prd_vl)[3], fill = names(prd_vl)[1])) + 
+  p <- ggplot(prd_vl(), aes_string(y = names(prd_vl())[2], x = names(prd_vl())[3], fill = names(prd_vl())[1])) + 
     geom_tile(colour = 'black') + 
+    theme_bw(base_family = 'serif') +
     pbase +
     scale_y_discrete(expand = c(0, 0)) + 
     scale_x_discrete(expand = c(0, 0)) +
     scale_fill_distiller(palette = 'Spectral') +
-    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 12, angle = 0)))
+    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 15, label.theme = element_text(size = 12, angle = 0)))
   p
 }, height = 700, width = 700)
+
+renderPlotly({
+  
+  dat <- prd_vl()[, 1] %>% 
+    as.matrix
+  
+  scene <- list(
+    aspectmode = 'manual', 
+    aspectratio = list(x = 0.5, y = 1, z = 0.3)
+  )
+  
+  p <- plot_ly(z = ~dat) %>% add_surface() %>% 
+    layout(scene = scene)
+  p
+
+  
+})
 ```
 
 ## CAT
