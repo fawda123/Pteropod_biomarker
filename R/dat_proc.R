@@ -1,6 +1,7 @@
 library(readxl)
 library(tidyverse)
 
+# environmental data
 envdat <- read_excel('raw/MeanSurface100m2016WCOA.xlsx') %>% 
   select(`CTD Station`, `'pCO2'`, `'pH'`, `'CO3'`, `'Fluorescence'`, `'Aragonite'`, `'Oxygen'`, `'Temperature'`, `'Salinity'`, `'Alkalinity'`) %>% 
   rename(
@@ -14,17 +15,67 @@ envdat <- read_excel('raw/MeanSurface100m2016WCOA.xlsx') %>%
     Temp = `'Temperature'`, 
     Sal = `'Salinity'`, 
     TA = `'Alkalinity'`
-  )
+  ) %>% 
+  mutate_if(is.character, as.numeric)
+
+# biomarker data
 biodat <- read_excel('raw/PteropodIntegrated_oxibiomarkers.xlsx', 
                      sheet = 'Pteropod30mbis') %>% 
   select(CTD, GSHonGSSG, GST, GR, LPX, CAT, ORAC, SOD, Latitude) %>% 
-  # mutate(
-  #   LPX = ifelse(LPX > 4, NA, LPX),
-  #   LPX = ifelse(is.na(LPX), mean(LPX, na.rm = T), LPX)
-  #   ) %>% 
   mutate(
     ORACvLPX = ORAC / LPX
-  )
+  ) %>% 
+  gather('var', 'val', -CTD) %>% 
+  group_by(CTD, var) %>% 
+  summarize(val = mean(val, na.rm = T)) %>% 
+  group_by(var) %>% 
+  mutate(val = ifelse(is.na(val), mean(val, na.rm = T), val)) %>% 
+  spread(var, val) %>% 
+  ungroup
 
+# abundance
+abudat <- read_excel('raw/Copy of abundances to be usef_Marcus2.xlsx') %>% 
+  rename(
+    CTD = `CTD station`,
+    abund = `real abundance`
+  ) %>% 
+  group_by(CTD) %>% 
+  summarize(
+    abu = mean(abund, na.rm = T)
+  ) %>% 
+  ungroup
+
+# shell dissolution
+disdat <- read_excel('raw/parameters for WCOA 2016 combined.xlsx', sheet = 'dissolution') %>% 
+  fill(station) %>% 
+  rename( 
+    CTD = station, 
+    dis = `dissolution extent`
+    ) %>% 
+  group_by(CTD) %>% 
+  summarise(
+    dis = mean(dis, na.rm = T)
+  ) %>% 
+  ungroup
+
+# shell length
+diadat <- read_excel('raw/parameters for WCOA 2016 combined.xlsx', sheet = 'diameter') %>% 
+  rename(
+    CTD = Individual, 
+    len = `Diameter (mm)`
+  ) %>% 
+  group_by(CTD) %>% 
+  summarise(
+    len = mean(len, na.rm = T)
+  ) %>% 
+  ungroup
+
+# full_join of biodat with abundance, dissolution, and length data
+ptedat <- biodat %>% 
+  full_join(abudat, by = 'CTD') %>% 
+  full_join(disdat, by = 'CTD') %>% 
+  full_join(diadat, by = 'CTD')
+
+# save envdat, ptedat
 save(envdat, file = 'data/envdat.RData', compress = 'xz')
-save(biodat, file = 'data/biodat.RData', compress = 'xz')
+save(ptedat, file = 'data/ptedat.RData', compress = 'xz')

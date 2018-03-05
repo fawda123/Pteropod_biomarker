@@ -23,42 +23,35 @@ library(plotly)
 source("R/funcs.R")
 
 data(envdat)
-data(biodat)
+data(ptedat)
 
 envchr <- c('pCO2', 'pH', 'CO3', 'Ara', 'O2', 'Temp')
-biochr <- c('CAT', 'GR', 'GSHonGSSG', 'GST', 'LPX', 'ORAC', 'SOD', 'ORACvLPX')
+ptechr <- c('CAT', 'GR', 'GSHonGSSG', 'GST', 'LPX', 'ORAC', 'SOD', 'ORACvLPX')
 ```
 
 Pairs plot of biomarkers and environmental data
 ```{r, fig.height = 8, fig.width = 8}
-dat <- biodat %>% 
-  left_join(envdat, by = 'CTD') %>% 
-  mutate_if(is.character, as.numeric) %>% 
-  select(one_of(c(envchr, biochr, 'CTD'))) %>% 
-  gather('var', 'val', -CTD) %>% 
-  group_by(CTD, var) %>% 
-  summarise(val = mean(val, na.rm = TRUE)) %>%
-  ungroup %>% 
-  spread(var, val)
-
+dat <- ptedat %>% 
+  select(one_of('CTD', ptechr)) %>% 
+  na.omit %>% 
+  inner_join(envdat, by = 'CTD') %>% 
+  select(one_of(c('CTD', envchr, ptechr)))
+ 
 pairs(dat[, -1], gap = 0, cex = 1, col = 'grey')
 ```
 
 RDA triplot of biomarkers and environmental data
 ```{r, fig.height = 4, fig.width = 5, eval = T}
 dat_frm <- dat %>% 
-  mutate(
-    CAT = ifelse(is.nan(CAT), mean(CAT, na.rm = TRUE), CAT)
-  ) %>% 
   data.frame %>% 
   column_to_rownames('CTD')
 
 env <- select(dat_frm, one_of(envchr)) %>% 
   decostand(method = 'range')
-bio <- select(dat_frm, one_of(biochr)) %>% 
+pte <- select(dat_frm, one_of(ptechr)) %>% 
   decostand(method = 'range')
 
-mod <- rda(bio, env)
+mod <- rda(pte, env)
 ggord(mod, ptslab = T, parse = T)
 ```
 
@@ -67,13 +60,13 @@ ggord(mod, ptslab = T, parse = T)
 # pearson, spearman correlation between biomarkers and env variables
 cr <- dat_frm %>%
   gather('env_lab', 'env_val', one_of(envchr)) %>% 
-  gather('bio_lab', 'bio_val', one_of(biochr)) %>% 
-  group_by(env_lab, bio_lab) %>% 
+  gather('pte_lab', 'pte_val', one_of(ptechr)) %>% 
+  group_by(env_lab, pte_lab) %>% 
   summarise(
-    sp_cr = round(cor.test(env_val, bio_val, method = 'spearman')$estimate, 2),
-    sp_pv = p_ast(cor.test(env_val, bio_val, method = 'spearman')$p.value),
-    pr_cr = round(cor.test(env_val, bio_val, method = 'pearson')$estimate, 2),
-    pr_pv = p_ast(cor.test(env_val, bio_val, method = 'pearson')$p.value)
+    sp_cr = round(cor.test(env_val, pte_val, method = 'spearman')$estimate, 2),
+    sp_pv = p_ast(cor.test(env_val, pte_val, method = 'spearman')$p.value),
+    pr_cr = round(cor.test(env_val, pte_val, method = 'pearson')$estimate, 2),
+    pr_pv = p_ast(cor.test(env_val, pte_val, method = 'pearson')$p.value)
   ) %>% 
   unite('sp_cr', sp_cr, sp_pv, sep = ' ') %>% 
   unite('pr_cr', pr_cr, pr_pv, sep = ' ')
@@ -100,7 +93,7 @@ spplo <- cr %>%
   separate(sp_cr, c('cor', 'sig'), sep = ' ') %>% 
   mutate(
     cor = as.numeric(cor), 
-    bio_lab = factor(bio_lab, levels = rev(unique(bio_lab)))
+    pte_lab = factor(pte_lab, levels = rev(unique(pte_lab)))
   )
 
 pbase <- theme(
@@ -114,7 +107,7 @@ pbase <- theme(
   strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5)
   ) 
 
-p <- ggplot(spplo, aes(y = bio_lab, x = env_lab, fill = cor)) + 
+p <- ggplot(spplo, aes(y = pte_lab, x = env_lab, fill = cor)) + 
   geom_tile(colour = 'black') + 
   pbase +
   scale_y_discrete('Biomarker', expand = c(0, 0)) + 
@@ -135,7 +128,7 @@ prplo <- cr %>%
   separate(pr_cr, c('cor', 'sig'), sep = ' ') %>% 
   mutate(
     cor = as.numeric(cor), 
-    bio_lab = factor(bio_lab, levels = rev(unique(bio_lab)))
+    pte_lab = factor(pte_lab, levels = rev(unique(pte_lab)))
   )
 
 pbase <- theme(
@@ -149,7 +142,7 @@ pbase <- theme(
   strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5)
   ) 
 
-p <- ggplot(prplo, aes(y = bio_lab, x = env_lab, fill = cor)) + 
+p <- ggplot(prplo, aes(y = pte_lab, x = env_lab, fill = cor)) + 
   geom_tile(colour = 'black') + 
   pbase +
   scale_y_discrete('Biomarker', expand = c(0, 0)) + 
@@ -168,7 +161,7 @@ env_cmb <- names(env) %>%
   combn(2) %>% 
   t %>% 
   data.frame(stringsAsFactors = F) %>%
-  crossing(names(bio), .) %>% 
+  crossing(names(pte), .) %>% 
   t %>% 
   data.frame(stringsAsFactors = F) %>% 
   as.list
@@ -205,12 +198,12 @@ mod_all <- env_cmb %>%
         data.frame %>% 
         rownames_to_column('env_lab') %>% 
         mutate(
-          bio_lab = yvar,
+          pte_lab = yvar,
           Rsq = round(rsq, 2),
           Est = round(Estimate, 2), 
           Pvl = p_ast(Pr...t..)
         ) %>% 
-        select(bio_lab, env_lab, Rsq, Est, Pvl)
+        select(pte_lab, env_lab, Rsq, Est, Pvl)
     
     return(out)
       
@@ -351,40 +344,40 @@ renderPlotly({
 
 ## CAT
 ```{r}
-knitr::kable(filter(mods, bio_lab %in% 'CAT'), caption = 'CAT')
+knitr::kable(filter(mods, pte_lab %in% 'CAT'), caption = 'CAT')
 ```
 
 ## GR
 ```{r}
-knitr::kable(filter(mods, bio_lab %in% 'GR'), caption = 'GR')
+knitr::kable(filter(mods, pte_lab %in% 'GR'), caption = 'GR')
 ```
 
 ## GSHonGSSG
 ```{r}
-knitr::kable(filter(mods, bio_lab %in% 'GSHonGSSG'), caption = 'GSHonGSSG')
+knitr::kable(filter(mods, pte_lab %in% 'GSHonGSSG'), caption = 'GSHonGSSG')
 ```
 
 ## GST
 ```{r}
-knitr::kable(filter(mods, bio_lab %in% 'GST'), caption = 'GST')
+knitr::kable(filter(mods, pte_lab %in% 'GST'), caption = 'GST')
 ```
 
 ## LPX
 ```{r}
-knitr::kable(filter(mods, bio_lab %in% 'LPX'), caption = 'LPX')
+knitr::kable(filter(mods, pte_lab %in% 'LPX'), caption = 'LPX')
 ```
 
 ## ORAC
 ```{r}
-knitr::kable(filter(mods, bio_lab %in% 'ORAC'), caption = 'ORAC')
+knitr::kable(filter(mods, pte_lab %in% 'ORAC'), caption = 'ORAC')
 ```
 
 ## SOD
 ```{r}
-knitr::kable(filter(mods, bio_lab %in% 'SOD'), caption = 'SOD')
+knitr::kable(filter(mods, pte_lab %in% 'SOD'), caption = 'SOD')
 ```
 
 ## ORACvLPX
 ```{r}
-knitr::kable(filter(mods, bio_lab %in% 'ORACvLPX'), caption = 'ORACvLPX')
+knitr::kable(filter(mods, pte_lab %in% 'ORACvLPX'), caption = 'ORACvLPX')
 ```
