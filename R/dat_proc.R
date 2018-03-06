@@ -39,9 +39,12 @@ abudat <- read_excel('raw/Copy of abundances to be usef_Marcus2.xlsx') %>%
     CTD = `CTD station`,
     abund = `real abundance`
   ) %>% 
+  mutate(
+    abu = log10(1 + abund)
+  ) %>% 
   group_by(CTD) %>% 
   summarize(
-    abu = mean(abund, na.rm = T)
+    abu = mean(abu, na.rm = T)
   ) %>% 
   ungroup
 
@@ -52,6 +55,7 @@ disdat <- read_excel('raw/parameters for WCOA 2016 combined.xlsx', sheet = 'diss
     CTD = station, 
     dis = `dissolution extent`
     ) %>% 
+  mutate(dis = asin(dis / 100)) %>% 
   group_by(CTD) %>% 
   summarise(
     dis = mean(dis, na.rm = T)

@@ -25,7 +25,7 @@ source("R/funcs.R")
 data(envdat)
 data(ptedat)
 
-envchr <- c('pCO2', 'pH', 'CO3', 'Ara', 'O2', 'Temp')
+envchr <- c('pCO2', 'pH', 'CO3', 'Ara', 'O2', 'Temp', 'Fluor')
 ptechr <- c('abu', 'dis', 'len')
 ```
 
@@ -303,7 +303,7 @@ md <- reactive({
 
 levs1 <- reactive({
   
-  levs1 <- quantile(md()$model[, 2],  c(0.25, 0.75)) %>% 
+  levs1 <- quantile(md()$model[, 2],  c(0, 1)) %>% 
     list
   names(levs1) <- names(md()$model)[2]
   return(levs1)
@@ -313,7 +313,7 @@ levs1 <- reactive({
 
 levs2 <- reactive({
   
-  levs2 <- quantile(md()$model[, 3], c(0.25, 0.75)) %>% 
+  levs2 <- quantile(md()$model[, 3], c(0, 1)) %>% 
     list
   names(levs2) <- names(md()$model)[3]
   return(levs2)
