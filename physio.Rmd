@@ -26,7 +26,7 @@ data(envdat)
 data(ptedat)
 
 envchr <- c('pCO2', 'pH', 'CO3', 'Ara', 'O2', 'Temp', 'Fluor')
-ptechr <- c('abu', 'dis', 'len')
+ptechr <- c('abu', 'dis', 'len', 'ty2', 'ty3', 'scr')
 ```
 
 Pairs plot of physiological parameters and environmental data
@@ -61,6 +61,11 @@ pte <- select(pca_frm, one_of(ptechr)) %>%
 
 mod <- rda(pte, env)
 ggord(mod, ptslab = T, parse = T)
+```
+
+RDA axis loadings
+```{r}
+summary(mod)$biplot %>% round(2) %>% kable
 ```
 
 ```{r}
@@ -424,6 +429,21 @@ knitr::kable(filter(mods, pte_lab %in% 'abu'), caption = 'abu')
 ## dissolution
 ```{r}
 knitr::kable(filter(mods, pte_lab %in% 'dis'), caption = 'dis')
+```
+
+## type 2 dissolution
+```{r}
+knitr::kable(filter(mods, pte_lab %in% 'ty2'), caption = 'ty2')
+```
+
+## type 3 dissolution
+```{r}
+knitr::kable(filter(mods, pte_lab %in% 'ty3'), caption = 'ty3')
+```
+
+## scarring
+```{r}
+knitr::kable(filter(mods, pte_lab %in% 'scr'), caption = 'scr')
 ```
 
 ## length

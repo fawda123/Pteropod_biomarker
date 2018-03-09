@@ -55,6 +55,11 @@ mod <- rda(pte, env)
 ggord(mod, ptslab = T, parse = T)
 ```
 
+RDA axis loadings:
+```{r}
+summary(mod)$biplot %>% round(2) %>% kable
+```
+
 ```{r}
 
 # pearson, spearman correlation between biomarkers and env variables

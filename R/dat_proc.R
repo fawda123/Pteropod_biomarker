@@ -53,12 +53,18 @@ disdat <- read_excel('raw/parameters for WCOA 2016 combined.xlsx', sheet = 'diss
   fill(station) %>% 
   rename( 
     CTD = station, 
-    dis = `dissolution extent`
+    dis = `dissolution extent`, 
+    ty2 = `type II`,
+    ty3 = `type III`,
+    scr = scarring
     ) %>% 
   mutate(dis = asin(dis / 100)) %>% 
   group_by(CTD) %>% 
   summarise(
-    dis = mean(dis, na.rm = T)
+    dis = mean(dis, na.rm = T), 
+    ty2 = mean(ty2, na.rm = T),
+    ty3 = mean(ty3, na.rm = T),
+    scr = mean(scr, na.rm = T)
   ) %>% 
   ungroup
 
