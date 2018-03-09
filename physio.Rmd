@@ -4,6 +4,7 @@ author: ""
 output: 
   html_document:
     code_folding: hide
+    css: kable.css
 self_contained: yes
 runtime: shiny
 ---
@@ -29,83 +30,101 @@ envchr <- c('pCO2', 'pH', 'CO3', 'Ara', 'O2', 'Temp', 'Fluor')
 ptechr <- c('abu', 'dis', 'len', 'ty2', 'ty3', 'scr')
 ```
 
-Pairs plot of physiological parameters and environmental data
+Pairs plot
 ```{r, fig.height = 8, fig.width = 8}
 dat <- ptedat %>% 
   select(one_of('CTD', ptechr)) %>% 
-  left_join(envdat, by = 'CTD') %>% 
+  na.omit %>% 
+  inner_join(envdat, by = 'CTD') %>% 
   select(one_of(c('CTD', envchr, ptechr)))
  
 pairs(dat[, -1], gap = 0, cex = 1, col = 'grey')
 ```
 
-Pairs plot of physiological parameters and biomarkers
-```{r, fig.height = 8, fig.width = 8}
-biopr <- ptedat %>% 
-  select(-CTD, -Latitude)
-
-pairs(biopr, gap = 0, cex = 1, col = 'grey')
-```
-
-RDA triplot of physiological parameters and environmental data
+RDA triplot of biomarkers and environmental data
 ```{r, fig.height = 4, fig.width = 5, eval = T}
-pca_frm <- dat %>% 
-  na.omit %>% 
+dat_frm <- dat %>% 
   data.frame %>% 
   column_to_rownames('CTD')
 
-env <- select(pca_frm, one_of(envchr)) %>% 
+env <- select(dat_frm, one_of(envchr)) %>% 
   decostand(method = 'range')
-pte <- select(pca_frm, one_of(ptechr)) %>% 
+pte <- select(dat_frm, one_of(ptechr)) %>% 
   decostand(method = 'range')
 
 mod <- rda(pte, env)
 ggord(mod, ptslab = T, parse = T)
 ```
 
-RDA axis loadings
-```{r}
-summary(mod)$biplot %>% round(2) %>% kable
-```
+# Physiological correlations with biomarkers {.tabset}
 
 ```{r}
-# pearson, spearman correlation between physiological parameters and env variables
-cr <- dat %>%
-  gather('env_lab', 'env_val', one_of(envchr)) %>% 
-  gather('pte_lab', 'pte_val', one_of(ptechr)) %>% 
-  group_by(env_lab, pte_lab) %>% 
-  summarise(
-    sp_cr = round(cor.test(env_val, pte_val, method = 'spearman')$estimate, 2),
-    sp_pv = p_ast(cor.test(env_val, pte_val, method = 'spearman')$p.value),
-    pr_cr = round(cor.test(env_val, pte_val, method = 'pearson')$estimate, 2),
-    pr_pv = p_ast(cor.test(env_val, pte_val, method = 'pearson')$p.value)
+tochk <- ptedat %>% 
+  select(-CTD, -Latitude)
+
+# all correlations
+crs <- crossing(var1 = names(tochk), var2 = names(tochk)) %>% 
+  filter(var1 != var2) %>% 
+  rownames_to_column() %>% 
+  group_by(rowname) %>% 
+  nest %>% 
+  mutate(
+    crs = map(data, function(x){
+      
+      # variables
+      vr1 <- tochk[[x$var1]]
+      vr2 <- tochk[[x$var2]]
+      
+      # pearson
+      pr_ts <- cor.test(vr1, vr2, method = 'pearson')
+      pr_cr <- round(pr_ts$estimate, 2)
+      pr_pv <- p_ast(pr_ts$p.value)
+      pr <- paste(pr_cr, pr_pv)
+      
+      # spearman
+      sp_ts <- suppressWarnings(cor.test(vr1, vr2, method = 'spearman'))
+      sp_cr <- round(sp_ts$estimate, 2)
+      sp_pv <- p_ast(sp_ts$p.value)
+      sp <- paste(sp_cr, sp_pv)
+
+      out <- data.frame(pr = pr, sp = sp, stringsAsFactors = F)
+      return(out)
+      
+    })
   ) %>% 
-  unite('sp_cr', sp_cr, sp_pv, sep = ' ') %>% 
-  unite('pr_cr', pr_cr, pr_pv, sep = ' ')
+  unnest %>% 
+  select(-rowname)
 
-sp_cr <- cr %>% 
-  select(-pr_cr) %>% 
-  spread(env_lab, sp_cr)
+sp_cr <- crs %>% 
+  select(var1, var2, sp) %>% 
+  spread(var2, sp) %>% 
+  data.frame(stringsAsFactors = F) %>% 
+  column_to_rownames('var1') 
 
-pr_cr <- cr %>% 
-  select(-sp_cr) %>% 
-  spread(env_lab, pr_cr)
+pr_cr <- crs %>% 
+  select(var1, var2, pr) %>% 
+  spread(var2, pr) %>% 
+  data.frame(stringsAsFactors = F) %>% 
+  column_to_rownames('var1') 
 ```
 
-# Correlation with environmental variables {.tabset}
+## Spearman correlations
 
-## Spearman correlations, environmental variables
+<div class="verysmall">
+
 ```{r}
 knitr::kable(sp_cr, caption = 'Spearman rank correlations')
 ```
 
-```{r, fig.height = 4, fig.width = 5}
-spplo <- cr %>% 
-  select(-pr_cr) %>% 
-  separate(sp_cr, c('cor', 'sig'), sep = ' ') %>% 
+</div>
+
+```{r , fig.height = 5, fig.width = 10}
+spplo <- crs %>% 
+  select(-pr) %>% 
+  separate(sp, c('cor', 'sig'), sep = ' ') %>% 
   mutate(
     cor = as.numeric(cor), 
-    pte_lab = factor(pte_lab, levels = rev(unique(pte_lab)))
+    var1 = factor(var1, levels = rev(unique(.$var1)))
   )
 
 pbase <- theme(
@@ -116,124 +135,233 @@ pbase <- theme(
   legend.position = 'top', 
   plot.margin = grid::unit(c(2, 2, 2, 2), 'pt'), 
   strip.background = element_blank(), 
-  strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5)
+  strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
+  panel.background = element_rect(fill = 'black')
   ) 
 
-p <- ggplot(spplo, aes(y = pte_lab, x = env_lab, fill = cor)) + 
+p <- ggplot(spplo, aes(y = var1, x = var2, fill = cor)) + 
   geom_tile(colour = 'black') + 
   pbase +
-  scale_y_discrete('Physio. param', expand = c(0, 0)) + 
-  scale_x_discrete('Environment', expand = c(0, 0)) +
+  scale_y_discrete('', expand = c(0, 0)) + 
+  scale_x_discrete('', expand = c(0, 0)) +
   scale_fill_gradient2('Correlation', low = muted("green"), mid = "white", high = muted("blue"), midpoint = 0) +
   guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0)))
 p
 ```
 
-## Pearson correlations, environmental variables
+## Pearson correlations
+<div class="verysmall">
 
 ```{r}
 knitr::kable(pr_cr, caption = 'Pearson correlations')
 ```
 
-```{r, fig.height = 4, fig.width = 5}
-prplo <- cr %>% 
-  select(-sp_cr) %>% 
-  separate(pr_cr, c('cor', 'sig'), sep = ' ') %>% 
+</div>
+
+```{r , fig.height = 5, fig.width = 10}
+prplo <- crs %>% 
+  select(-sp) %>% 
+  separate(pr, c('cor', 'sig'), sep = ' ') %>% 
   mutate(
     cor = as.numeric(cor), 
-    pte_lab = factor(pte_lab, levels = rev(unique(pte_lab)))
+    var1 = factor(var1, levels = rev(unique(.$var1)))
   )
 
-p <- ggplot(prplo, aes(y = pte_lab, x = env_lab, fill = cor)) + 
+pbase <- theme(
+  panel.grid.major = element_blank(), 
+  panel.grid.minor = element_blank(), 
+  axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
+  axis.text.y = element_text(size = 8),
+  legend.position = 'top', 
+  plot.margin = grid::unit(c(2, 2, 2, 2), 'pt'), 
+  strip.background = element_blank(), 
+  strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
+  panel.background = element_rect(fill = 'black')
+  ) 
+
+p <- ggplot(prplo, aes(y = var1, x = var2, fill = cor)) + 
   geom_tile(colour = 'black') + 
   pbase +
-  scale_y_discrete('Physio. param', expand = c(0, 0)) + 
-  scale_x_discrete('Environment', expand = c(0, 0)) +
+  scale_y_discrete('', expand = c(0, 0)) + 
+  scale_x_discrete('', expand = c(0, 0)) +
   scale_fill_gradient2('Correlation', low = muted("green"), mid = "white", high = muted("blue"), midpoint = 0) +
   guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0)))
 p
 ```
 
-# Correlation with biomarkers {.tabset}
+
+# Physiological correlations with environment {.tabset}
 
 ```{r}
-# pearson, spearman correlation between physiological parameters and biomarkers
-cr <- ptedat %>% 
-  gather('phy_lab', 'phy_val', one_of(ptechr)) %>% 
-  gather('bio_lab', 'bio_val', -phy_lab, -phy_val, -CTD) %>% 
-  group_by(phy_lab, bio_lab) %>% 
-  summarise(
-    sp_cr = round(cor.test(phy_val, bio_val, method = 'spearman')$estimate, 2),
-    sp_pv = p_ast(cor.test(phy_val, bio_val, method = 'spearman')$p.value),
-    pr_cr = round(cor.test(phy_val, bio_val, method = 'pearson')$estimate, 2),
-    pr_pv = p_ast(cor.test(phy_val, bio_val, method = 'pearson')$p.value)
+# all correlations
+crs <- crossing(var1 = names(dat_frm), var2 = names(dat_frm)) %>% 
+  filter(var1 != var2) %>% 
+  rownames_to_column() %>% 
+  group_by(rowname) %>% 
+  nest %>% 
+  mutate(
+    crs = map(data, function(x){
+      
+      # variables
+      vr1 <- dat_frm[[x$var1]]
+      vr2 <- dat_frm[[x$var2]]
+      
+      # pearson
+      pr_ts <- cor.test(vr1, vr2, method = 'pearson')
+      pr_cr <- round(pr_ts$estimate, 2)
+      pr_pv <- p_ast(pr_ts$p.value)
+      pr <- paste(pr_cr, pr_pv)
+      
+      # spearman
+      sp_ts <- suppressWarnings(cor.test(vr1, vr2, method = 'spearman'))
+      sp_cr <- round(sp_ts$estimate, 2)
+      sp_pv <- p_ast(sp_ts$p.value)
+      sp <- paste(sp_cr, sp_pv)
+
+      out <- data.frame(pr = pr, sp = sp, stringsAsFactors = F)
+      return(out)
+      
+    })
   ) %>% 
-  unite('sp_cr', sp_cr, sp_pv, sep = ' ') %>% 
-  unite('pr_cr', pr_cr, pr_pv, sep = ' ') %>% 
-  ungroup
+  unnest %>% 
+  select(-rowname)
 
-sp_cr <- cr %>% 
-  select(-pr_cr) %>% 
-  spread(bio_lab, sp_cr)
+sp_cr <- crs %>% 
+  select(var1, var2, sp) %>% 
+  spread(var2, sp) %>% 
+  data.frame(stringsAsFactors = F) %>% 
+  column_to_rownames('var1') 
 
-pr_cr <- cr %>% 
-  select(-sp_cr) %>% 
-  spread(bio_lab, pr_cr)
+pr_cr <- crs %>% 
+  select(var1, var2, pr) %>% 
+  spread(var2, pr) %>% 
+  data.frame(stringsAsFactors = F) %>% 
+  column_to_rownames('var1') 
 ```
 
-## Spearman correlations, biomarkers
+## Spearman correlations
+<div class="verysmall">
 
 ```{r}
 knitr::kable(sp_cr, caption = 'Spearman rank correlations')
 ```
 
-```{r, fig.height = 4, fig.width = 5}
-spplo <- cr %>% 
-  select(-pr_cr) %>% 
-  separate(sp_cr, c('cor', 'sig'), sep = ' ') %>% 
+</div>
+
+```{r spheat, fig.height = 5, fig.width = 10}
+spplo <- crs %>% 
+  select(-pr) %>% 
+  separate(sp, c('cor', 'sig'), sep = ' ') %>% 
   mutate(
     cor = as.numeric(cor), 
-    phy_lab = factor(phy_lab, levels = rev(unique(phy_lab)))
+    var1 = factor(var1, levels = rev(unique(.$var1)))
   )
 
-p <- ggplot(spplo, aes(y = phy_lab, x = bio_lab, fill = cor)) + 
+pbase <- theme(
+  panel.grid.major = element_blank(), 
+  panel.grid.minor = element_blank(), 
+  axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
+  axis.text.y = element_text(size = 8),
+  legend.position = 'top', 
+  plot.margin = grid::unit(c(2, 2, 2, 2), 'pt'), 
+  strip.background = element_blank(), 
+  strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
+  panel.background = element_rect(fill = 'black')
+  ) 
+
+p <- ggplot(spplo, aes(y = var1, x = var2, fill = cor)) + 
   geom_tile(colour = 'black') + 
   pbase +
-  scale_y_discrete('Physio. param', expand = c(0, 0)) + 
-  scale_x_discrete('Biomarker', expand = c(0, 0)) +
+  scale_y_discrete('', expand = c(0, 0)) + 
+  scale_x_discrete('', expand = c(0, 0)) +
   scale_fill_gradient2('Correlation', low = muted("green"), mid = "white", high = muted("blue"), midpoint = 0) +
   guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0)))
 p
 ```
 
-## Pearson correlations, biomarkers
+## Pearson correlations
+<div class="verysmall">
 
 ```{r}
 knitr::kable(pr_cr, caption = 'Pearson correlations')
 ```
 
-```{r, fig.height = 4, fig.width = 5}
-prplo <- cr %>% 
-  select(-sp_cr) %>% 
-  separate(pr_cr, c('cor', 'sig'), sep = ' ') %>% 
+</div>
+
+```{r prheat, fig.height = 5, fig.width = 10}
+prplo <- crs %>% 
+  select(-sp) %>% 
+  separate(pr, c('cor', 'sig'), sep = ' ') %>% 
   mutate(
     cor = as.numeric(cor), 
-    phy_lab = factor(phy_lab, levels = rev(unique(phy_lab)))
+    var1 = factor(var1, levels = rev(unique(.$var1)))
   )
 
-p <- ggplot(prplo, aes(y = phy_lab, x = bio_lab, fill = cor)) + 
+pbase <- theme(
+  panel.grid.major = element_blank(), 
+  panel.grid.minor = element_blank(), 
+  axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
+  axis.text.y = element_text(size = 8),
+  legend.position = 'top', 
+  plot.margin = grid::unit(c(2, 2, 2, 2), 'pt'), 
+  strip.background = element_blank(), 
+  strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
+  panel.background = element_rect(fill = 'black')
+  ) 
+
+p <- ggplot(prplo, aes(y = var1, x = var2, fill = cor)) + 
   geom_tile(colour = 'black') + 
   pbase +
-  scale_y_discrete('Physio. param', expand = c(0, 0)) + 
-  scale_x_discrete('Biomarker', expand = c(0, 0)) +
+  scale_y_discrete('', expand = c(0, 0)) + 
+  scale_x_discrete('', expand = c(0, 0)) +
   scale_fill_gradient2('Correlation', low = muted("green"), mid = "white", high = muted("blue"), midpoint = 0) +
   guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0)))
 p
 ```
 
+# Pairwise VIF among environmental variables
+
+```{r}
+vifv <- crossing(var1 = envchr, var2 = envchr) %>% 
+  filter(var1 != var2) %>% 
+  rownames_to_column() %>% 
+  group_by(rowname) %>% 
+  nest %>% 
+  mutate(
+    vifv = map(data, function(x){
+      
+    vr1 <- x[['var1']]
+    vr2 <- x[['var2']]
+    frm <- formula(paste(vr1, '~', vr2))
+    mod <- lm(frm, dat_frm)
+    rsq <- mod %>% 
+      summary %>% 
+      .$r.squared
+    vif <- 1 / (1 - rsq)
+    
+    return(vif)
+    
+    })
+  ) %>% 
+  unnest %>% 
+  select(-rowname) %>% 
+  mutate(vifv = round(vifv, 2)) %>% 
+  spread(var2, vifv) %>% 
+  data.frame(stringsAsFactors = F) %>% 
+  column_to_rownames('var1') 
+```
+
+<div class="verysmall">
+
+```{r}
+knitr::kable(vifv, caption = 'VIF')
+```
+
+</div>
+
 # {.tabset}
 
-Pairwise models with interactions for each physiological parameter
+Pairwise models with interactions for each biomarker
 ```{r}
 # variables to model, chr strings only
 env_cmb <- names(env) %>% 
@@ -254,7 +382,7 @@ mod_all <- env_cmb %>%
       as.formula
     
     # model only
-    lm(frm, data = dat)
+    lm(frm, data = dat_frm)
     
   }) %>% 
   enframe('Model', 'Modobj') %>% 

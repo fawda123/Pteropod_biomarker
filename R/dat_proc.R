@@ -58,7 +58,12 @@ disdat <- read_excel('raw/parameters for WCOA 2016 combined.xlsx', sheet = 'diss
     ty3 = `type III`,
     scr = scarring
     ) %>% 
-  mutate(dis = asin(dis / 100)) %>% 
+  mutate(
+    dis = asin(dis / 100),
+    ty2 = asin(ty2),
+    ty3 = asin(ty3),
+    scr = asin(scr)
+    ) %>% 
   group_by(CTD) %>% 
   summarise(
     dis = mean(dis, na.rm = T), 
