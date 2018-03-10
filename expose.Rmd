@@ -1,0 +1,166 @@
+---
+title: "Pteropod exposure analysis"
+author: ""
+output: 
+  html_document:
+    code_folding: hide
+    css: kable.css
+self_contained: yes
+runtime: shiny
+---
+
+```{r, message = F, warning = F}
+library(knitr)
+opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = 'transparent'), eval = T)
+
+library(tidyverse)
+library(vegan)
+library(ggord)
+library(scales)
+library(effects)
+library(shiny)
+library(plotly)
+
+source("R/funcs.R")
+
+data(envdat)
+data(expdat)
+
+envchr <- c('pCO2', 'pH', 'CO3', 'Ara', 'O2', 'Temp', 'Fluor')
+```
+
+A simple plot:
+```{r, fig.height = 4, fig.width = 7}
+toplo <- expdat %>% 
+  unite('temp, pCO2', temp_trt, pco2_trt, sep = '/') %>% 
+  mutate(
+    `temp, pCO2` = factor(`temp, pCO2`, levels = c('lo/lo', 'lo/hi', 'hi/lo' ,'hi/hi'))
+  )
+
+ggplot(toplo, aes(x = `temp, pCO2`, y = alive)) +
+  scale_y_continuous('% alive') +
+  geom_boxplot(outlier.size = -1) +
+  geom_jitter(alpha = 0.3, width = 0.15) + 
+  theme_bw(base_family = 'serif')
+```
+
+Another simple plot:
+```{r, fig.height = 4, fig.width = 7}
+toplo <- expdat %>% 
+  group_by(temp_trt, pco2_trt) %>% 
+  summarize(
+    ave = mean(alive, na.rm = T),
+    lov = t.test(alive)$conf.int[1],
+    hiv = t.test(alive)$conf.int[2]
+  ) %>% 
+  ungroup %>% 
+  mutate(
+    temp_trt = factor(temp_trt, levels = c('lo', 'hi')),
+    pco2_trt = factor(pco2_trt, levels = c('lo', 'hi'))
+  )
+
+allv <- expdat %>% 
+  mutate(
+    temp_trt = factor(temp_trt, levels = c('lo', 'hi')),
+    pco2_trt = factor(pco2_trt, levels = c('lo', 'hi'))
+  ) %>%
+  select(alive, temp_trt, pco2_trt, CTD) %>% 
+  group_by(temp_trt, pco2_trt, CTD) %>%
+  mutate(
+    rep = 1, 
+    rep = cumsum(rep)
+    ) %>% 
+  unite('uni', CTD, temp_trt, rep, remove = F)
+
+ggplot(toplo, aes(x = pco2_trt, colour = temp_trt)) + 
+  geom_line(data = allv, aes(y = alive, group = uni), linetype = 'dotted') +
+  geom_point(size = 5, aes(y = ave)) + 
+  geom_errorbar(aes(ymin = lov, ymax = hiv), width = 0.1, size = 1.5) +
+  geom_line(aes(y = ave, group = temp_trt), size = 1.5) +
+  scale_y_continuous('% alive') + 
+  theme_bw(base_family = 'serif')
+```
+
+Run a simple test:
+```{r}
+mod <- lm(asin(alive / 100) ~ temp_trt * pco2_trt, data = expdat)
+summary(mod)
+```
+
+No interaction:
+```{r}
+mod <- lm(asin(alive / 100) ~ temp_trt + pco2_trt, data = expdat)
+summary(mod)
+```
+
+Compare with environmental parameters:
+```{r}
+expdat <- expdat %>% 
+  left_join(envdat, by = 'CTD')
+```
+
+```{r}
+selectInput("lns", "Choose a variable for line thickness:", envchr)
+
+allv <- allv %>% 
+  left_join(envdat, by = 'CTD')
+
+plo <- reactive({
+
+  names(allv)[names(allv) %in% input$lns] <- 'thick'
+  
+  p <- ggplot(toplo, aes(x = pco2_trt, colour = temp_trt)) + 
+    geom_line(data = allv, aes(y = alive, group = uni, size = thick), alpha = 0.6) +
+    geom_point(size = 5, aes(y = ave)) + 
+    geom_errorbar(aes(ymin = lov, ymax = hiv), width = 0.1, size = 1.5) +
+    geom_line(aes(y = ave, group = temp_trt), size = 1.5) +
+    scale_y_continuous('% alive') + 
+    theme_bw(base_family = 'serif') + 
+    scale_size(input$lns, range = c(0.2, 1.5))
+
+  return(p)
+  
+})
+
+renderPlot({plo()}, height = 300, width = 600)
+
+```
+
+A model with environmental variable to model by treatment:
+```{r}
+
+selectInput("var", "Choose an environmental variable:", envchr)
+
+# full
+md <- reactive({
+  
+  frm <- formula(paste('asin(alive / 100) ~ (temp_trt + pco2_trt) * ', input$var))
+  md <- lm(frm, data = allv)
+
+  return(md)
+  
+})
+
+# with select
+md_sel <- reactive({
+  
+  frm <- formula(paste('asin(alive / 100) ~ (temp_trt + pco2_trt) * ', input$var))
+  md_sel <- lm(frm, data = allv) %>% step(trace = 0)
+
+  return(md_sel)
+  
+})
+
+```
+
+Full model:
+```{r}
+renderPrint({summary(md())})
+```
+
+Final selected model:
+```{r}
+renderPrint({summary(md_sel())})
+```
+
+

@@ -94,3 +94,19 @@ ptedat <- biodat %>%
 # save envdat, ptedat
 save(envdat, file = 'data/envdat.RData', compress = 'xz')
 save(ptedat, file = 'data/ptedat.RData', compress = 'xz')
+
+# exposure data
+expdat <- read_excel('raw/experimental treatment for Marcus.xlsx') %>% 
+  rename(
+    temp_trt = T, 
+    pco2_trt = PCO2, 
+    dead = `%Dead`, 
+    alive = `%Alive`
+  ) %>% 
+  mutate(
+    temp_trt = ifelse(temp_trt < 10, 'lo', 'hi'),
+    pco2_trt = ifelse(pco2_trt < 800, 'lo', 'hi')
+  ) %>% 
+  select(CTD, temp_trt, pco2_trt, alive)
+
+save(expdat, file = 'data/expdat.RData', compress = 'xz')
