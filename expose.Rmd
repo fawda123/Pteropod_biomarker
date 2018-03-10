@@ -126,10 +126,9 @@ renderPlot({plo()}, height = 300, width = 600)
 
 ```
 
-A model with environmental variable to model by treatment:
 ```{r}
 
-selectInput("var", "Choose an environmental variable:", envchr)
+selectInput("var", "Choose an environmental variable to model:", envchr)
 
 # full
 md <- reactive({

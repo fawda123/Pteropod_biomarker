@@ -45,6 +45,7 @@ RDA triplot of biomarkers and environmental data
 ```{r, fig.height = 4, fig.width = 5, eval = T}
 dat_frm <- dat %>% 
   data.frame %>% 
+  remove_rownames %>% 
   column_to_rownames('CTD')
 
 env <- select(dat_frm, one_of(envchr)) %>% 
@@ -96,12 +97,14 @@ sp_cr <- crs %>%
   select(var1, var2, sp) %>% 
   spread(var2, sp) %>% 
   data.frame(stringsAsFactors = F) %>% 
+  remove_rownames %>% 
   column_to_rownames('var1') 
 
 pr_cr <- crs %>% 
   select(var1, var2, pr) %>% 
   spread(var2, pr) %>% 
   data.frame(stringsAsFactors = F) %>% 
+  remove_rownames %>% 
   column_to_rownames('var1') 
 ```
 
@@ -214,6 +217,7 @@ vifv <- crossing(var1 = envchr, var2 = envchr) %>%
   mutate(vifv = round(vifv, 2)) %>% 
   spread(var2, vifv) %>% 
   data.frame(stringsAsFactors = F) %>% 
+  remove_rownames %>% 
   column_to_rownames('var1') 
 ```
 
