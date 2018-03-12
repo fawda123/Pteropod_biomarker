@@ -34,8 +34,7 @@ Pairs plot
 ```{r, fig.height = 8, fig.width = 8}
 dat <- ptedat %>% 
   select(one_of('CTD', ptechr)) %>% 
-  na.omit %>% 
-  inner_join(envdat, by = 'CTD') %>% 
+  left_join(envdat, by = 'CTD') %>% 
   select(one_of(c('CTD', envchr, ptechr)))
  
 pairs(dat[, -1], gap = 0, cex = 1, col = 'grey')
@@ -48,9 +47,13 @@ dat_frm <- dat %>%
   remove_rownames %>% 
   column_to_rownames('CTD')
 
-env <- select(dat_frm, one_of(envchr)) %>% 
+env <- dat_frm %>% 
+  na.omit %>% 
+  select(., one_of(envchr)) %>% 
   decostand(method = 'range')
-pte <- select(dat_frm, one_of(ptechr)) %>% 
+pte <- dat_frm %>% 
+  na.omit %>% 
+  select(one_of(ptechr)) %>% 
   decostand(method = 'range')
 
 mod <- rda(pte, env)
