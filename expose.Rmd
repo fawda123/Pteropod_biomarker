@@ -103,7 +103,6 @@ toplo2 <- expdat %>%
     `temp, pCO2` = factor(`temp, pCO2`, levels = c('lo/lo', 'lo/hi', 'hi/lo' ,'hi/hi'))
   )
 
-
 toplo3 <- toplo2 %>% 
   gather('var', 'val', -CTD, -`temp, pCO2`) %>% 
   group_by(CTD, var) %>% 
@@ -146,74 +145,48 @@ ploav <- reactive({
   
 })
 
-# ranout <- reactive(lme(alive)
-
 renderPlot({plovr()}, height = 300, width = 600)
 renderPlot({ploav()}, height = 300, width = 600)
 ```
 
-
 ```{r}
-selectInput("lns", "Choose a variable for line thickness:", envchr)
+# all correlations
+crs <- crossing(var1 = 'alive', var2 = envchr) %>% 
+  rownames_to_column() %>% 
+  group_by(rowname) %>% 
+  nest %>% 
+  mutate(
+    
+    crs = map(data, function(x){
+      
+      # variables
+      vr1 <- toplo3[[x$var1]]
+      vr2 <- toplo3[[x$var2]]
+      
+      # pearson
+      pr_ts <- cor.test(vr1, vr2, method = 'pearson')
+      pr_cr <- round(pr_ts$estimate, 2)
+      pr_pv <- p_ast(pr_ts$p.value)
+      pr <- paste(pr_cr, pr_pv)
+      
+      # spearman
+      sp_ts <- suppressWarnings(cor.test(vr1, vr2, method = 'spearman'))
+      sp_cr <- round(sp_ts$estimate, 2)
+      sp_pv <- p_ast(sp_ts$p.value)
+      sp <- paste(sp_cr, sp_pv)
 
-allv <- allv %>% 
-  left_join(envdat, by = 'CTD')
-
-plo <- reactive({
-
-  names(allv)[names(allv) %in% input$lns] <- 'thick'
-  
-  p <- ggplot(toplo, aes(x = pco2_trt, colour = temp_trt)) + 
-    geom_line(data = allv, aes(y = alive, group = uni, size = thick), alpha = 0.6) +
-    geom_point(size = 5, aes(y = ave)) + 
-    geom_errorbar(aes(ymin = lov, ymax = hiv), width = 0.1, size = 1.5) +
-    geom_line(aes(y = ave, group = temp_trt), size = 1.5) +
-    scale_y_continuous('% alive') + 
-    theme_bw(base_family = 'serif') + 
-    scale_size(input$lns, range = c(0.2, 1.5))
-
-  return(p)
-  
-})
-
-renderPlot({plo()}, height = 300, width = 600)
-
-```
-
-```{r}
-
-selectInput("var", "Choose an environmental variable to model:", envchr)
-
-# full
-md <- reactive({
-  
-  frm <- formula(paste('asin(alive / 100) ~ (temp_trt + pco2_trt) * ', input$var))
-  md <- lm(frm, data = allv)
-
-  return(md)
-  
-})
-
-# with select
-md_sel <- reactive({
-  
-  frm <- formula(paste('asin(alive / 100) ~ (temp_trt + pco2_trt) * ', input$var))
-  md_sel <- lm(frm, data = allv) %>% step(trace = 0)
-
-  return(md_sel)
-  
-})
-
-```
-
-Full model:
-```{r}
-renderPrint({summary(md())})
-```
-
-Final selected model:
-```{r}
-renderPrint({summary(md_sel())})
+      out <- data.frame(pr = pr, sp = sp, stringsAsFactors = F)
+      return(out)
+      
+    })
+  ) %>% 
+  unnest %>% 
+  select(-rowname) %>% 
+  gather('cortyp', 'corval', pr, sp) %>% 
+  spread(var2, corval)
 ```
 
 
+```{r}
+knitr::kable(crs, caption = 'Pearson and Spearman correlations, based on averages by site')
+```
