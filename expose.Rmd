@@ -95,9 +95,63 @@ summary(mod)
 
 Compare with environmental parameters:
 ```{r}
-expdat <- expdat %>% 
-  left_join(envdat, by = 'CTD')
+
+toplo2 <- expdat %>% 
+  left_join(envdat, by = 'CTD') %>% 
+  unite(`temp, pCO2`, temp_trt, pco2_trt, sep = '/') %>% 
+  mutate(
+    `temp, pCO2` = factor(`temp, pCO2`, levels = c('lo/lo', 'lo/hi', 'hi/lo' ,'hi/hi'))
+  )
+
+
+toplo3 <- toplo2 %>% 
+  gather('var', 'val', -CTD, -`temp, pCO2`) %>% 
+  group_by(CTD, var) %>% 
+  summarize(
+    val = mean(val, na.rm = T)
+    ) %>% 
+  spread(var, val)
+
+selectInput("vr", "Choose a variable to plot again survivorship:", envchr)
+
+plovr <- reactive({
+
+  names(toplo2)[names(toplo2) %in% input$vr] <- 'xval'
+  
+  p <- ggplot(toplo2, aes(x = xval, y = alive)) + 
+    geom_point(size = 5, aes(colour = `temp, pCO2`)) + 
+    scale_y_continuous('% alive') + 
+    theme_bw(base_family = 'serif') + 
+    scale_x_continuous(input$vr) + 
+    stat_smooth(method = 'lm') +
+    ggtitle('all observations')
+
+  return(p)
+  
+})
+
+ploav <- reactive({
+
+  names(toplo3)[names(toplo3) %in% input$vr] <- 'xval'
+  
+  p <- ggplot(toplo3, aes(x = xval, y = alive)) + 
+    geom_point(size = 5) + 
+    scale_y_continuous('% alive') + 
+    theme_bw(base_family = 'serif') + 
+    scale_x_continuous(input$vr) + 
+    stat_smooth(method = 'lm') + 
+    ggtitle('Averaged by site')
+
+  return(p)
+  
+})
+
+# ranout <- reactive(lme(alive)
+
+renderPlot({plovr()}, height = 300, width = 600)
+renderPlot({ploav()}, height = 300, width = 600)
 ```
+
 
 ```{r}
 selectInput("lns", "Choose a variable for line thickness:", envchr)
