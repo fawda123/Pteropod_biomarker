@@ -30,6 +30,27 @@ envchr <- c('pCO2', 'pH', 'CO3', 'Ara', 'O2', 'Temp', 'Fluor')
 ptechr <- c('CAT', 'GR', 'GSHonGSSG', 'GST', 'LPX', 'ORAC', 'SOD', 'ORACvLPX')
 ```
 
+## Methods
+
+The response of pteropods to multiple stressors at the cellular, physiological, and population levels were evaluated using correlation analysis, multiple linear regression, and multivariate analysis. The general approach was to identify relationships among variables as potentially additive, synergistic, and antagonistic by evaluating pairwise effects of stressors on each response measure. Pearson correlations of environmental parameters (OA parameters, temperature, and chlorophyll) with cellular, physiological, and population response were first evaluated to identify potential associations with individual variables. Correlations between cellular and physiological responses were also evaluated to identify links between the two levels of biological organization. Non-continuous or skewed variables were transformed to better satisfy assumptions of the parametric tests (e.g., abundances were logarithmically transformed, proportions were arcsine transformed). All analyses were performed with the R statistical programming language (R Core Team 2017).
+
+Linear models were developed for every pairwise combination of environmental variables to evaluate additive and interactive effects on stressor response. Each model included separate terms for individual variables and a third term for the interaction of the pair. Evidence for additive effects were based solely on the magnitude of the estimated parameter for each variable, whereas synergistic or antagonistic effects were evaluated from the estimated parameter for the interaction. A positive interaction was evidence of a synergistic effect and a negative interaction was evidence of an antagonistic effect. Results of the linear models were further evaluated using effects plots to characterize the relationship of a pteropod response measure to continuous values for one stressor given two different values for the second stressor (constant at the minimum and maximum observed values). Thresholds for synergistic or antagonistic effects between two variables were identified from the effects plots as the intersection between the two fitted lines.
+
+Variance Inflation Factors (VIF) were quantified for all pairwise combinations of environmental variables used in the regression analysis to evaluate collinearity, such that:
+
+VIFj = 1 /( 1 − R2j) 		(1)
+
+where VIF is the reciprocal of the unexplained variance (1 − R2) of the linear regression of variable j against all other explanatory variables (Zuur et al., 2007). Although there are no specific VIF thresholds beyond which a variable is considered overly collinear, values less than 50 are generally considered adequate (Zuur et al. 2007). Comparisons of variables indicated that all VIF were below this threshold, except combinations of CO3/Aragonite (70.6), pCO2/CO3 (51.4), and ph/pCO2 (79.2).
+
+Finally, multivariate comparisons between the cellular response measures and environmental variables were assessed using redundancy analysis (RDA) to jointly characterize relationships between all sampling stations. This analysis is conceptually similar to principal components analysis with an additional constraint on the environmental matrix, where the relationships are further partitioned based on covariance among response measures at each site in addition to the covariance between environmental variables. The final triplot (two biplots of environmental and response matrices) can be used to evaluate which environmental variables are correlated, as well as their relationships to the cellular response measures at each site. The environmental and response matrices were standardized to range from 0-1 prior to RDA. The vegan package for R was used for standardization and RDA (Oksanen et al. 2017). 
+
+Oksanen, J., Guillaume Blanchet, F.,  Friendly, M., Kindt, R.,  Legendre, P., McGlinn, D., Minchin, P.R., O'Hara, R.B., Simpson, G.L., Solymos, P., Henry, M., Stevens, H., Szoecs, E., Wagner, H. 2017. vegan: Community Ecology Package. R package version 2.4-5. https://CRAN.R-project.org/package=vegan
+
+R Core Team (2017). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.  
+
+Zuur, A.F., Ieno, E.N., Smith, G.M. 2007. Analysing Ecological DAta. Springer, New York, NY. 
+MOntgomery, D.C., Peck, E.A. 1992. Introduction to Linear Regression Analysis. Wiley, New York, NY. 
+
 Pairs plot
 ```{r, fig.height = 8, fig.width = 8}
 dat <- ptedat %>% 
