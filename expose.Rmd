@@ -100,69 +100,78 @@ toplo2 <- expdat %>%
   left_join(envdat, by = 'CTD') %>% 
   unite(`temp, pCO2`, temp_trt, pco2_trt, sep = '/') %>% 
   mutate(
-    `temp, pCO2` = factor(`temp, pCO2`, levels = c('lo/lo', 'lo/hi', 'hi/lo' ,'hi/hi'))
+    `temp, pCO2` = factor(`temp, pCO2`, levels = c('lo/lo', 'lo/hi', 'hi/lo' ,'hi/hi')),
+    alive_tr = asin(alive / 100)
   )
 
-toplo3 <- toplo2 %>% 
-  gather('var', 'val', -CTD, -`temp, pCO2`) %>% 
-  group_by(CTD, var) %>% 
-  summarize(
-    val = mean(val, na.rm = T)
-    ) %>% 
-  spread(var, val)
-
 selectInput("vr", "Choose a variable to plot again survivorship:", envchr)
+selectInput("trt", "Choose a treatment (temp, pCO2):", as.character(levels(toplo2$`temp, pCO2`)))
 
-plovr <- reactive({
+plovrid <- reactive({
 
+  # assign variable selection to name
   names(toplo2)[names(toplo2) %in% input$vr] <- 'xval'
   
-  p <- ggplot(toplo2, aes(x = xval, y = alive)) + 
-    geom_point(size = 5, aes(colour = `temp, pCO2`)) + 
+  # filter by treatment
+  filt_toplo2 <- toplo2 %>% 
+    filter(`temp, pCO2` %in% input$trt)
+  
+  p <- ggplot(filt_toplo2, aes(x = xval, y = alive)) + 
+    geom_point(size = 5) + 
     scale_y_continuous('% alive') + 
+    coord_cartesian(ylim = c(0, 105)) +
     theme_bw(base_family = 'serif') + 
     scale_x_continuous(input$vr) + 
     stat_smooth(method = 'lm') +
-    ggtitle('all observations')
+    ggtitle('identity')
 
   return(p)
   
 })
 
-ploav <- reactive({
+plovr <- reactive({
 
-  names(toplo3)[names(toplo3) %in% input$vr] <- 'xval'
+  # assign variable selection to name
+  names(toplo2)[names(toplo2) %in% input$vr] <- 'xval'
   
-  p <- ggplot(toplo3, aes(x = xval, y = alive)) + 
+  # filter by treatment
+  filt_toplo2 <- toplo2 %>% 
+    filter(`temp, pCO2` %in% input$trt)
+  
+  p <- ggplot(filt_toplo2, aes(x = xval, y = alive_tr)) + 
     geom_point(size = 5) + 
-    scale_y_continuous('% alive') + 
+    scale_y_continuous('% alive (arcsine)') + 
+    coord_cartesian(ylim = c(0, 1.4)) +
     theme_bw(base_family = 'serif') + 
     scale_x_continuous(input$vr) + 
-    stat_smooth(method = 'lm') + 
-    ggtitle('Averaged by site')
+    stat_smooth(method = 'lm') +
+    ggtitle('transformed')
 
   return(p)
   
 })
 
+renderPlot({plovrid()}, height = 300, width = 600)
 renderPlot({plovr()}, height = 300, width = 600)
-renderPlot({ploav()}, height = 300, width = 600)
 ```
 
-```{r}
+```{r, eval = T}
 # all correlations
-crs <- crossing(var1 = 'alive', var2 = envchr) %>% 
-  rownames_to_column() %>% 
-  group_by(rowname) %>% 
+crs <- toplo2 %>% 
+  select(-CTD) %>% 
+  filter(!`temp, pCO2` %in% 'hi/hi') %>% 
+  gather('var', 'val', -`temp, pCO2`, -alive_tr, -alive) %>% 
+  gather('alvvr', 'alvvl', alive_tr, alive) %>% 
+  group_by(`temp, pCO2`, alvvr, var) %>% 
   nest %>% 
   mutate(
     
     crs = map(data, function(x){
       
       # variables
-      vr1 <- toplo3[[x$var1]]
-      vr2 <- toplo3[[x$var2]]
-      
+      vr1 <- x$alvvl
+      vr2 <- x$val
+
       # pearson
       pr_ts <- cor.test(vr1, vr2, method = 'pearson')
       pr_cr <- round(pr_ts$estimate, 2)
@@ -180,13 +189,16 @@ crs <- crossing(var1 = 'alive', var2 = envchr) %>%
       
     })
   ) %>% 
+  select(-data) %>% 
   unnest %>% 
-  select(-rowname) %>% 
   gather('cortyp', 'corval', pr, sp) %>% 
-  spread(var2, corval)
+  spread(var, corval) %>% 
+  rename(response = alvvr) %>% 
+  mutate(response = factor(response, levels = c('alive', 'alive_tr'), labels = c('identity', 'arcsine'))) %>% 
+  arrange(cortyp, response, `temp, pCO2`)
 ```
 
 
-```{r}
-knitr::kable(crs, caption = 'Pearson and Spearman correlations, based on averages by site')
+```{r, eval = T}
+knitr::kable(crs, caption = 'Pearson and Spearman correlations of survival (identity and arcsine) by variable')
 ```
