@@ -287,11 +287,20 @@ mods <- mod_all %>%
 
 
 ```{r}
-selectInput("mod", "Choose model:", paste0('mod', seq(1:nrow(mod_all))))
+sellab <- env_cmb %>% 
+  bind_cols(md = paste0('mod', seq(1:nrow(mod_all))), .) %>% 
+  unite('vr', trt, res, X1, X2, sep = ', ') %>% 
+  unite('vr2', md, vr, sep = ': ') %>% 
+  unlist %>% 
+  as.character
+
+selectInput("mod", "Choose model:", sellab)
 
 md <- reactive({
 
-  md <- filter(mod_all, Model %in% input$mod) %>% 
+  tosel <- strsplit(input$mod, ':')[[1]][1]
+  
+  md <- filter(mod_all, Model %in% tosel) %>% 
   .$Modobj %>% 
   .[[1]]
   
