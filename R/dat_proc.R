@@ -107,6 +107,9 @@ expdat <- read_excel('raw/experimental treatment for Marcus.xlsx') %>%
     temp_trt = ifelse(temp_trt < 10, 'lo', 'hi'),
     pco2_trt = ifelse(pco2_trt < 800, 'lo', 'hi')
   ) %>% 
-  select(CTD, temp_trt, pco2_trt, alive)
+  select(CTD, temp_trt, pco2_trt, alive) %>% 
+  group_by(CTD, temp_trt, pco2_trt) %>% 
+  summarize(alive = mean(alive)) %>% 
+  ungroup
 
 save(expdat, file = 'data/expdat.RData', compress = 'xz')
