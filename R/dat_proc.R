@@ -3,9 +3,10 @@ library(tidyverse)
 
 # environmental data
 envdat <- read_excel('raw/MeanSurface100m2016WCOA.xlsx') %>% 
-  select(`CTD Station`, `'pCO2'`, `'pH'`, `'CO3'`, `'Fluorescence'`, `'Aragonite'`, `'Oxygen'`, `'Temperature'`, `'Salinity'`, `'Alkalinity'`) %>% 
+  select(`CTD Station`, `Latitude`, `'pCO2'`, `'pH'`, `'CO3'`, `'Fluorescence'`, `'Aragonite'`, `'Oxygen'`, `'Temperature'`, `'Salinity'`, `'Alkalinity'`) %>% 
   rename(
-    CTD = `CTD Station`, 
+    CTD = `CTD Station`,
+    Lat = `Latitude`,
     Ara = `'Aragonite'`, 
     O2 = `'Oxygen'`,
     pH = `'pH'`,

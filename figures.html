@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title></title>
+
+<script src="figures_files/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="figures_files/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="figures_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="figures_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="figures_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="figures_files/navigation-1.1/tabsets.js"></script>
+<script src="figures_files/navigation-1.1/codefolding.js"></script>
+<link href="figures_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="figures_files/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+
+
+
+
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+
+</div>
+
+
+<div id="pteropod-stressor-interaction-figures" class="section level1">
+<h1>Pteropod stressor interaction: figures</h1>
+<pre class="r"><code>library(tidyverse)
+library(vegan)
+library(ggord)
+library(scales)
+library(effects)
+library(knitr)
+library(gridExtra)
+
+source(&quot;R/funcs.R&quot;)
+
+opts_chunk$set(fig.align = &#39;center&#39;, message = F, echo = T, cache = F, dev = &#39;png&#39;, dev.args = list(family = &#39;serif&#39;), dpi = 400, fig.pos = &#39;!h&#39;, warning = F, background = &#39;white&#39;, out.width = &#39;100%&#39;,
+               fig.process = function(x) {
+                 x2 = sub(&#39;-\\d+([.][a-z]+)$&#39;, &#39;\\1&#39;, x)
+                 if (file.rename(x, x2)) x2 else x
+               })
+
+data(envdat)
+data(ptedat)
+
+envchr &lt;- c(&#39;Lat&#39;, &#39;pCO2&#39;, &#39;pH&#39;, &#39;CO3&#39;, &#39;Ara&#39;, &#39;O2&#39;, &#39;Temp&#39;, &#39;Fluor&#39;)
+biochr &lt;- c(&#39;CAT&#39;, &#39;GR&#39;, &#39;GSHonGSSG&#39;, &#39;GST&#39;, &#39;LPX&#39;, &#39;ORAC&#39;, &#39;SOD&#39;, &#39;ORACvLPX&#39;)
+phychr &lt;- c(&#39;abu&#39;, &#39;dis&#39;, &#39;len&#39;, &#39;ty2&#39;, &#39;ty3&#39;, &#39;scr&#39;)</code></pre>
+<pre class="r"><code># biomarker rda model
+dat_bio &lt;- ptedat %&gt;% 
+  select(one_of(&#39;CTD&#39;, biochr)) %&gt;% 
+  na.omit %&gt;% 
+  inner_join(envdat, by = &#39;CTD&#39;) %&gt;% 
+  select(one_of(c(&#39;CTD&#39;, envchr, biochr))) %&gt;% 
+  data.frame %&gt;% 
+  remove_rownames %&gt;% 
+  column_to_rownames(&#39;CTD&#39;)
+
+envphy &lt;- select(dat_bio, one_of(envchr)) %&gt;% 
+  select(-Lat) %&gt;% 
+  decostand(method = &#39;range&#39;)
+ptephy &lt;- select(dat_bio, one_of(biochr)) %&gt;% 
+  decostand(method = &#39;range&#39;)
+
+biomod &lt;- rda(ptephy, envphy)
+
+# physiology rda model
+dat_phy &lt;- ptedat %&gt;% 
+  select(one_of(&#39;CTD&#39;, phychr)) %&gt;% 
+  na.omit %&gt;% 
+  inner_join(envdat, by = &#39;CTD&#39;) %&gt;% 
+  select(one_of(c(&#39;CTD&#39;, envchr, phychr))) %&gt;% 
+  data.frame %&gt;% 
+  remove_rownames %&gt;% 
+  column_to_rownames(&#39;CTD&#39;)
+
+envphy &lt;- select(dat_phy, one_of(envchr)) %&gt;% 
+  select(-Lat) %&gt;% 
+  decostand(method = &#39;range&#39;)
+ptephy &lt;- select(dat_phy, one_of(phychr)) %&gt;% 
+  decostand(method = &#39;range&#39;)
+
+phymod &lt;- rda(ptephy, envphy)</code></pre>
+<p>RDA plots:</p>
+<pre class="r"><code># globals
+coord_fix &lt;- F
+repel &lt;- F
+addsize &lt;- 3
+alpha &lt;- 0.8
+arrow &lt;- 0.3
+cols &lt;- &#39;lightblue&#39;
+
+p1a &lt;- ggord(biomod, ptslab = T, parse = T, repel = repel, coord_fix = coord_fix, addsize = addsize, size = dat_bio$Lat, sizelab = &#39;Latitude&#39;, alpha = alpha, arrow = arrow, ellipse = F) + 
+  ggtitle(&#39;(a) Cellular stressors&#39;)
+p2a &lt;- ggord(phymod, ptslab = T, parse = T, repel = repel, coord_fix = coord_fix, addsize = addsize, size = dat_phy$Lat, sizelab = &#39;Latitude&#39;, alpha = alpha, arrow = arrow, ellipse = F) + 
+  ggtitle(&#39;(b) Physiological stressors&#39;)
+
+grid.arrange(p1a, p2a, ncol = 2)</code></pre>
+<p><img src="figures_files/figure-html/rda_plt.png" width="100%" style="display: block; margin: auto;" /></p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
