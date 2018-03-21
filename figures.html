@@ -147,6 +147,7 @@ library(scales)
 library(effects)
 library(knitr)
 library(gridExtra)
+library(grid)
 
 source(&quot;R/funcs.R&quot;)
 
@@ -213,6 +214,94 @@ p2a &lt;- ggord(phymod, ptslab = T, parse = T, repel = repel, coord_fix = coord_
 
 grid.arrange(p1a, p2a, ncol = 2)</code></pre>
 <p><img src="figures_files/figure-html/rda_plt.png" width="100%" style="display: block; margin: auto;" /></p>
+<p>Heatmaps of correlations:</p>
+<pre class="r"><code># physiology rda model
+dat_cor &lt;- ptedat %&gt;% 
+  select(one_of(&#39;CTD&#39;, phychr, biochr)) %&gt;% 
+  # na.omit %&gt;% 
+  left_join(envdat, by = &#39;CTD&#39;) %&gt;% 
+  data.frame %&gt;% 
+  remove_rownames %&gt;% 
+  column_to_rownames(&#39;CTD&#39;)
+
+# all correlations
+crs &lt;- crossing(var1 = names(dat_cor), var2 = names(dat_cor)) %&gt;% 
+  filter(var1 != var2) %&gt;% 
+  rownames_to_column() %&gt;% 
+  group_by(rowname) %&gt;% 
+  nest %&gt;% 
+  mutate(
+    crs = map(data, function(x){
+      
+      # variables
+      vr1 &lt;- dat_cor[[x$var1]]
+      vr2 &lt;- dat_cor[[x$var2]]
+      
+      # pearson
+      pr_ts &lt;- cor.test(vr1, vr2, method = &#39;pearson&#39;)
+      pr_cr &lt;- round(pr_ts$estimate, 2)
+      pr_pv &lt;- p_ast(pr_ts$p.value)
+      pr &lt;- paste(pr_cr, pr_pv)
+    
+      out &lt;- data.frame(pr = pr, stringsAsFactors = F)
+      return(out)
+      
+    })
+  ) %&gt;% 
+  unnest %&gt;% 
+  select(-rowname)</code></pre>
+<pre class="r"><code>levs &lt;- c(sort(envchr), sort(biochr), sort(phychr))
+prplo &lt;- crs %&gt;% 
+  separate(pr, c(&#39;cor&#39;, &#39;sig&#39;), sep = &#39; &#39;) %&gt;% 
+  filter(var1 %in% levs &amp; var2 %in% levs) %&gt;% 
+  mutate(
+    cor = as.numeric(cor), 
+    var1 = factor(var1, levels = rev(levs)), 
+    var2 = factor(var2, levels = rev(levs)), 
+    sig = gsub(&#39;ns&#39;, &#39;&#39;, sig)
+  )
+
+pbase &lt;- theme(
+  panel.grid.major = element_blank(), 
+  panel.grid.minor = element_blank(), 
+  axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
+  axis.text.y = element_text(size = 8),
+  legend.position = &#39;top&#39;, 
+  plot.margin = unit(c(0,4,0,0), &quot;lines&quot;),
+  strip.background = element_blank(), 
+  strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
+  panel.background = element_rect(fill = &#39;black&#39;)
+  ) 
+
+outlab &lt;- data.frame(
+  y = c(3.5, 10.5, 18.5), 
+  lab = c(&#39;Physiology&#39;, &#39;Cellular&#39;, &#39;Environment&#39;)
+)
+
+p &lt;- ggplot(prplo) + 
+  geom_tile(aes(y = var1, x = var2, fill = cor), colour = &#39;black&#39;) + 
+  geom_text(aes(y = var1, x = var2, label = sig)) +
+  annotation_custom(grob = textGrob(label = outlab$lab[1], hjust = 0, gp = gpar(cex = 0.7)),
+                    ymin = outlab$y[1], ymax = outlab$y[1], xmin = 23, xmax = 23) +
+  annotation_custom(grob = textGrob(label = outlab$lab[2], hjust = 0, gp = gpar(cex = 0.7)),
+                    ymin = outlab$y[2], ymax = outlab$y[2], xmin = 23, xmax = 23) +  
+  annotation_custom(grob = textGrob(label = outlab$lab[3], hjust = 0, gp = gpar(cex = 0.7)),
+                    ymin = outlab$y[3], ymax = outlab$y[3], xmin = 23, xmax = 23) +
+  pbase +
+  scale_y_discrete(&#39;&#39;, expand = c(0, 0)) + 
+  scale_x_discrete(&#39;&#39;, expand = c(0, 0)) +
+  scale_fill_gradient2(&#39;Correlation&#39;, low = muted(&quot;blue&quot;), mid = &quot;white&quot;, high = muted(&quot;red&quot;), midpoint = 0) +
+  guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0))) +
+  geom_hline(yintercept = 6.5, size = 1.5) +
+  geom_hline(yintercept = 14.5, size = 1.5) +
+  geom_vline(xintercept = 6.5, size = 1.5) +
+  geom_vline(xintercept = 14.5, size = 1.5) 
+
+# Code to override clipping
+gt &lt;- ggplot_gtable(ggplot_build(p))
+gt$layout$clip[gt$layout$name == &quot;panel&quot;] &lt;- &quot;off&quot;
+grid.draw(gt)</code></pre>
+<p><img src="figures_files/figure-html/corplo.png" width="100%" style="display: block; margin: auto;" /></p>
 </div>
 
 
