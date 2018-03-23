@@ -382,6 +382,13 @@ env_cmb <- names(env) %>%
   data.frame(stringsAsFactors = F) %>% 
   as.list
 
+# # back-transform abu for models
+# dat_frm <- dat_frm %>% 
+#   mutate(
+#     abu = (10^abu) - 1,
+#     abu = as.integer(round(abu, 0))
+#   )
+#   
 # models
 mod_all <- env_cmb %>%
   map(function(x){
@@ -390,8 +397,19 @@ mod_all <- env_cmb %>%
     frm <- paste(x[1], '~', x[2], '*', x[3]) %>% 
       as.formula
     
-    # model only
-    lm(frm, data = dat_frm)
+    # if(x[1] == 'abu'){
+    #   
+    #   # zinf model
+    #   out <- zeroinfl(frm, data = dat_frm)
+    # 
+    # } else {
+    
+      # model only
+      out <- lm(frm, data = dat_frm)
+      
+    # }
+    
+    return(out)
     
   }) %>% 
   enframe('Model', 'Modobj') %>% 
