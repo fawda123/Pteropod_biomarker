@@ -73,7 +73,7 @@ phymod <- rda(ptephy, envphy)
 
 ```
 
-```{r rda_plt, fig.height = 4.5, fig.width = 9}
+```{r rdaplo, fig.height = 4.5, fig.width = 9}
 # globals
 coord_fix <- F
 repel <- F

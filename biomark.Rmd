@@ -25,6 +25,7 @@ source("R/funcs.R")
 
 data(envdat)
 data(ptedat)
+data(biomod)
 
 envchr <- c('pCO2', 'pH', 'CO3', 'Ara', 'O2', 'Temp', 'Fluor')
 ptechr <- c('CAT', 'GR', 'GSHonGSSG', 'GST', 'LPX', 'ORAC', 'SOD', 'ORACvLPX')
@@ -253,66 +254,13 @@ knitr::kable(vifv, caption = 'VIF')
 # {.tabset}
 
 Pairwise models with interactions for each biomarker
-```{r}
-# variables to model, chr strings only
-env_cmb <- names(env) %>% 
-  combn(2) %>% 
-  t %>% 
-  data.frame(stringsAsFactors = F) %>%
-  crossing(names(pte), .) %>% 
-  t %>% 
-  data.frame(stringsAsFactors = F) %>% 
-  as.list
 
-# models
-mod_all <- env_cmb %>%
-  map(function(x){
-    
-    # formula
-    frm <- paste(x[1], '~', x[2], '*', x[3]) %>% 
-      as.formula
-    
-    # model only
-    lm(frm, data = dat_frm)
-    
-  }) %>% 
-  enframe('Model', 'Modobj') %>% 
-  mutate(
-    Model = gsub('^X', 'mod', Model), 
-    data = map(Modobj, function(x){
-      
-      # response
-      yvar <- all.vars(formula(x))[1]
-     
-      # rsq
-      rsq <- summary(x) %>% 
-        .$r.squared
-      
-      # coeff summary
-      out <- x %>% 
-        summary %>% 
-        .$coefficients %>% 
-        .[-1, c(1, 4)] %>% 
-        data.frame %>% 
-        rownames_to_column('env_lab') %>% 
-        mutate(
-          pte_lab = yvar,
-          Rsq = round(rsq, 2),
-          Est = round(Estimate, 2), 
-          Pvl = p_ast(Pr...t..)
-        ) %>% 
-        select(pte_lab, env_lab, Rsq, Est, Pvl)
-    
-    return(out)
-      
-    })
-  ) 
-mods <- mod_all %>% 
+```{r}
+# model data
+mods <- biomod %>% 
   unnest(data)
+mod_all <- biomod
 
-```
-
-```{r}
 selectInput("mod", "Choose model:", paste0('mod', seq(1:nrow(mods))))
 
 md <- reactive({
