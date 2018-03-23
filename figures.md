@@ -29,6 +29,8 @@ opts_chunk$set(fig.align = 'center', message = F, echo = T, cache = F, dev = 'pn
 
 data(envdat)
 data(ptedat)
+data(phymod)
+data(biomod)
 
 envchr <- c('Lat', 'pCO2', 'pH', 'CO3', 'Ara', 'O2', 'Temp', 'Fluor')
 biochr <- c('CAT', 'GR', 'GSHonGSSG', 'GST', 'LPX', 'ORAC', 'SOD', 'ORACvLPX')
@@ -53,7 +55,7 @@ envphy <- select(dat_bio, one_of(envchr)) %>%
 ptephy <- select(dat_bio, one_of(biochr)) %>% 
   decostand(method = 'range')
 
-biomod <- rda(ptephy, envphy)
+biorda<- rda(ptephy, envphy)
 
 # physiology rda model
 dat_phy <- ptedat %>% 
@@ -71,7 +73,7 @@ envphy <- select(dat_phy, one_of(envchr)) %>%
 ptephy <- select(dat_phy, one_of(phychr)) %>% 
   decostand(method = 'range')
 
-phymod <- rda(ptephy, envphy)
+phyrda <- rda(ptephy, envphy)
 ```
 
 
@@ -84,15 +86,15 @@ alpha <- 0.8
 arrow <- 0.3
 cols <- 'lightblue'
 
-p1a <- ggord(biomod, ptslab = T, parse = T, repel = repel, coord_fix = coord_fix, addsize = addsize, size = dat_bio$Lat, sizelab = 'Latitude', alpha = alpha, arrow = arrow, ellipse = F) + 
+p1a <- ggord(biorda, ptslab = T, parse = T, repel = repel, coord_fix = coord_fix, addsize = addsize, size = dat_bio$Lat, sizelab = 'Latitude', alpha = alpha, arrow = arrow, ellipse = F) + 
   ggtitle('(a) Cellular endpoints')
-p2a <- ggord(phymod, ptslab = T, parse = T, repel = repel, coord_fix = coord_fix, addsize = addsize, size = dat_phy$Lat, sizelab = 'Latitude', alpha = alpha, arrow = arrow, ellipse = F) + 
+p2a <- ggord(phyrda, ptslab = T, parse = T, repel = repel, coord_fix = coord_fix, addsize = addsize, size = dat_phy$Lat, sizelab = 'Latitude', alpha = alpha, arrow = arrow, ellipse = F) + 
   ggtitle('(b) Physiological endpoints')
 
 grid.arrange(p1a, p2a, ncol = 2)
 ```
 
-<img src="figures_files/figure-html/rda_plt.png" width="100%" style="display: block; margin: auto;" />
+<img src="figures_files/figure-html/rdaplo.png" width="100%" style="display: block; margin: auto;" />
 
 Fig. 1 Results of redundancy analyses for environmental variables with (a) cellular and (b) physiological endpoints of pteropod response to OA stressors.  Points are site locations in multivariate space with the size proportional to latitude. Separate RDAs were created for cellular and physiological endpoints because not all data were available across all stations.   
 
@@ -196,88 +198,108 @@ Fig. 2 Correlation matrix of environmental variables, cellular response endpoint
 
 
 ```r
-# abu, no syngeristics
-data(modex1)
+# cellular 92 (lpx, ara, ph - syn), 101 (lpx, ara, t - neg add), 164 (sod, ara, t, neg but no thrsh) 
+biosel <- biomod %>% 
+  filter(Model %in% paste0('mod', c(92, 101, 164))) %>% 
+  dplyr::select(-data)
 
-# lpx, synergistic
-data(modex2)
+cols <- RColorBrewer::brewer.pal(9, 'RdBu')
 
+##
+# plots
 
-x <- modex2$model %>% 
-  .[, -1] %>% 
-  data.frame %>% 
-  as.list %>% 
-  map(range) %>%
-  map(function(x) seq(x[1], x[2], length = 100))
-
-x$pH <- modex2$model$pH %>% quantile
-
-nms <- names(x) 
-x <- crossing(x[[1]], x[[2]])
-names(x) <- nms
-
-prd_vl <- predict(modex2, newdata = x) %>% 
-  data.frame(., x)
-names(prd_vl)[1] <- all.vars(formula(modex2))[1]
-
-toplo <- prd_vl
-
-yval <- toplo %>% group_by(pH) %>% summarize(LPX = min(LPX))
-xlab <- data.frame(
-  lab = rev(c('Max', '75th', 'Med', '25th', 'Min')), 
-  x = 1.23, y = yval$LPX,
-  stringsAsFactors = F)
-xlab[1, 3] <- 4.2
+# mod 92 cell (lpx, ara, ph - syn)
+pl1 <- filter(biosel, grepl('92$', Model)) %>% 
+  .$Modobj %>% 
+  .[[1]] %>% 
+  get_pldat(., 'pH')
 
 p1 <- ggplot() +
-  geom_line(data = toplo, aes(x = Ara, y = LPX, group = pH, colour = pH), size = 1) + 
-  geom_text(data = xlab, aes(x= x, y = y, label = lab), hjust = 1) +
+  geom_line(data = pl1[[1]], aes(x = Ara, y = LPX, group = pH, colour = pH), size = 1) + 
+  geom_text(data = pl1[[2]], aes(x= x, y = y, label = lab), hjust = 0) +
   theme_bw() +
-  coord_cartesian(xlim = c(1.2, 1.75)) +
-  xlab(expression(Omega[AR])) +
-  scale_colour_gradientn(colours = RColorBrewer::brewer.pal(9, 'RdBu')) +
-  ggtitle("(a) Mitigating effect of pH on low\n aragonite saturation, synergistic")
+  scale_x_continuous(expression(Omega[Ar])) +
+  scale_colour_gradientn(colours = cols) + 
+  scale_y_continuous('LPX') +
+  ggtitle("(a) Synergistic effect of pH on aragonite\nsaturation")
 
-# abu additive
-data(modex1)
-
-
-x <- modex1$model %>% 
-  .[, -1] %>% 
-  data.frame %>% 
-  as.list %>% 
-  map(range) %>%
-  map(function(x) seq(x[1], x[2], length = 100))
-
-x$O2 <- modex1$model$O2 %>% quantile
-
-nms <- names(x) 
-x <- crossing(x[[1]], x[[2]])
-names(x) <- nms
-
-prd_vl <- predict(modex1, newdata = x, type = 'response') %>% 
-  data.frame(., x)
-names(prd_vl)[1] <- all.vars(formula(modex1))[1]
-
-toplo <- prd_vl
-
-yval <- toplo %>% group_by(O2) %>% summarize(abu = min(abu))
-xlab <- data.frame(
-  lab = rev(c('Max', '75th', 'Med', '25th', 'Min')), 
-  x = 390, y = yval$abu,
-  stringsAsFactors = F)
+# mod 101 cell (lpx, ara, t - neg add), 164 (sod, ara, t, neg but no thrsh) 
+pl2 <- filter(biosel, grepl('101$', Model)) %>% 
+  .$Modobj %>% 
+  .[[1]] %>% 
+  get_pldat(., 'Temp')
 
 p2 <- ggplot() +
-  geom_line(data = toplo, aes(x = pCO2, y = abu, group = O2, colour = O2), size = 1) + 
-  geom_text(data = xlab, aes(x= x, y = y, label = lab), hjust = 1) +
+  geom_line(data = pl2[[1]], aes(x = Ara, y = LPX, group = Temp, colour = Temp), size = 1) + 
+  geom_text(data = pl2[[2]], aes(x= x, y = y, label = lab), hjust = 0) +
   theme_bw() +
-  coord_cartesian(xlim = c(360, 860)) +
-  scale_colour_gradientn(colours = RColorBrewer::brewer.pal(9, 'RdBu')) + 
-  scale_y_continuous('Pteropod abundance') +
-  ggtitle("(b) Mitigating effect of oxygen on\nOA stress, additive")
+  scale_x_continuous(expression(Omega[Ar])) +
+  scale_colour_gradientn(colours = cols) + 
+  scale_y_continuous('LPX') +
+  ggtitle("(b) Negative additive effect below threshold of\n temperature on aragonite saturation")
 
-grid.arrange(p1, p2, ncol = 2)
+# mod 164 cell (sod, ara, t, neg but no thrsh) 
+pl3 <- filter(biosel, grepl('164$', Model)) %>% 
+  .$Modobj %>% 
+  .[[1]] %>% 
+  get_pldat(., 'Temp')
+
+p3 <- ggplot() +
+  geom_line(data = pl3[[1]], aes(x = Ara, y = SOD, group = Temp, colour = Temp), size = 1) + 
+  geom_text(data = pl3[[2]], aes(x= x, y = y, label = lab), hjust = 0) +
+  theme_bw() +
+  scale_x_continuous(expression(Omega[Ar])) +
+  scale_colour_gradientn(colours = cols) + 
+  scale_y_continuous('SOD') +
+  ggtitle("(c) Negative additive effect of temperature on \naragonite saturation")
+
+grid.arrange(p1, p2, p3, ncol = 2)
 ```
 
-<img src="figures_files/figure-html/effplo.png" width="100%" style="display: block; margin: auto;" />
-Fig. 3 Examples of model interactions of co-occuring environmental variables on pteropod response measures.  Plot (a) shows a synergistic effect between pH and aragonite saturation on LPX expression.  Plot (b) shows an additive response of oxyxgen and OA stress (pCO2) on pteropod abundance.  Both y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum, 25th, median, 75th, and maximum values in the observed data.
+<img src="figures_files/figure-html/effbio.png" width="100%" style="display: block; margin: auto;" />
+Fig. 3 Examples of model interactions of co-occuring environmental variables on cellular response measures.  Each subplot shows a different relationship as either additive or synergistic effects between the variables. All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum, 25th, median, 75th, and maximum values in the observed data.
+
+
+```r
+# physio 4 (abu, o2, pco2 - pos additive), 38 (dis, ara, t - syn)
+physel <- phymod %>% 
+  filter(Model %in% paste0('mod', c(4, 38))) %>% 
+  dplyr::select(-data)
+
+cols <- RColorBrewer::brewer.pal(9, 'RdBu')
+
+# mod 4 physio (abu, o2, pco2 - pos additive)
+pl4 <- filter(physel, grepl('4$', Model)) %>% 
+  .$Modobj %>% 
+  .[[1]] %>% 
+  get_pldat(., 'O2', fct = 0.85)
+
+p4 <- ggplot() +
+  geom_line(data = pl4[[1]], aes(x = pCO2, y = abu, group = O2, colour = O2), size = 1) + 
+  geom_text(data = pl4[[2]], aes(x= x, y = y, label = lab), hjust = 0) +
+  theme_bw() +
+  scale_colour_gradientn(colours = cols) + 
+  scale_y_continuous('Abundance') +
+  ggtitle("(a) Positive additive effect of O2 on\npCO2 stress")
+
+# mod 38 physio (dis, ara, t - syn)
+pl5 <- filter(physel, grepl('38$', Model)) %>% 
+  .$Modobj %>% 
+  .[[1]] %>% 
+  get_pldat(., 'Temp', 'right', fct = 1.05)
+
+p5 <- ggplot() +
+  geom_line(data = pl5[[1]], aes(x = Ara, y = dis, group = Temp, colour = Temp), size = 1) + 
+  geom_text(data = pl5[[2]], aes(x= x, y = y, label = lab), hjust = 1) +
+  theme_bw() +
+  scale_colour_gradientn(colours = cols) + 
+  scale_y_continuous('Shell dissolution') +
+  scale_x_continuous(expression(Omega[Ar])) +
+  ggtitle("(b) Synergistic effect of temperature on \naragonite saturation")
+
+grid.arrange(p4, p5, ncol = 2)
+```
+
+<img src="figures_files/figure-html/effphy.png" width="100%" style="display: block; margin: auto;" />
+Fig. 4 Examples of model interactions of co-occuring environmental variables on abundance and shell dissolution. Each subplot shows a different relationship as either additive or synergistic effects between the variables. All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum, 25th, median, 75th, and maximum values in the observed data.
+

@@ -76,3 +76,64 @@ vif_func<-function(in_frame,thresh=10,trace=T,...){
   }
   
 }
+
+# Data to plot for effects
+#
+# modin lm model
+# cvar chr string of variable to hold constant
+# pos is where the labels are, left or right of effects line
+# fct is scaling factor for labels from end of lines
+get_pldat <- function(modin, cvar, pos = c('left', 'right'), fct = NULL){
+  
+  pos <- match.arg(pos)
+  
+  # crossing of model data by range
+  x <- modin$model %>% 
+    .[, -1] %>% 
+    data.frame %>% 
+    as.list %>% 
+    map(range) %>%
+    map(function(x) seq(x[1], x[2], length = 100))
+  
+  # quantiles for cvar
+  x[[cvar]] <- modin$model[[cvar]]%>% quantile
+  
+  # make data frame
+  nms <- names(x) 
+  x <- crossing(x[[1]], x[[2]])
+  names(x) <- nms
+  
+  # get predictions, combine with exp vars
+  prd_vl <- predict(modin, newdata = x) %>% 
+    data.frame(., x)
+  names(prd_vl)[1] <- all.vars(formula(modin))[1]
+  
+  # min x axis values for quantile labels
+  yvar <- names(prd_vl)[1]
+  xvar <- all.vars(formula(modin))
+  xvar <- xvar[!xvar %in% c(yvar, cvar)]
+
+  locs <- prd_vl %>% 
+    group_by(.dots = list(cvar))   
+  if(pos == 'right'){
+    if(is.null(fct)) fct <- 1.05
+    locs <- filter(locs, row_number() == n())
+  } else {
+    if(is.null(fct)) fct <- 0.95
+    locs <- filter(locs, row_number() == 1)
+  }
+  
+  yval <- locs[[yvar]]
+  xval <- locs[[xvar]] %>% unique %>% `*`(fct)
+  xlab <- data.frame(
+    lab = c('Max', '75th', 'Med', '25th', 'Min'), 
+    x = xval, y = yval,
+    stringsAsFactors = F)
+  dr <- locs[[cvar]] %>% range %>% diff %>% sign
+  if(dr == 1) xlab$lab <- rev(xlab$lab)
+  
+  # output
+  out <- list(prd_vl = prd_vl, xlab = xlab)
+  return(out)
+  
+}
