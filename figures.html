@@ -379,7 +379,7 @@ p4 &lt;- ggplot() +
   theme_bw() +
   scale_colour_gradientn(colours = cols) + 
   scale_y_continuous(&#39;Abundance&#39;) +
-  ggtitle(&quot;(a) Positive additive effect of O2 on\npCO2 stress&quot;)
+  ggtitle(&quot;(a) Synergistic effect of O2 on\npCO2 stress&quot;)
 
 # mod 38 physio (dis, ara, t - syn)
 pl5 &lt;- filter(physel, grepl(&#39;38$&#39;, Model)) %&gt;% 
@@ -398,6 +398,520 @@ p5 &lt;- ggplot() +
 
 grid.arrange(p4, p5, ncol = 2)</code></pre>
 <p><img src="figures_files/figure-html/effphy.png" width="100%" style="display: block; margin: auto;" /> Fig. 4 Examples of model interactions of co-occuring environmental variables on abundance and shell dissolution. Each subplot shows a different relationship as either additive or synergistic effects between the variables. All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum, 25th, median, 75th, and maximum values in the observed data.</p>
+<pre class="r"><code>mods &lt;- readxl::read_excel(&#39;raw/info for table.xlsx&#39;) %&gt;% 
+  .[-1, -1] %&gt;% 
+  gather(&#39;var&#39;, &#39;Model&#39;, everything()) %&gt;% 
+  mutate(
+    org = ifelse(var %in% c(&#39;abundance&#39;, &#39;dissolution&#39;, &#39;length&#39;), &#39;phy&#39;, &#39;bio&#39;),
+    Model = paste0(&#39;mod&#39;, Model)
+    ) %&gt;% 
+  split(.$org)
+
+biotab &lt;- mods$bio %&gt;% 
+  left_join(biomod, by = &#39;Model&#39;) %&gt;% 
+  select(Model, data) %&gt;%
+  mutate(data = map(data, function(x){
+    x %&gt;% mutate(vr = seq(1:nrow(.)))
+  })) %&gt;% 
+  unnest %&gt;% 
+  mutate(
+    Model = gsub(&#39;mod&#39;, &#39;&#39;, Model),
+    Model = as.numeric(Model)
+    ) %&gt;% 
+  group_by(Model) %&gt;% 
+  mutate(
+    Pvl = gsub(&#39;ns&#39;, &#39;&#39;, Pvl), 
+    Rsq = ifelse(duplicated(Rsq), &#39;&#39;, Rsq)
+    ) %&gt;% 
+  ungroup %&gt;% 
+  unite(&#39;Est&#39;, Est, Pvl, sep = &#39;&#39;) %&gt;% 
+  gather(&#39;estnm&#39;, &#39;estvl&#39;, Rsq, Est) %&gt;% 
+  unite(&#39;est&#39;, pte_lab, estnm, sep = &#39;, &#39;, remove = F) %&gt;% 
+  select(-estnm) %&gt;% 
+  split(.$pte_lab) %&gt;%
+  lapply(., function(x){
+    
+    out &lt;- spread(x, est, estvl) %&gt;% 
+      select(-pte_lab) %&gt;%
+      arrange(Model, vr) %&gt;% 
+      select(-vr, -Model)
+    
+    if(!any(grepl(&#39;^LPX&#39;, names(out))))
+      out &lt;- out %&gt;% 
+        select(-env_lab)
+    
+    return(out)  
+    
+  }) %&gt;% 
+  do.call(&#39;cbind&#39;, .) %&gt;% 
+  mutate(
+    Model = rep(letters[1:(nrow(.)/3)], each = 3),
+    Model = paste0(&#39;(&#39;, Model, &#39;)&#39;),
+    Model = ifelse(duplicated(Model), &#39;&#39;, Model)
+  ) %&gt;% 
+  select(Model, everything())
+
+names(biotab) &lt;- gsub(&#39;^.*\\.&#39;, &#39;&#39;, names(biotab))
+vrs &lt;- gsub(&#39;(^.*),\\s.*$&#39;, &#39;\\1&#39;, names(biotab))
+vrs[duplicated(vrs)] &lt;- &#39;&#39;
+vrs &lt;- paste0(vrs, &#39;&lt;br&gt;&#39;)
+vrs[vrs %in% &#39;env_lab&lt;br&gt;&#39;] &lt;- &#39;Parameter&lt;br&gt;&#39;
+vrs2 &lt;- gsub(&#39;^.*,\\s|Model|env_lab&#39;, &#39;&#39;, names(biotab))
+vrs &lt;- paste(vrs, vrs2, sep = &#39;&#39;)
+  
+names(biotab) &lt;- vrs
+
+knitr::kable(biotab)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Model<br></th>
+<th align="left">Parameter<br></th>
+<th align="left">LPX<br>Est</th>
+<th align="left"><br>Rsq</th>
+<th align="left">ORAC<br>Est</th>
+<th align="left"><br>Rsq</th>
+<th align="left">ORACvLPX<br>Est</th>
+<th align="left"><br>Rsq</th>
+<th align="left">SOD<br>Est</th>
+<th align="left"><br>Rsq</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(a)</td>
+<td align="left">pCO2</td>
+<td align="left">0.05*</td>
+<td align="left">0.65</td>
+<td align="left">0.31</td>
+<td align="left">0.57</td>
+<td align="left">-0.86</td>
+<td align="left">0.51</td>
+<td align="left">0.19</td>
+<td align="left">0.52</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">Ara</td>
+<td align="left">17.71</td>
+<td align="left"></td>
+<td align="left">246.29</td>
+<td align="left"></td>
+<td align="left">-271.39</td>
+<td align="left"></td>
+<td align="left">72.58</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">pCO2:Ara</td>
+<td align="left">-0.03</td>
+<td align="left"></td>
+<td align="left">0.06</td>
+<td align="left"></td>
+<td align="left">0.43</td>
+<td align="left"></td>
+<td align="left">-0.03</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">(b)</td>
+<td align="left">pCO2</td>
+<td align="left">0</td>
+<td align="left">0.87</td>
+<td align="left">-0.61</td>
+<td align="left">0.15</td>
+<td align="left">0.51</td>
+<td align="left">0.91</td>
+<td align="left">-0.23</td>
+<td align="left">0.57</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">O2</td>
+<td align="left">-0.04</td>
+<td align="left"></td>
+<td align="left">-1.49</td>
+<td align="left"></td>
+<td align="left">2.66*</td>
+<td align="left"></td>
+<td align="left">-0.96</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">pCO2:O2</td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">0</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">(c)</td>
+<td align="left">pCO2</td>
+<td align="left">0.09</td>
+<td align="left">0.62</td>
+<td align="left">-0.5</td>
+<td align="left">0.47</td>
+<td align="left">-0.98</td>
+<td align="left">0.55</td>
+<td align="left">-0.23</td>
+<td align="left">0.66</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">Temp</td>
+<td align="left">4.77</td>
+<td align="left"></td>
+<td align="left">5.68</td>
+<td align="left"></td>
+<td align="left">-58.87</td>
+<td align="left"></td>
+<td align="left">-5.39</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">pCO2:Temp</td>
+<td align="left">-0.01</td>
+<td align="left"></td>
+<td align="left">0.06</td>
+<td align="left"></td>
+<td align="left">0.08</td>
+<td align="left"></td>
+<td align="left">0.03</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">(d)</td>
+<td align="left">pH</td>
+<td align="left">-101.03*</td>
+<td align="left">0.72</td>
+<td align="left">-810.38</td>
+<td align="left">0.58</td>
+<td align="left">1876.68</td>
+<td align="left">0.6</td>
+<td align="left">-475.74</td>
+<td align="left">0.59</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Ara</td>
+<td align="left">-406.15*</td>
+<td align="left"></td>
+<td align="left">555</td>
+<td align="left"></td>
+<td align="left">6496.4</td>
+<td align="left"></td>
+<td align="left">-619.83</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">pH:Ara</td>
+<td align="left">51.79*</td>
+<td align="left"></td>
+<td align="left">-25.27</td>
+<td align="left"></td>
+<td align="left">-835.38</td>
+<td align="left"></td>
+<td align="left">90.07</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">(e)</td>
+<td align="left">pH</td>
+<td align="left">11.41</td>
+<td align="left">0.94</td>
+<td align="left">1794.69</td>
+<td align="left">0.29</td>
+<td align="left">-1034.57</td>
+<td align="left">0.91</td>
+<td align="left">584.91</td>
+<td align="left">0.68</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">O2</td>
+<td align="left">-1.18*</td>
+<td align="left"></td>
+<td align="left">33.71</td>
+<td align="left"></td>
+<td align="left">7.48</td>
+<td align="left"></td>
+<td align="left">7.4</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">pH:O2</td>
+<td align="left">0.13*</td>
+<td align="left"></td>
+<td align="left">-4.46</td>
+<td align="left"></td>
+<td align="left">-0.53</td>
+<td align="left"></td>
+<td align="left">-1.06</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">(f)</td>
+<td align="left">pH</td>
+<td align="left">-163.87</td>
+<td align="left">0.68</td>
+<td align="left">824.67</td>
+<td align="left">0.45</td>
+<td align="left">2025.87</td>
+<td align="left">0.62</td>
+<td align="left">240.63</td>
+<td align="left">0.65</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Temp</td>
+<td align="left">-123.79</td>
+<td align="left"></td>
+<td align="left">842.19</td>
+<td align="left"></td>
+<td align="left">1314.98</td>
+<td align="left"></td>
+<td align="left">358.65</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">pH:Temp</td>
+<td align="left">15.63</td>
+<td align="left"></td>
+<td align="left">-101.23</td>
+<td align="left"></td>
+<td align="left">-168.02</td>
+<td align="left"></td>
+<td align="left">-43.4</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">(g)</td>
+<td align="left">Ara</td>
+<td align="left">-14.85</td>
+<td align="left">0.88</td>
+<td align="left">383.89</td>
+<td align="left">0.51</td>
+<td align="left">134.38</td>
+<td align="left">0.8</td>
+<td align="left">95.75</td>
+<td align="left">0.71</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">O2</td>
+<td align="left">-0.19**</td>
+<td align="left"></td>
+<td align="left">-0.1</td>
+<td align="left"></td>
+<td align="left">3.32*</td>
+<td align="left"></td>
+<td align="left">-0.41</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Ara:O2</td>
+<td align="left">0.09*</td>
+<td align="left"></td>
+<td align="left">-0.71</td>
+<td align="left"></td>
+<td align="left">-1.22</td>
+<td align="left"></td>
+<td align="left">-0.14</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">(h)</td>
+<td align="left">Ara</td>
+<td align="left">-62.93</td>
+<td align="left">0.72</td>
+<td align="left">206.6</td>
+<td align="left">0.4</td>
+<td align="left">681.44</td>
+<td align="left">0.68</td>
+<td align="left">59.34</td>
+<td align="left">0.61</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Temp</td>
+<td align="left">-8.68</td>
+<td align="left"></td>
+<td align="left">79.92</td>
+<td align="left"></td>
+<td align="left">36.91</td>
+<td align="left"></td>
+<td align="left">46.48</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">Ara:Temp</td>
+<td align="left">5.94</td>
+<td align="left"></td>
+<td align="left">-26.52</td>
+<td align="left"></td>
+<td align="left">-49.42</td>
+<td align="left"></td>
+<td align="left">-15.21</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">(i)</td>
+<td align="left">Ara</td>
+<td align="left">-4.72</td>
+<td align="left">0.58</td>
+<td align="left">66.14</td>
+<td align="left">0.28</td>
+<td align="left">137.19</td>
+<td align="left">0.69</td>
+<td align="left">-19.6</td>
+<td align="left">0.27</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">Fluor</td>
+<td align="left">-5.35</td>
+<td align="left"></td>
+<td align="left">-133.22</td>
+<td align="left"></td>
+<td align="left">345.5</td>
+<td align="left"></td>
+<td align="left">170.06</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Ara:Fluor</td>
+<td align="left">-2.21</td>
+<td align="left"></td>
+<td align="left">149.85</td>
+<td align="left"></td>
+<td align="left">-60.2</td>
+<td align="left"></td>
+<td align="left">-132.48</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">(j)</td>
+<td align="left">O2</td>
+<td align="left">-0.33*</td>
+<td align="left">0.81</td>
+<td align="left">1.64</td>
+<td align="left">0.43</td>
+<td align="left">3.98</td>
+<td align="left">0.76</td>
+<td align="left">1.13</td>
+<td align="left">0.73</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Temp</td>
+<td align="left">-6.68</td>
+<td align="left"></td>
+<td align="left">77.43</td>
+<td align="left"></td>
+<td align="left">53.74</td>
+<td align="left"></td>
+<td align="left">46.45</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">O2:Temp</td>
+<td align="left">0.03</td>
+<td align="left"></td>
+<td align="left">-0.2</td>
+<td align="left"></td>
+<td align="left">-0.32</td>
+<td align="left"></td>
+<td align="left">-0.16</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">(k)</td>
+<td align="left">O2</td>
+<td align="left">-0.04*</td>
+<td align="left">0.79</td>
+<td align="left">0.13</td>
+<td align="left">0.08</td>
+<td align="left">1.06**</td>
+<td align="left">0.91</td>
+<td align="left">-0.27</td>
+<td align="left">0.52</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">Fluor</td>
+<td align="left">-14.83</td>
+<td align="left"></td>
+<td align="left">-256.69</td>
+<td align="left"></td>
+<td align="left">656.19</td>
+<td align="left"></td>
+<td align="left">-85.16</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">O2:Fluor</td>
+<td align="left">0.03</td>
+<td align="left"></td>
+<td align="left">1.25</td>
+<td align="left"></td>
+<td align="left">-1.96</td>
+<td align="left"></td>
+<td align="left">0.26</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">(l)</td>
+<td align="left">Temp</td>
+<td align="left">-0.67</td>
+<td align="left">0.22</td>
+<td align="left">21.36</td>
+<td align="left">0.61</td>
+<td align="left">21.32</td>
+<td align="left">0.26</td>
+<td align="left">1.35</td>
+<td align="left">0.04</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Fluor</td>
+<td align="left">47.63</td>
+<td align="left"></td>
+<td align="left">-2603.6</td>
+<td align="left"></td>
+<td align="left">-756.16</td>
+<td align="left"></td>
+<td align="left">610.65</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">Temp:Fluor</td>
+<td align="left">-5.75</td>
+<td align="left"></td>
+<td align="left">294.24</td>
+<td align="left"></td>
+<td align="left">101.91</td>
+<td align="left"></td>
+<td align="left">-63.93</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
 </div>
 
 

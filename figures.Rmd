@@ -270,7 +270,7 @@ p4 <- ggplot() +
   theme_bw() +
   scale_colour_gradientn(colours = cols) + 
   scale_y_continuous('Abundance') +
-  ggtitle("(a) Positive additive effect of O2 on\npCO2 stress")
+  ggtitle("(a) Synergistic effect of O2 on\npCO2 stress")
 
 # mod 38 physio (dis, ara, t - syn)
 pl5 <- filter(physel, grepl('38$', Model)) %>% 
@@ -290,4 +290,71 @@ p5 <- ggplot() +
 grid.arrange(p4, p5, ncol = 2)
 ```
 Fig. 4 Examples of model interactions of co-occuring environmental variables on abundance and shell dissolution. Each subplot shows a different relationship as either additive or synergistic effects between the variables. All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum, 25th, median, 75th, and maximum values in the observed data.
+
+```{r}
+mods <- readxl::read_excel('raw/info for table.xlsx') %>% 
+  .[-1, -1] %>% 
+  gather('var', 'Model', everything()) %>% 
+  mutate(
+    org = ifelse(var %in% c('abundance', 'dissolution', 'length'), 'phy', 'bio'),
+    Model = paste0('mod', Model)
+    ) %>% 
+  split(.$org)
+
+biotab <- mods$bio %>% 
+  left_join(biomod, by = 'Model') %>% 
+  select(Model, data) %>%
+  mutate(data = map(data, function(x){
+    x %>% mutate(vr = seq(1:nrow(.)))
+  })) %>% 
+  unnest %>% 
+  mutate(
+    Model = gsub('mod', '', Model),
+    Model = as.numeric(Model)
+    ) %>% 
+  group_by(Model) %>% 
+  mutate(
+    Pvl = gsub('ns', '', Pvl), 
+    Rsq = ifelse(duplicated(Rsq), '', Rsq)
+    ) %>% 
+  ungroup %>% 
+  unite('Est', Est, Pvl, sep = '') %>% 
+  gather('estnm', 'estvl', Rsq, Est) %>% 
+  unite('est', pte_lab, estnm, sep = ', ', remove = F) %>% 
+  select(-estnm) %>% 
+  split(.$pte_lab) %>%
+  lapply(., function(x){
+    
+    out <- spread(x, est, estvl) %>% 
+      select(-pte_lab) %>%
+      arrange(Model, vr) %>% 
+      select(-vr, -Model)
+    
+    if(!any(grepl('^LPX', names(out))))
+      out <- out %>% 
+        select(-env_lab)
+    
+    return(out)  
+    
+  }) %>% 
+  do.call('cbind', .) %>% 
+  mutate(
+    Model = rep(letters[1:(nrow(.)/3)], each = 3),
+    Model = paste0('(', Model, ')'),
+    Model = ifelse(duplicated(Model), '', Model)
+  ) %>% 
+  select(Model, everything())
+
+names(biotab) <- gsub('^.*\\.', '', names(biotab))
+vrs <- gsub('(^.*),\\s.*$', '\\1', names(biotab))
+vrs[duplicated(vrs)] <- ''
+vrs <- paste0(vrs, '<br>')
+vrs[vrs %in% 'env_lab<br>'] <- 'Parameter<br>'
+vrs2 <- gsub('^.*,\\s|Model|env_lab', '', names(biotab))
+vrs <- paste(vrs, vrs2, sep = '')
+  
+names(biotab) <- vrs
+
+knitr::kable(biotab)
+```
 

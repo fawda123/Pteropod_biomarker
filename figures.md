@@ -280,7 +280,7 @@ p4 <- ggplot() +
   theme_bw() +
   scale_colour_gradientn(colours = cols) + 
   scale_y_continuous('Abundance') +
-  ggtitle("(a) Positive additive effect of O2 on\npCO2 stress")
+  ggtitle("(a) Synergistic effect of O2 on\npCO2 stress")
 
 # mod 38 physio (dis, ara, t - syn)
 pl5 <- filter(physel, grepl('38$', Model)) %>% 
@@ -302,4 +302,113 @@ grid.arrange(p4, p5, ncol = 2)
 
 <img src="figures_files/figure-html/effphy.png" width="100%" style="display: block; margin: auto;" />
 Fig. 4 Examples of model interactions of co-occuring environmental variables on abundance and shell dissolution. Each subplot shows a different relationship as either additive or synergistic effects between the variables. All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum, 25th, median, 75th, and maximum values in the observed data.
+
+
+```r
+mods <- readxl::read_excel('raw/info for table.xlsx') %>% 
+  .[-1, -1] %>% 
+  gather('var', 'Model', everything()) %>% 
+  mutate(
+    org = ifelse(var %in% c('abundance', 'dissolution', 'length'), 'phy', 'bio'),
+    Model = paste0('mod', Model)
+    ) %>% 
+  split(.$org)
+
+biotab <- mods$bio %>% 
+  left_join(biomod, by = 'Model') %>% 
+  select(Model, data) %>%
+  mutate(data = map(data, function(x){
+    x %>% mutate(vr = seq(1:nrow(.)))
+  })) %>% 
+  unnest %>% 
+  mutate(
+    Model = gsub('mod', '', Model),
+    Model = as.numeric(Model)
+    ) %>% 
+  group_by(Model) %>% 
+  mutate(
+    Pvl = gsub('ns', '', Pvl), 
+    Rsq = ifelse(duplicated(Rsq), '', Rsq)
+    ) %>% 
+  ungroup %>% 
+  unite('Est', Est, Pvl, sep = '') %>% 
+  gather('estnm', 'estvl', Rsq, Est) %>% 
+  unite('est', pte_lab, estnm, sep = ', ', remove = F) %>% 
+  select(-estnm) %>% 
+  split(.$pte_lab) %>%
+  lapply(., function(x){
+    
+    out <- spread(x, est, estvl) %>% 
+      select(-pte_lab) %>%
+      arrange(Model, vr) %>% 
+      select(-vr, -Model)
+    
+    if(!any(grepl('^LPX', names(out))))
+      out <- out %>% 
+        select(-env_lab)
+    
+    return(out)  
+    
+  }) %>% 
+  do.call('cbind', .) %>% 
+  mutate(
+    Model = rep(letters[1:(nrow(.)/3)], each = 3),
+    Model = paste0('(', Model, ')'),
+    Model = ifelse(duplicated(Model), '', Model)
+  ) %>% 
+  select(Model, everything())
+
+names(biotab) <- gsub('^.*\\.', '', names(biotab))
+vrs <- gsub('(^.*),\\s.*$', '\\1', names(biotab))
+vrs[duplicated(vrs)] <- ''
+vrs <- paste0(vrs, '<br>')
+vrs[vrs %in% 'env_lab<br>'] <- 'Parameter<br>'
+vrs2 <- gsub('^.*,\\s|Model|env_lab', '', names(biotab))
+vrs <- paste(vrs, vrs2, sep = '')
+  
+names(biotab) <- vrs
+
+knitr::kable(biotab)
+```
+
+
+
+Model<br>   Parameter<br>   LPX<br>Est   <br>Rsq   ORAC<br>Est   <br>Rsq   ORACvLPX<br>Est   <br>Rsq   SOD<br>Est   <br>Rsq 
+----------  --------------  -----------  --------  ------------  --------  ----------------  --------  -----------  --------
+(a)         pCO2            0.05*        0.65      0.31          0.57      -0.86             0.51      0.19         0.52    
+            Ara             17.71                  246.29                  -271.39                     72.58                
+            pCO2:Ara        -0.03                  0.06                    0.43                        -0.03                
+(b)         pCO2            0            0.87      -0.61         0.15      0.51              0.91      -0.23        0.57    
+            O2              -0.04                  -1.49                   2.66*                       -0.96                
+            pCO2:O2         0                      0                       0                           0                    
+(c)         pCO2            0.09         0.62      -0.5          0.47      -0.98             0.55      -0.23        0.66    
+            Temp            4.77                   5.68                    -58.87                      -5.39                
+            pCO2:Temp       -0.01                  0.06                    0.08                        0.03                 
+(d)         pH              -101.03*     0.72      -810.38       0.58      1876.68           0.6       -475.74      0.59    
+            Ara             -406.15*               555                     6496.4                      -619.83              
+            pH:Ara          51.79*                 -25.27                  -835.38                     90.07                
+(e)         pH              11.41        0.94      1794.69       0.29      -1034.57          0.91      584.91       0.68    
+            O2              -1.18*                 33.71                   7.48                        7.4                  
+            pH:O2           0.13*                  -4.46                   -0.53                       -1.06                
+(f)         pH              -163.87      0.68      824.67        0.45      2025.87           0.62      240.63       0.65    
+            Temp            -123.79                842.19                  1314.98                     358.65               
+            pH:Temp         15.63                  -101.23                 -168.02                     -43.4                
+(g)         Ara             -14.85       0.88      383.89        0.51      134.38            0.8       95.75        0.71    
+            O2              -0.19**                -0.1                    3.32*                       -0.41                
+            Ara:O2          0.09*                  -0.71                   -1.22                       -0.14                
+(h)         Ara             -62.93       0.72      206.6         0.4       681.44            0.68      59.34        0.61    
+            Temp            -8.68                  79.92                   36.91                       46.48                
+            Ara:Temp        5.94                   -26.52                  -49.42                      -15.21               
+(i)         Ara             -4.72        0.58      66.14         0.28      137.19            0.69      -19.6        0.27    
+            Fluor           -5.35                  -133.22                 345.5                       170.06               
+            Ara:Fluor       -2.21                  149.85                  -60.2                       -132.48              
+(j)         O2              -0.33*       0.81      1.64          0.43      3.98              0.76      1.13         0.73    
+            Temp            -6.68                  77.43                   53.74                       46.45                
+            O2:Temp         0.03                   -0.2                    -0.32                       -0.16                
+(k)         O2              -0.04*       0.79      0.13          0.08      1.06**            0.91      -0.27        0.52    
+            Fluor           -14.83                 -256.69                 656.19                      -85.16               
+            O2:Fluor        0.03                   1.25                    -1.96                       0.26                 
+(l)         Temp            -0.67        0.22      21.36         0.61      21.32             0.26      1.35         0.04    
+            Fluor           47.63                  -2603.6                 -756.16                     610.65               
+            Temp:Fluor      -5.75                  294.24                  101.91                      -63.93               
 
