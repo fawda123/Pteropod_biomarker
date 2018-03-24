@@ -461,8 +461,9 @@ vrs &lt;- paste(vrs, vrs2, sep = &#39;&#39;)
   
 names(biotab) &lt;- vrs
 
-knitr::kable(biotab)</code></pre>
+knitr::kable(biotab, caption = &quot;Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables in each model are shown.  The overall R-squred value for each model is also shown.  Significance of each effect is noted as * p &lt; 0.05, ** p &lt; 0.005.&quot;)</code></pre>
 <table>
+<caption>Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables in each model are shown. The overall R-squred value for each model is also shown. Significance of each effect is noted as * p &lt; 0.05, ** p &lt; 0.005.</caption>
 <thead>
 <tr class="header">
 <th align="left">Model<br></th>
@@ -908,6 +909,441 @@ knitr::kable(biotab)</code></pre>
 <td align="left">101.91</td>
 <td align="left"></td>
 <td align="left">-63.93</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>phytab &lt;- mods$phy %&gt;% 
+  left_join(phymod, by = &#39;Model&#39;) %&gt;% 
+  select(Model, data) %&gt;%
+  mutate(data = map(data, function(x){
+    x %&gt;% mutate(vr = seq(1:nrow(.)))
+  })) %&gt;% 
+  unnest %&gt;% 
+  mutate(
+    Model = gsub(&#39;mod&#39;, &#39;&#39;, Model),
+    Model = as.numeric(Model)
+  ) %&gt;% 
+  group_by(Model) %&gt;% 
+  mutate(
+    Pvl = gsub(&#39;ns&#39;, &#39;&#39;, Pvl), 
+    Rsq = ifelse(duplicated(Rsq), &#39;&#39;, Rsq)
+  ) %&gt;% 
+  ungroup %&gt;% 
+  unite(&#39;Est&#39;, Est, Pvl, sep = &#39;&#39;) %&gt;% 
+  gather(&#39;estnm&#39;, &#39;estvl&#39;, Rsq, Est) %&gt;% 
+  unite(&#39;est&#39;, pte_lab, estnm, sep = &#39;, &#39;, remove = F) %&gt;% 
+  select(-estnm) %&gt;% 
+  split(.$pte_lab) %&gt;%
+  lapply(., function(x){
+    
+    out &lt;- spread(x, est, estvl) %&gt;% 
+      select(-pte_lab) %&gt;%
+      arrange(Model, vr) %&gt;% 
+      select(-vr, -Model)
+    
+    if(!any(grepl(&#39;^abu&#39;, names(out))))
+      out &lt;- out %&gt;% 
+        select(-env_lab)
+    
+    return(out)  
+    
+  }) %&gt;% 
+  do.call(&#39;cbind&#39;, .) %&gt;% 
+  mutate(
+    Model = rep(letters[1:(nrow(.)/3)], each = 3),
+    Model = paste0(&#39;(&#39;, Model, &#39;)&#39;),
+    Model = ifelse(duplicated(Model), &#39;&#39;, Model)
+  ) %&gt;% 
+  select(Model, everything())
+
+names(phytab) &lt;- gsub(&#39;^.*\\.&#39;, &#39;&#39;, names(phytab))
+vrs &lt;- gsub(&#39;(^.*),\\s.*$&#39;, &#39;\\1&#39;, names(phytab))
+vrs[duplicated(vrs)] &lt;- &#39;&#39;
+vrs &lt;- paste0(vrs, &#39;&lt;br&gt;&#39;)
+vrs[vrs %in% &#39;env_lab&lt;br&gt;&#39;] &lt;- &#39;Parameter&lt;br&gt;&#39;
+vrs2 &lt;- gsub(&#39;^.*,\\s|Model|env_lab&#39;, &#39;&#39;, names(phytab))
+vrs &lt;- paste(vrs, vrs2, sep = &#39;&#39;)
+vrs &lt;- gsub(&#39;abu&#39;, &#39;Abundance&#39;, vrs)
+vrs &lt;- gsub(&#39;len&#39;, &#39;Length&#39;, vrs)
+vrs &lt;- gsub(&#39;dis&#39;, &#39;Shell dissolution&#39;, vrs)
+
+names(phytab) &lt;- vrs
+
+knitr::kable(phytab, caption = &quot;Table 2: Model results for pteropod physiological and population response to pairs of co-occurring environmental variables. The estimated joint effects of variables in each model are shown.  The overall R-squred value for each model is also shown.  Significance of each effect is noted as * p &lt; 0.05, ** p &lt; 0.005.&quot;)</code></pre>
+<table>
+<caption>Table 2: Model results for pteropod physiological and population response to pairs of co-occurring environmental variables. The estimated joint effects of variables in each model are shown. The overall R-squred value for each model is also shown. Significance of each effect is noted as * p &lt; 0.05, ** p &lt; 0.005.</caption>
+<thead>
+<tr class="header">
+<th align="left">Model<br></th>
+<th align="left">Parameter<br></th>
+<th align="left">Abundance<br>Est</th>
+<th align="left"><br>Rsq</th>
+<th align="left">Shell dissolution<br>Est</th>
+<th align="left"><br>Rsq</th>
+<th align="left">Length<br>Est</th>
+<th align="left"><br>Rsq</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">(a)</td>
+<td align="left">pCO2</td>
+<td align="left">-0.01*</td>
+<td align="left">0.17</td>
+<td align="left">0*</td>
+<td align="left">0.83</td>
+<td align="left">0</td>
+<td align="left">0.08</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">Ara</td>
+<td align="left">-3.1*</td>
+<td align="left"></td>
+<td align="left">0.4*</td>
+<td align="left"></td>
+<td align="left">-1.53</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">pCO2:Ara</td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">0*</td>
+<td align="left"></td>
+<td align="left">0</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">(b)</td>
+<td align="left">pCO2</td>
+<td align="left">0</td>
+<td align="left">0.32</td>
+<td align="left">0</td>
+<td align="left">0.91</td>
+<td align="left">0.01</td>
+<td align="left">0.19</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">O2</td>
+<td align="left">0.02</td>
+<td align="left"></td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">0.02</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">pCO2:O2</td>
+<td align="left">0*</td>
+<td align="left"></td>
+<td align="left">0**</td>
+<td align="left"></td>
+<td align="left">0</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">(c)</td>
+<td align="left">pCO2</td>
+<td align="left">0</td>
+<td align="left">0.44</td>
+<td align="left">0*</td>
+<td align="left">0.82</td>
+<td align="left">0</td>
+<td align="left">0.11</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">Temp</td>
+<td align="left">-0.23</td>
+<td align="left"></td>
+<td align="left">0.12*</td>
+<td align="left"></td>
+<td align="left">0</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">pCO2:Temp</td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">0</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">(d)</td>
+<td align="left">pH</td>
+<td align="left">14.66*</td>
+<td align="left">0.29</td>
+<td align="left">-2.18*</td>
+<td align="left">0.84</td>
+<td align="left">6.61</td>
+<td align="left">0.08</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Ara</td>
+<td align="left">39.44</td>
+<td align="left"></td>
+<td align="left">-9.36*</td>
+<td align="left"></td>
+<td align="left">4.03</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">pH:Ara</td>
+<td align="left">-5.25</td>
+<td align="left"></td>
+<td align="left">1.19*</td>
+<td align="left"></td>
+<td align="left">-0.74</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">(e)</td>
+<td align="left">pH</td>
+<td align="left">4.44</td>
+<td align="left">0.14</td>
+<td align="left">-0.44</td>
+<td align="left">0.93</td>
+<td align="left">-16.71</td>
+<td align="left">0.39</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">O2</td>
+<td align="left">0.36</td>
+<td align="left"></td>
+<td align="left">-0.06**</td>
+<td align="left"></td>
+<td align="left">0.1</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">pH:O2</td>
+<td align="left">-0.04</td>
+<td align="left"></td>
+<td align="left">0.01**</td>
+<td align="left"></td>
+<td align="left">-0.01</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">(f)</td>
+<td align="left">pH</td>
+<td align="left">3.1</td>
+<td align="left">0.48</td>
+<td align="left">-3.7*</td>
+<td align="left">0.86</td>
+<td align="left">-1.93</td>
+<td align="left">0.1</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Temp</td>
+<td align="left">-0.34</td>
+<td align="left"></td>
+<td align="left">-2.57</td>
+<td align="left"></td>
+<td align="left">-3.8</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">pH:Temp</td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">0.33</td>
+<td align="left"></td>
+<td align="left">0.45</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">(g)</td>
+<td align="left">Ara</td>
+<td align="left">1.63</td>
+<td align="left">0.24</td>
+<td align="left">-0.41</td>
+<td align="left">0.9</td>
+<td align="left">-2.24</td>
+<td align="left">0.23</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">O2</td>
+<td align="left">0.03*</td>
+<td align="left"></td>
+<td align="left">-0.01**</td>
+<td align="left"></td>
+<td align="left">0.02</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Ara:O2</td>
+<td align="left">-0.01</td>
+<td align="left"></td>
+<td align="left">0*</td>
+<td align="left"></td>
+<td align="left">0</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">(h)</td>
+<td align="left">Ara</td>
+<td align="left">1.47</td>
+<td align="left">0.54</td>
+<td align="left">-1.27*</td>
+<td align="left">0.91</td>
+<td align="left">0.52</td>
+<td align="left">0.1</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Temp</td>
+<td align="left">-0.43</td>
+<td align="left"></td>
+<td align="left">-0.11</td>
+<td align="left"></td>
+<td align="left">-0.41</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">Ara:Temp</td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">0.1*</td>
+<td align="left"></td>
+<td align="left">0.05</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">(i)</td>
+<td align="left">Ara</td>
+<td align="left">0.49</td>
+<td align="left">0.03</td>
+<td align="left">0.06</td>
+<td align="left">0.69</td>
+<td align="left">0.26</td>
+<td align="left">0.06</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">Fluor</td>
+<td align="left">8.24</td>
+<td align="left"></td>
+<td align="left">4.93</td>
+<td align="left"></td>
+<td align="left">1.73</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Ara:Fluor</td>
+<td align="left">-5.38</td>
+<td align="left"></td>
+<td align="left">-3.59</td>
+<td align="left"></td>
+<td align="left">-0.3</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">(j)</td>
+<td align="left">O2</td>
+<td align="left">0</td>
+<td align="left">0.46</td>
+<td align="left">-0.01*</td>
+<td align="left">0.91</td>
+<td align="left">-0.01</td>
+<td align="left">0.16</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Temp</td>
+<td align="left">-0.41</td>
+<td align="left"></td>
+<td align="left">-0.15</td>
+<td align="left"></td>
+<td align="left">-0.65</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">O2:Temp</td>
+<td align="left">0</td>
+<td align="left"></td>
+<td align="left">0*</td>
+<td align="left"></td>
+<td align="left">0</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">(k)</td>
+<td align="left">O2</td>
+<td align="left">0.01</td>
+<td align="left">0.12</td>
+<td align="left">0</td>
+<td align="left">0.8</td>
+<td align="left">0.01</td>
+<td align="left">0.15</td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">Fluor</td>
+<td align="left">14.87</td>
+<td align="left"></td>
+<td align="left">3.62</td>
+<td align="left"></td>
+<td align="left">23.3</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">O2:Fluor</td>
+<td align="left">-0.07</td>
+<td align="left"></td>
+<td align="left">-0.02</td>
+<td align="left"></td>
+<td align="left">-0.1</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">(l)</td>
+<td align="left">Temp</td>
+<td align="left">-0.24</td>
+<td align="left">0.18</td>
+<td align="left">0.02</td>
+<td align="left">0.3</td>
+<td align="left">0</td>
+<td align="left">0.04</td>
+</tr>
+<tr class="odd">
+<td align="left"></td>
+<td align="left">Fluor</td>
+<td align="left">-7.4</td>
+<td align="left"></td>
+<td align="left">8.15</td>
+<td align="left"></td>
+<td align="left">1.15</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left"></td>
+<td align="left">Temp:Fluor</td>
+<td align="left">0.78</td>
+<td align="left"></td>
+<td align="left">-0.88</td>
+<td align="left"></td>
+<td align="left">-0.02</td>
 <td align="left"></td>
 </tr>
 </tbody>

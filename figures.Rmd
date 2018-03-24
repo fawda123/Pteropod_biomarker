@@ -355,6 +355,67 @@ vrs <- paste(vrs, vrs2, sep = '')
   
 names(biotab) <- vrs
 
-knitr::kable(biotab)
+knitr::kable(biotab, caption = "Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables in each model are shown.  The overall R-squred value for each model is also shown.  Significance of each effect is noted as * p < 0.05, ** p < 0.005.")
+```
+
+```{r}
+phytab <- mods$phy %>% 
+  left_join(phymod, by = 'Model') %>% 
+  select(Model, data) %>%
+  mutate(data = map(data, function(x){
+    x %>% mutate(vr = seq(1:nrow(.)))
+  })) %>% 
+  unnest %>% 
+  mutate(
+    Model = gsub('mod', '', Model),
+    Model = as.numeric(Model)
+  ) %>% 
+  group_by(Model) %>% 
+  mutate(
+    Pvl = gsub('ns', '', Pvl), 
+    Rsq = ifelse(duplicated(Rsq), '', Rsq)
+  ) %>% 
+  ungroup %>% 
+  unite('Est', Est, Pvl, sep = '') %>% 
+  gather('estnm', 'estvl', Rsq, Est) %>% 
+  unite('est', pte_lab, estnm, sep = ', ', remove = F) %>% 
+  select(-estnm) %>% 
+  split(.$pte_lab) %>%
+  lapply(., function(x){
+    
+    out <- spread(x, est, estvl) %>% 
+      select(-pte_lab) %>%
+      arrange(Model, vr) %>% 
+      select(-vr, -Model)
+    
+    if(!any(grepl('^abu', names(out))))
+      out <- out %>% 
+        select(-env_lab)
+    
+    return(out)  
+    
+  }) %>% 
+  do.call('cbind', .) %>% 
+  mutate(
+    Model = rep(letters[1:(nrow(.)/3)], each = 3),
+    Model = paste0('(', Model, ')'),
+    Model = ifelse(duplicated(Model), '', Model)
+  ) %>% 
+  select(Model, everything())
+
+names(phytab) <- gsub('^.*\\.', '', names(phytab))
+vrs <- gsub('(^.*),\\s.*$', '\\1', names(phytab))
+vrs[duplicated(vrs)] <- ''
+vrs <- paste0(vrs, '<br>')
+vrs[vrs %in% 'env_lab<br>'] <- 'Parameter<br>'
+vrs2 <- gsub('^.*,\\s|Model|env_lab', '', names(phytab))
+vrs <- paste(vrs, vrs2, sep = '')
+vrs <- gsub('abu', 'Abundance', vrs)
+vrs <- gsub('len', 'Length', vrs)
+vrs <- gsub('dis', 'Shell dissolution', vrs)
+
+names(phytab) <- vrs
+
+knitr::kable(phytab, caption = "Table 2: Model results for pteropod physiological and population response to pairs of co-occurring environmental variables. The estimated joint effects of variables in each model are shown.  The overall R-squred value for each model is also shown.  Significance of each effect is noted as * p < 0.05, ** p < 0.005.")
 ```
 

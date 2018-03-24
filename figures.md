@@ -368,10 +368,12 @@ vrs <- paste(vrs, vrs2, sep = '')
   
 names(biotab) <- vrs
 
-knitr::kable(biotab)
+knitr::kable(biotab, caption = "Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables in each model are shown.  The overall R-squred value for each model is also shown.  Significance of each effect is noted as * p < 0.05, ** p < 0.005.")
 ```
 
 
+
+Table: Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables in each model are shown.  The overall R-squred value for each model is also shown.  Significance of each effect is noted as * p < 0.05, ** p < 0.005.
 
 Model<br>   Parameter<br>   LPX<br>Est   <br>Rsq   ORAC<br>Est   <br>Rsq   ORACvLPX<br>Est   <br>Rsq   SOD<br>Est   <br>Rsq 
 ----------  --------------  -----------  --------  ------------  --------  ----------------  --------  -----------  --------
@@ -411,4 +413,109 @@ Model<br>   Parameter<br>   LPX<br>Est   <br>Rsq   ORAC<br>Est   <br>Rsq   ORACv
 (l)         Temp            -0.67        0.22      21.36         0.61      21.32             0.26      1.35         0.04    
             Fluor           47.63                  -2603.6                 -756.16                     610.65               
             Temp:Fluor      -5.75                  294.24                  101.91                      -63.93               
+
+
+```r
+phytab <- mods$phy %>% 
+  left_join(phymod, by = 'Model') %>% 
+  select(Model, data) %>%
+  mutate(data = map(data, function(x){
+    x %>% mutate(vr = seq(1:nrow(.)))
+  })) %>% 
+  unnest %>% 
+  mutate(
+    Model = gsub('mod', '', Model),
+    Model = as.numeric(Model)
+  ) %>% 
+  group_by(Model) %>% 
+  mutate(
+    Pvl = gsub('ns', '', Pvl), 
+    Rsq = ifelse(duplicated(Rsq), '', Rsq)
+  ) %>% 
+  ungroup %>% 
+  unite('Est', Est, Pvl, sep = '') %>% 
+  gather('estnm', 'estvl', Rsq, Est) %>% 
+  unite('est', pte_lab, estnm, sep = ', ', remove = F) %>% 
+  select(-estnm) %>% 
+  split(.$pte_lab) %>%
+  lapply(., function(x){
+    
+    out <- spread(x, est, estvl) %>% 
+      select(-pte_lab) %>%
+      arrange(Model, vr) %>% 
+      select(-vr, -Model)
+    
+    if(!any(grepl('^abu', names(out))))
+      out <- out %>% 
+        select(-env_lab)
+    
+    return(out)  
+    
+  }) %>% 
+  do.call('cbind', .) %>% 
+  mutate(
+    Model = rep(letters[1:(nrow(.)/3)], each = 3),
+    Model = paste0('(', Model, ')'),
+    Model = ifelse(duplicated(Model), '', Model)
+  ) %>% 
+  select(Model, everything())
+
+names(phytab) <- gsub('^.*\\.', '', names(phytab))
+vrs <- gsub('(^.*),\\s.*$', '\\1', names(phytab))
+vrs[duplicated(vrs)] <- ''
+vrs <- paste0(vrs, '<br>')
+vrs[vrs %in% 'env_lab<br>'] <- 'Parameter<br>'
+vrs2 <- gsub('^.*,\\s|Model|env_lab', '', names(phytab))
+vrs <- paste(vrs, vrs2, sep = '')
+vrs <- gsub('abu', 'Abundance', vrs)
+vrs <- gsub('len', 'Length', vrs)
+vrs <- gsub('dis', 'Shell dissolution', vrs)
+
+names(phytab) <- vrs
+
+knitr::kable(phytab, caption = "Table 2: Model results for pteropod physiological and population response to pairs of co-occurring environmental variables. The estimated joint effects of variables in each model are shown.  The overall R-squred value for each model is also shown.  Significance of each effect is noted as * p < 0.05, ** p < 0.005.")
+```
+
+
+
+Table: Table 2: Model results for pteropod physiological and population response to pairs of co-occurring environmental variables. The estimated joint effects of variables in each model are shown.  The overall R-squred value for each model is also shown.  Significance of each effect is noted as * p < 0.05, ** p < 0.005.
+
+Model<br>   Parameter<br>   Abundance<br>Est   <br>Rsq   Shell dissolution<br>Est   <br>Rsq   Length<br>Est   <br>Rsq 
+----------  --------------  -----------------  --------  -------------------------  --------  --------------  --------
+(a)         pCO2            -0.01*             0.17      0*                         0.83      0               0.08    
+            Ara             -3.1*                        0.4*                                 -1.53                   
+            pCO2:Ara        0                            0*                                   0                       
+(b)         pCO2            0                  0.32      0                          0.91      0.01            0.19    
+            O2              0.02                         0                                    0.02                    
+            pCO2:O2         0*                           0**                                  0                       
+(c)         pCO2            0                  0.44      0*                         0.82      0               0.11    
+            Temp            -0.23                        0.12*                                0                       
+            pCO2:Temp       0                            0                                    0                       
+(d)         pH              14.66*             0.29      -2.18*                     0.84      6.61            0.08    
+            Ara             39.44                        -9.36*                               4.03                    
+            pH:Ara          -5.25                        1.19*                                -0.74                   
+(e)         pH              4.44               0.14      -0.44                      0.93      -16.71          0.39    
+            O2              0.36                         -0.06**                              0.1                     
+            pH:O2           -0.04                        0.01**                               -0.01                   
+(f)         pH              3.1                0.48      -3.7*                      0.86      -1.93           0.1     
+            Temp            -0.34                        -2.57                                -3.8                    
+            pH:Temp         0                            0.33                                 0.45                    
+(g)         Ara             1.63               0.24      -0.41                      0.9       -2.24           0.23    
+            O2              0.03*                        -0.01**                              0.02                    
+            Ara:O2          -0.01                        0*                                   0                       
+(h)         Ara             1.47               0.54      -1.27*                     0.91      0.52            0.1     
+            Temp            -0.43                        -0.11                                -0.41                   
+            Ara:Temp        0                            0.1*                                 0.05                    
+(i)         Ara             0.49               0.03      0.06                       0.69      0.26            0.06    
+            Fluor           8.24                         4.93                                 1.73                    
+            Ara:Fluor       -5.38                        -3.59                                -0.3                    
+(j)         O2              0                  0.46      -0.01*                     0.91      -0.01           0.16    
+            Temp            -0.41                        -0.15                                -0.65                   
+            O2:Temp         0                            0*                                   0                       
+(k)         O2              0.01               0.12      0                          0.8       0.01            0.15    
+            Fluor           14.87                        3.62                                 23.3                    
+            O2:Fluor        -0.07                        -0.02                                -0.1                    
+(l)         Temp            -0.24              0.18      0.02                       0.3       0               0.04    
+            Fluor           -7.4                         8.15                                 1.15                    
+            Temp:Fluor      0.78                         -0.88                                -0.02                   
 
