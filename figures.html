@@ -252,13 +252,14 @@ crs &lt;- crossing(var1 = names(dat_cor), var2 = names(dat_cor)) %&gt;%
   unnest %&gt;% 
   select(-rowname)</code></pre>
 <pre class="r"><code>levs &lt;- c(sort(envchr), sort(biochr), sort(phychr))
+labs &lt;- c(&#39;Omega[ar]&#39;, &#39;CO[3]^-2&#39;, &#39;chla&#39;, &#39;Lat&#39;, &#39;O[2]&#39;, &#39;pCO[2]&#39;, &#39;pH&#39;, &#39;Temp&#39;, &#39;CAT&#39;, &#39;GR&#39;, &#39;GSHonGSSG&#39;, &#39;GST&#39;, &#39; LPX&#39;, &#39;ORAC&#39;, &#39;ORACvLPX&#39;, &#39;SOD&#39;, &#39;abundance&#39;, &#39;dissolution&#39;, &#39;growth&#39;, &#39;scarring&#39;, &#39;typeII&#39;, &#39;typeIII&#39;)
 prplo &lt;- crs %&gt;% 
   separate(pr, c(&#39;cor&#39;, &#39;sig&#39;), sep = &#39; &#39;) %&gt;% 
-  filter(var1 %in% levs &amp; var2 %in% levs) %&gt;% 
+  filter(var1 %in% levs &amp; var2 %in% levs) %&gt;%  
   mutate(
     cor = as.numeric(cor), 
-    var1 = factor(var1, levels = rev(levs)), 
-    var2 = factor(var2, levels = rev(levs)), 
+    var1 = factor(var1, levels = rev(levs), labels = rev(labs)), 
+    var2 = factor(var2, levels = rev(levs), labels = rev(labs)), 
     sig = gsub(&#39;ns&#39;, &#39;&#39;, sig)
   )
 
@@ -267,8 +268,9 @@ pbase &lt;- theme(
   panel.grid.minor = element_blank(), 
   axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
   axis.text.y = element_text(size = 8),
-  legend.position = &#39;top&#39;, 
-  plot.margin = unit(c(0,4,0,0), &quot;lines&quot;),
+  legend.position = c(0.5, 1.12),
+  legend.direction = &#39;horizontal&#39;,
+  plot.margin = unit(c(4,4,0,0), &quot;lines&quot;),
   strip.background = element_blank(), 
   strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
   panel.background = element_rect(fill = &#39;black&#39;)
@@ -288,9 +290,15 @@ p &lt;- ggplot(prplo) +
                     ymin = outlab$y[2], ymax = outlab$y[2], xmin = 23, xmax = 23) +  
   annotation_custom(grob = textGrob(label = outlab$lab[3], hjust = 0, gp = gpar(cex = 0.7)),
                     ymin = outlab$y[3], ymax = outlab$y[3], xmin = 23, xmax = 23) +
+  annotation_custom(grob = textGrob(label = outlab$lab[1], hjust = 0.5, gp = gpar(cex = 0.7)),
+                    xmin = outlab$y[1], xmax = outlab$y[1], ymin = 23.5, ymax = 23.5) +
+  annotation_custom(grob = textGrob(label = outlab$lab[2], hjust = 0.5, gp = gpar(cex = 0.7)),
+                    xmin = outlab$y[2], xmax = outlab$y[2], ymin = 23.5, ymax = 23.5) +  
+  annotation_custom(grob = textGrob(label = outlab$lab[3], hjust = 0.5, gp = gpar(cex = 0.7)),
+                    xmin = outlab$y[3], xmax = outlab$y[3], ymin = 23.5, ymax = 23.5) +
   pbase +
-  scale_y_discrete(&#39;&#39;, expand = c(0, 0)) + 
-  scale_x_discrete(&#39;&#39;, expand = c(0, 0)) +
+  scale_y_discrete(&#39;&#39;, expand = c(0, 0), labels = parse(text = rev(labs))) + 
+  scale_x_discrete(&#39;&#39;, expand = c(0, 0), labels = parse(text = rev(labs))) +
   scale_fill_gradient2(&#39;Correlation&#39;, low = muted(&quot;blue&quot;), mid = &quot;white&quot;, high = muted(&quot;red&quot;), midpoint = 0) +
   guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0))) +
   geom_hline(yintercept = 6.5, size = 1.5) +
