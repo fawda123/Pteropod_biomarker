@@ -379,10 +379,10 @@ cols &lt;- RColorBrewer::brewer.pal(9, &#39;RdBu&#39;)
 pl4 &lt;- filter(physel, grepl(&#39;4$&#39;, Model)) %&gt;% 
   .$Modobj %&gt;% 
   .[[1]] %&gt;% 
-  get_pldat(., &#39;O2&#39;, fct = 0.85)
+  get_pldat(., &#39;pCO2&#39;, fct = 0.9)
 
 p4 &lt;- ggplot() +
-  geom_line(data = pl4[[1]], aes(x = pCO2, y = abu, group = O2, colour = O2), size = 1) + 
+  geom_line(data = pl4[[1]], aes(x = O2, y = abu, group = pCO2, colour = pCO2), size = 1) + 
   geom_text(data = pl4[[2]], aes(x= x, y = y, label = lab), hjust = 0) +
   theme_bw() +
   scale_colour_gradientn(colours = cols) + 
