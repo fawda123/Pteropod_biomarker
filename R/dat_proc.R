@@ -37,7 +37,7 @@ biodat <- read_excel('raw/PteropodIntegrated_oxibiomarkers.xlsx',
   ungroup
 
 # abundance
-abudat <- read_excel('raw/abundances to be usef_Marcus.xlsx') %>% 
+abudat <- read_excel('raw/Copy of abundances to be usef_Marcus2.xlsx') %>% 
   rename(
     CTD = `CTD station`,
     abund = `real abundance`
