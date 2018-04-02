@@ -20,6 +20,7 @@ library(scales)
 library(effects)
 library(shiny)
 library(plotly)
+library(GGally)
 
 source("R/funcs.R")
 
@@ -61,6 +62,24 @@ dat <- ptedat %>%
   select(one_of(c('CTD', envchr, ptechr)))
  
 pairs(dat[, -1], gap = 0, cex = 1, col = 'grey')
+```
+
+Pairs plot showing only LPX, SOD, ORAC/LPX with omega, O2, T:
+```{r, fig.height = 8, fig.width = 8}
+dat2 <- ptedat %>% 
+  inner_join(envdat, by = 'CTD') %>% 
+  select(one_of(c('LPX', 'SOD', 'ORACvLPX', 'Ara', 'O2', 'Temp')))
+
+# Function to return points and geom_smooth
+my_fn <- function(data, mapping, method="loess", ...){
+      p <- ggplot(data = data, mapping = mapping) + 
+      geom_point() + 
+      geom_smooth(method=method, ...)
+      p
+    }
+
+# Default loess curve    
+ggpairs(dat2, lower = list(continuous = my_fn))
 ```
 
 RDA triplot of biomarkers and environmental data
