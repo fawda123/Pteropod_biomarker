@@ -96,7 +96,7 @@ get_pldat <- function(modin, cvar, pos = c('left', 'right'), fct = NULL){
     map(function(x) seq(x[1], x[2], length = 100))
   
   # quantiles for cvar
-  x[[cvar]] <- modin$model[[cvar]]%>% quantile
+  x[[cvar]] <- modin$model[[cvar]]%>% quantile(., c(0, 1))
   
   # make data frame
   nms <- names(x) 
@@ -104,8 +104,9 @@ get_pldat <- function(modin, cvar, pos = c('left', 'right'), fct = NULL){
   names(x) <- nms
   
   # get predictions, combine with exp vars
-  prd_vl <- predict(modin, newdata = x) %>% 
-    data.frame(., x)
+  prd_vl <- predict(modin, newdata = x, se = T) %>% 
+    data.frame(., x) %>% 
+    dplyr::select(-df, -residual.scale)
   names(prd_vl)[1] <- all.vars(formula(modin))[1]
   
   # min x axis values for quantile labels
@@ -126,7 +127,7 @@ get_pldat <- function(modin, cvar, pos = c('left', 'right'), fct = NULL){
   yval <- locs[[yvar]]
   xval <- locs[[xvar]] %>% unique %>% `*`(fct)
   xlab <- data.frame(
-    lab = c('Max', '75th', 'Med', '25th', 'Min'), 
+    lab = c('Max', 'Min'), 
     x = xval, y = yval,
     stringsAsFactors = F)
   dr <- locs[[cvar]] %>% range %>% diff %>% sign

@@ -328,6 +328,7 @@ pl1 &lt;- filter(biosel, grepl(&#39;92$&#39;, Model)) %&gt;%
   get_pldat(., &#39;pH&#39;)
 
 p1 &lt;- ggplot() +
+  geom_ribbon(data = pl1[[1]], aes(x = Ara, ymin = LPX - se.fit, ymax = LPX + se.fit, group = pH), alpha = 0.5, fill = &#39;grey&#39;) +
   geom_line(data = pl1[[1]], aes(x = Ara, y = LPX, group = pH, colour = pH), size = 1) + 
   geom_text(data = pl1[[2]], aes(x= x, y = y, label = lab), hjust = 0) +
   theme_bw() +
@@ -343,6 +344,7 @@ pl2 &lt;- filter(biosel, grepl(&#39;101$&#39;, Model)) %&gt;%
   get_pldat(., &#39;Temp&#39;)
 
 p2 &lt;- ggplot() +
+    geom_ribbon(data = pl2[[1]], aes(x = Ara, ymin = LPX - se.fit, ymax = LPX + se.fit, group = Temp), alpha = 0.5, fill = &#39;grey&#39;) +
   geom_line(data = pl2[[1]], aes(x = Ara, y = LPX, group = Temp, colour = Temp), size = 1) + 
   geom_text(data = pl2[[2]], aes(x= x, y = y, label = lab), hjust = 0) +
   theme_bw() +
@@ -358,6 +360,7 @@ pl3 &lt;- filter(biosel, grepl(&#39;164$&#39;, Model)) %&gt;%
   get_pldat(., &#39;Temp&#39;)
 
 p3 &lt;- ggplot() +
+    geom_ribbon(data = pl3[[1]], aes(x = Ara, ymin = SOD - se.fit, ymax = SOD + se.fit, group = Temp), alpha = 0.5, fill = &#39;grey&#39;) +
   geom_line(data = pl3[[1]], aes(x = Ara, y = SOD, group = Temp, colour = Temp), size = 1) + 
   geom_text(data = pl3[[2]], aes(x= x, y = y, label = lab), hjust = 0) +
   theme_bw() +
@@ -382,6 +385,7 @@ pl4 &lt;- filter(physel, grepl(&#39;4$&#39;, Model)) %&gt;%
   get_pldat(., &#39;pCO2&#39;, fct = 0.9)
 
 p4 &lt;- ggplot() +
+  geom_ribbon(data = pl4[[1]], aes(x = O2, ymin = abu - se.fit, ymax = abu + se.fit, group = pCO2), alpha = 0.5, fill = &#39;grey&#39;) +
   geom_line(data = pl4[[1]], aes(x = O2, y = abu, group = pCO2, colour = pCO2), size = 1) + 
   geom_text(data = pl4[[2]], aes(x= x, y = y, label = lab), hjust = 0) +
   theme_bw() +
@@ -396,6 +400,7 @@ pl5 &lt;- filter(physel, grepl(&#39;38$&#39;, Model)) %&gt;%
   get_pldat(., &#39;Temp&#39;, &#39;right&#39;, fct = 1.05)
 
 p5 &lt;- ggplot() +
+  geom_ribbon(data = pl5[[1]], aes(x = Ara, ymin = dis - se.fit, ymax = dis + se.fit, group = Temp), alpha = 0.5, fill = &#39;grey&#39;) +
   geom_line(data = pl5[[1]], aes(x = Ara, y = dis, group = Temp, colour = Temp), size = 1) + 
   geom_text(data = pl5[[2]], aes(x= x, y = y, label = lab), hjust = 1) +
   theme_bw() +

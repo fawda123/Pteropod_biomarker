@@ -214,6 +214,7 @@ pl1 <- filter(biosel, grepl('92$', Model)) %>%
   get_pldat(., 'pH')
 
 p1 <- ggplot() +
+  geom_ribbon(data = pl1[[1]], aes(x = Ara, ymin = LPX - se.fit, ymax = LPX + se.fit, group = pH), alpha = 0.5, fill = 'grey') +
   geom_line(data = pl1[[1]], aes(x = Ara, y = LPX, group = pH, colour = pH), size = 1) + 
   geom_text(data = pl1[[2]], aes(x= x, y = y, label = lab), hjust = 0) +
   theme_bw() +
@@ -229,6 +230,7 @@ pl2 <- filter(biosel, grepl('101$', Model)) %>%
   get_pldat(., 'Temp')
 
 p2 <- ggplot() +
+    geom_ribbon(data = pl2[[1]], aes(x = Ara, ymin = LPX - se.fit, ymax = LPX + se.fit, group = Temp), alpha = 0.5, fill = 'grey') +
   geom_line(data = pl2[[1]], aes(x = Ara, y = LPX, group = Temp, colour = Temp), size = 1) + 
   geom_text(data = pl2[[2]], aes(x= x, y = y, label = lab), hjust = 0) +
   theme_bw() +
@@ -244,6 +246,7 @@ pl3 <- filter(biosel, grepl('164$', Model)) %>%
   get_pldat(., 'Temp')
 
 p3 <- ggplot() +
+    geom_ribbon(data = pl3[[1]], aes(x = Ara, ymin = SOD - se.fit, ymax = SOD + se.fit, group = Temp), alpha = 0.5, fill = 'grey') +
   geom_line(data = pl3[[1]], aes(x = Ara, y = SOD, group = Temp, colour = Temp), size = 1) + 
   geom_text(data = pl3[[2]], aes(x= x, y = y, label = lab), hjust = 0) +
   theme_bw() +
@@ -273,6 +276,7 @@ pl4 <- filter(physel, grepl('4$', Model)) %>%
   get_pldat(., 'pCO2', fct = 0.9)
 
 p4 <- ggplot() +
+  geom_ribbon(data = pl4[[1]], aes(x = O2, ymin = abu - se.fit, ymax = abu + se.fit, group = pCO2), alpha = 0.5, fill = 'grey') +
   geom_line(data = pl4[[1]], aes(x = O2, y = abu, group = pCO2, colour = pCO2), size = 1) + 
   geom_text(data = pl4[[2]], aes(x= x, y = y, label = lab), hjust = 0) +
   theme_bw() +
@@ -287,6 +291,7 @@ pl5 <- filter(physel, grepl('38$', Model)) %>%
   get_pldat(., 'Temp', 'right', fct = 1.05)
 
 p5 <- ggplot() +
+  geom_ribbon(data = pl5[[1]], aes(x = Ara, ymin = dis - se.fit, ymax = dis + se.fit, group = Temp), alpha = 0.5, fill = 'grey') +
   geom_line(data = pl5[[1]], aes(x = Ara, y = dis, group = Temp, colour = Temp), size = 1) + 
   geom_text(data = pl5[[2]], aes(x= x, y = y, label = lab), hjust = 1) +
   theme_bw() +
