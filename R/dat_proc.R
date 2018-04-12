@@ -5,14 +5,13 @@ source('R/funcs.R')
 
 # environmental data
 envdat <- read_excel('raw/MeanSurface100m2016WCOA.xlsx') %>% 
-  select(`CTD Station`, `Latitude`, `'pCO2'`, `'pH'`, `'CO3'`, `'Fluorescence'`, `'Aragonite'`, `'Oxygen'`, `'Temperature'`, `'Salinity'`, `'Alkalinity'`) %>% 
+  select(`CTD Station`, `Latitude`, `'pCO2'`, `'pH'`, `'Fluorescence'`, `'Aragonite'`, `'Oxygen'`, `'Temperature'`, `'Salinity'`, `'Alkalinity'`) %>% 
   rename(
     CTD = `CTD Station`,
     Lat = `Latitude`,
     Ara = `'Aragonite'`, 
     O2 = `'Oxygen'`,
     pH = `'pH'`,
-    CO3 = `'CO3'`,
     Fluor = `'Fluorescence'`,
     pCO2 = `'pCO2'`,
     Temp = `'Temperature'`, 
@@ -127,7 +126,7 @@ save(expdat, file = 'data/expdat.RData', compress = 'xz')
 data(envdat)
 data(ptedat)
 
-envchr <- c('pCO2', 'pH', 'CO3', 'Ara', 'O2', 'Temp', 'Fluor')
+envchr <- c('pCO2', 'pH', 'Ara', 'O2', 'Temp', 'Fluor')
 ptechr <- c('CAT', 'GR', 'GSHonGSSG', 'GST', 'LPX', 'ORAC', 'SOD', 'ORACvLPX')
 
 dat_frm <- ptedat %>% 
@@ -152,6 +151,17 @@ env_cmb <- envchr %>%
 # models
 mod_all <- env_cmb %>%
   map(function(x, dat = dat_frm){
+
+    # check vif
+    rsq <- paste(x[2], '~', x[3]) %>% 
+      as.formula %>% 
+      lm(data = dat) %>% 
+      summary %>% 
+      .$r.squared 
+    vif <- 1 / (1 - rsq)
+      
+    # exit if vif large
+    if(vif > 11) return(NA)
     
     # formula
     frm <- paste(x[1], '~', x[2], '*', x[3]) %>% 
@@ -162,6 +172,7 @@ mod_all <- env_cmb %>%
     
   }) %>% 
   enframe('Model', 'Modobj') %>% 
+  filter(!map(.$Modobj, is.logical) %>% unlist) %>% 
   mutate(
     Model = gsub('^X', 'mod', Model), 
     data = map(Modobj, function(x){
@@ -203,7 +214,7 @@ save(biomod, file = 'data/biomod.RData', compress = 'xz')
 data(envdat)
 data(ptedat)
 
-envchr <- c('pCO2', 'pH', 'CO3', 'Ara', 'O2', 'Temp', 'Fluor')
+envchr <- c('pCO2', 'pH', 'Ara', 'O2', 'Temp', 'Fluor')
 ptechr <- c('abu', 'dis', 'len', 'ty2', 'ty3', 'scr')
 
 dat_frm <- ptedat %>% 
@@ -237,6 +248,17 @@ mod_all <- env_cmb %>%
   
   map(function(x, dat = dat_frm){
 
+    # check vif
+    rsq <- paste(x[2], '~', x[3]) %>% 
+      as.formula %>% 
+      lm(data = dat) %>% 
+      summary %>% 
+      .$r.squared 
+    vif <- 1 / (1 - rsq)
+    
+    # exit if vif large
+    if(vif > 11) return(NA)
+    
     # formula
     frm <- paste(x[1], '~', x[2], '*', x[3]) %>% 
       as.formula
@@ -257,6 +279,7 @@ mod_all <- env_cmb %>%
     
   }) %>% 
   enframe('Model', 'Modobj') %>% 
+  filter(!map(.$Modobj, is.logical) %>% unlist) %>% 
   mutate(
     Model = gsub('^X', 'mod', Model), 
     data = map(Modobj, function(x){

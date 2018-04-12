@@ -27,7 +27,7 @@ data(envdat)
 data(ptedat)
 data(phymod)
 
-envchr <- c('pCO2', 'pH', 'CO3', 'Ara', 'O2', 'Temp', 'Fluor')
+envchr <- c('pCO2', 'pH', 'Ara', 'O2', 'Temp', 'Fluor')
 ptechr <- c('abu', 'dis', 'len', 'ty2', 'ty3', 'scr')
 ```
 
@@ -370,7 +370,8 @@ knitr::kable(vifv, caption = 'VIF')
 
 # {.tabset}
 
-Pairwise models with interactions for each biomarker
+Pairwise models with interactions for each biomarker, only pairwise models with VIF < 11 are shown
+
 
 ```{r, fig.height = 9}
 # model data
@@ -378,7 +379,7 @@ mods <- phymod %>%
   unnest(data)
 mod_all <- phymod
 
-selectInput("mod", "Choose model:", paste0('mod', seq(1:nrow(mods))))
+selectInput("mod", "Choose model:", mod_all[['Model']])
 
 md <- reactive({
 
