@@ -32,7 +32,7 @@ data(ptedat)
 data(phymod)
 data(biomod)
 
-envchr <- c('Lat', 'pCO2', 'pH', 'CO3', 'Ara', 'O2', 'Temp', 'Fluor')
+envchr <- c('Lat', 'pCO2', 'pH', 'Ara', 'O2', 'Temp', 'Fluor')
 biochr <- c('CAT', 'GR', 'GSHonGSSG', 'GST', 'LPX', 'ORAC', 'SOD', 'ORACvLPX')
 phychr <- c('abu', 'dis', 'len', 'ty2', 'ty3', 'scr')
 ```
@@ -141,7 +141,7 @@ crs <- crossing(var1 = names(dat_cor), var2 = names(dat_cor)) %>%
 
 ```r
 levs <- c(sort(envchr), sort(biochr), sort(phychr))
-labs <- c('Omega[ar]', 'CO[3]^-2', 'chla', 'Lat', 'O[2]', 'pCO[2]', 'pH', 'Temp', 'CAT', 'GR', 'GSHonGSSG', 'GST', ' LPX', 'ORAC', 'ORACvLPX', 'SOD', 'abundance', 'dissolution', 'growth', 'scarring', 'typeII', 'typeIII')
+labs <- c('Omega[ar]', 'chla', 'Lat', 'O[2]', 'pCO[2]', 'pH', 'Temp', 'CAT', 'GR', 'GSHonGSSG', 'GST', ' LPX', 'ORAC', 'ORACvLPX', 'SOD', 'abundance', 'dissolution', 'growth', 'scarring', 'typeII', 'typeIII')
 prplo <- crs %>% 
   separate(pr, c('cor', 'sig'), sep = ' ') %>% 
   filter(var1 %in% levs & var2 %in% levs) %>%  
@@ -174,17 +174,17 @@ p <- ggplot(prplo) +
   geom_tile(aes(y = var1, x = var2, fill = cor), colour = 'black') + 
   geom_text(aes(y = var1, x = var2, label = sig)) +
   annotation_custom(grob = textGrob(label = outlab$lab[1], hjust = 0, gp = gpar(cex = 0.7)),
-                    ymin = outlab$y[1], ymax = outlab$y[1], xmin = 23, xmax = 23) +
+                    ymin = outlab$y[1], ymax = outlab$y[1], xmin = 22, xmax = 22) +
   annotation_custom(grob = textGrob(label = outlab$lab[2], hjust = 0, gp = gpar(cex = 0.7)),
-                    ymin = outlab$y[2], ymax = outlab$y[2], xmin = 23, xmax = 23) +  
+                    ymin = outlab$y[2], ymax = outlab$y[2], xmin = 22, xmax = 22) +  
   annotation_custom(grob = textGrob(label = outlab$lab[3], hjust = 0, gp = gpar(cex = 0.7)),
-                    ymin = outlab$y[3], ymax = outlab$y[3], xmin = 23, xmax = 23) +
+                    ymin = outlab$y[3], ymax = outlab$y[3], xmin = 22, xmax = 22) +
   annotation_custom(grob = textGrob(label = outlab$lab[1], hjust = 0.5, gp = gpar(cex = 0.7)),
-                    xmin = outlab$y[1], xmax = outlab$y[1], ymin = 23.5, ymax = 23.5) +
+                    xmin = outlab$y[1], xmax = outlab$y[1], ymin = 22.5, ymax = 22.5) +
   annotation_custom(grob = textGrob(label = outlab$lab[2], hjust = 0.5, gp = gpar(cex = 0.7)),
-                    xmin = outlab$y[2], xmax = outlab$y[2], ymin = 23.5, ymax = 23.5) +  
+                    xmin = outlab$y[2], xmax = outlab$y[2], ymin = 22.5, ymax = 22.5) +  
   annotation_custom(grob = textGrob(label = outlab$lab[3], hjust = 0.5, gp = gpar(cex = 0.7)),
-                    xmin = outlab$y[3], xmax = outlab$y[3], ymin = 23.5, ymax = 23.5) +
+                    xmin = outlab$y[3], xmax = outlab$y[3], ymin = 22.5, ymax = 22.5) +
   pbase +
   scale_y_discrete('', expand = c(0, 0), labels = parse(text = rev(labs))) + 
   scale_x_discrete('', expand = c(0, 0), labels = parse(text = rev(labs))) +
@@ -266,8 +266,6 @@ p3 <- ggplot() +
 
 grid.arrange(p1, p2, p3, ncol = 2)
 ```
-
-<img src="figures_files/figure-html/effbio.png" width="100%" style="display: block; margin: auto;" />
 Fig. 3 Examples of model interactions of co-occuring environmental variables on cellular response measures.  Each subplot shows a different relationship as either additive or synergistic effects between the variables. All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum, 25th, median, 75th, and maximum values in the observed data.
 
 
@@ -312,8 +310,6 @@ p5 <- ggplot() +
 
 grid.arrange(p4, p5, ncol = 2)
 ```
-
-<img src="figures_files/figure-html/effphy.png" width="100%" style="display: block; margin: auto;" />
 Fig. 4 Examples of model interactions of co-occuring environmental variables on abundance and shell dissolution. Each subplot shows a different relationship as either additive or synergistic effects between the variables. All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum, 25th, median, 75th, and maximum values in the observed data.
 
 
@@ -385,49 +381,6 @@ knitr::kable(biotab, caption = "Table 1: Model results for pteropod cellular res
 ```
 
 
-
-Table: Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables in each model are shown.  The overall R-squred value for each model is also shown.  Significance of each effect is noted as * p < 0.05, ** p < 0.005.
-
-Model<br>   Parameter<br>   LPX<br>Est   <br>Rsq   ORAC<br>Est   <br>Rsq   ORACvLPX<br>Est   <br>Rsq   SOD<br>Est   <br>Rsq 
-----------  --------------  -----------  --------  ------------  --------  ----------------  --------  -----------  --------
-(a)         pCO2            0.05*        0.65      0.31          0.57      -0.86             0.51      0.19         0.52    
-            Ara             17.71                  246.29                  -271.39                     72.58                
-            pCO2:Ara        -0.03                  0.06                    0.43                        -0.03                
-(b)         pCO2            0            0.87      -0.61         0.15      0.51              0.91      -0.23        0.57    
-            O2              -0.04                  -1.49                   2.66*                       -0.96                
-            pCO2:O2         0                      0                       0                           0                    
-(c)         pCO2            0.09         0.62      -0.5          0.47      -0.98             0.55      -0.23        0.66    
-            Temp            4.77                   5.68                    -58.87                      -5.39                
-            pCO2:Temp       -0.01                  0.06                    0.08                        0.03                 
-(d)         pH              -101.03*     0.72      -810.38       0.58      1876.68           0.6       -475.74      0.59    
-            Ara             -406.15*               555                     6496.4                      -619.83              
-            pH:Ara          51.79*                 -25.27                  -835.38                     90.07                
-(e)         pH              11.41        0.94      1794.69       0.29      -1034.57          0.91      584.91       0.68    
-            O2              -1.18*                 33.71                   7.48                        7.4                  
-            pH:O2           0.13*                  -4.46                   -0.53                       -1.06                
-(f)         pH              -163.87      0.68      824.67        0.45      2025.87           0.62      240.63       0.65    
-            Temp            -123.79                842.19                  1314.98                     358.65               
-            pH:Temp         15.63                  -101.23                 -168.02                     -43.4                
-(g)         Ara             -14.85       0.88      383.89        0.51      134.38            0.8       95.75        0.71    
-            O2              -0.19**                -0.1                    3.32*                       -0.41                
-            Ara:O2          0.09*                  -0.71                   -1.22                       -0.14                
-(h)         Ara             -62.93       0.72      206.6         0.4       681.44            0.68      59.34        0.61    
-            Temp            -8.68                  79.92                   36.91                       46.48                
-            Ara:Temp        5.94                   -26.52                  -49.42                      -15.21               
-(i)         Ara             -4.72        0.58      66.14         0.28      137.19            0.69      -19.6        0.27    
-            Fluor           -5.35                  -133.22                 345.5                       170.06               
-            Ara:Fluor       -2.21                  149.85                  -60.2                       -132.48              
-(j)         O2              -0.33*       0.81      1.64          0.43      3.98              0.76      1.13         0.73    
-            Temp            -6.68                  77.43                   53.74                       46.45                
-            O2:Temp         0.03                   -0.2                    -0.32                       -0.16                
-(k)         O2              -0.04*       0.79      0.13          0.08      1.06**            0.91      -0.27        0.52    
-            Fluor           -14.83                 -256.69                 656.19                      -85.16               
-            O2:Fluor        0.03                   1.25                    -1.96                       0.26                 
-(l)         Temp            -0.67        0.22      21.36         0.61      21.32             0.26      1.35         0.04    
-            Fluor           47.63                  -2603.6                 -756.16                     610.65               
-            Temp:Fluor      -5.75                  294.24                  101.91                      -63.93               
-
-
 ```r
 phytab <- mods$phy %>% 
   left_join(phymod, by = 'Model') %>% 
@@ -488,47 +441,4 @@ names(phytab) <- vrs
 
 knitr::kable(phytab, caption = "Table 2: Model results for pteropod physiological and population response to pairs of co-occurring environmental variables. The estimated joint effects of variables in each model are shown.  The overall R-squred value for each model is also shown.  Significance of each effect is noted as * p < 0.05, ** p < 0.005.")
 ```
-
-
-
-Table: Table 2: Model results for pteropod physiological and population response to pairs of co-occurring environmental variables. The estimated joint effects of variables in each model are shown.  The overall R-squred value for each model is also shown.  Significance of each effect is noted as * p < 0.05, ** p < 0.005.
-
-Model<br>   Parameter<br>   Abundance<br>Est   <br>Rsq   Shell dissolution<br>Est   <br>Rsq   Length<br>Est   <br>Rsq 
-----------  --------------  -----------------  --------  -------------------------  --------  --------------  --------
-(a)         pCO2            -0.01*             0.17      0*                         0.83      0               0.08    
-            Ara             -3.1*                        0.4*                                 -1.53                   
-            pCO2:Ara        0                            0*                                   0                       
-(b)         pCO2            0                  0.32      0                          0.91      0.01            0.19    
-            O2              0.02                         0                                    0.02                    
-            pCO2:O2         0*                           0**                                  0                       
-(c)         pCO2            0                  0.44      0*                         0.82      0               0.11    
-            Temp            -0.23                        0.12*                                0                       
-            pCO2:Temp       0                            0                                    0                       
-(d)         pH              14.66*             0.29      -2.18*                     0.84      6.61            0.08    
-            Ara             39.44                        -9.36*                               4.03                    
-            pH:Ara          -5.25                        1.19*                                -0.74                   
-(e)         pH              4.44               0.14      -0.44                      0.93      -16.71          0.39    
-            O2              0.36                         -0.06**                              0.1                     
-            pH:O2           -0.04                        0.01**                               -0.01                   
-(f)         pH              3.1                0.48      -3.7*                      0.86      -1.93           0.1     
-            Temp            -0.34                        -2.57                                -3.8                    
-            pH:Temp         0                            0.33                                 0.45                    
-(g)         Ara             1.63               0.24      -0.41                      0.9       -2.24           0.23    
-            O2              0.03*                        -0.01**                              0.02                    
-            Ara:O2          -0.01                        0*                                   0                       
-(h)         Ara             1.47               0.54      -1.27*                     0.91      0.52            0.1     
-            Temp            -0.43                        -0.11                                -0.41                   
-            Ara:Temp        0                            0.1*                                 0.05                    
-(i)         Ara             0.49               0.03      0.06                       0.69      0.26            0.06    
-            Fluor           8.24                         4.93                                 1.73                    
-            Ara:Fluor       -5.38                        -3.59                                -0.3                    
-(j)         O2              0                  0.46      -0.01*                     0.91      -0.01           0.16    
-            Temp            -0.41                        -0.15                                -0.65                   
-            O2:Temp         0                            0*                                   0                       
-(k)         O2              0.01               0.12      0                          0.8       0.01            0.15    
-            Fluor           14.87                        3.62                                 23.3                    
-            O2:Fluor        -0.07                        -0.02                                -0.1                    
-(l)         Temp            -0.24              0.18      0.02                       0.3       0               0.04    
-            Fluor           -7.4                         8.15                                 1.15                    
-            Temp:Fluor      0.78                         -0.88                                -0.02                   
 

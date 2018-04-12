@@ -126,8 +126,8 @@ save(expdat, file = 'data/expdat.RData', compress = 'xz')
 data(envdat)
 data(ptedat)
 
-envchr <- c('pCO2', 'pH', 'Ara', 'O2', 'Temp', 'Fluor')
-ptechr <- c('CAT', 'GR', 'GSHonGSSG', 'GST', 'LPX', 'ORAC', 'SOD', 'ORACvLPX')
+envchr <- c('pCO2', 'Ara', 'Temp')
+ptechr <- c('LPX', 'ORAC', 'SOD')
 
 dat_frm <- ptedat %>% 
   select(one_of('CTD', ptechr)) %>% 
@@ -168,13 +168,29 @@ mod_all <- env_cmb %>%
       as.formula
     
     # model only
-    lm(frm, data = dat)
+    datin <- dat[, x] %>% na.omit
+    modout <- lm(frm, data = datin, na.action = na.pass) %>% 
+      dredge %>% 
+      get.models(subset = 1) %>% 
+      .[[1]]
+    
+    # check pval
+    pval <- modout %>%
+      summary %>%
+      .$fstatistic
+    
+    # pval <- p.adjust(pval, method = 'holm', n = 88)
+    if(is.null(pval)) return(NA)
+    else pval <- pf(pval[1], pval[2], pval[3], lower.tail = F)
+    if(pval >= 0.05) return(NA)
+
+    return(modout)
     
   }) %>% 
   enframe('Model', 'Modobj') %>% 
   filter(!map(.$Modobj, is.logical) %>% unlist) %>% 
   mutate(
-    Model = gsub('^X', 'mod', Model), 
+    Model = paste0('mod', 1:nrow(.)),
     data = map(Modobj, function(x){
       
       # response
@@ -183,12 +199,12 @@ mod_all <- env_cmb %>%
       # rsq
       rsq <- summary(x) %>% 
         .$r.squared
-      
+
       # coeff summary
       out <- x %>% 
         summary %>% 
         .$coefficients %>% 
-        .[-1, c(1, 4)] %>% 
+        .[-1, c(1, 4), drop = F] %>% 
         data.frame %>% 
         rownames_to_column('env_lab') %>% 
         mutate(
@@ -214,8 +230,8 @@ save(biomod, file = 'data/biomod.RData', compress = 'xz')
 data(envdat)
 data(ptedat)
 
-envchr <- c('pCO2', 'pH', 'Ara', 'O2', 'Temp', 'Fluor')
-ptechr <- c('abu', 'dis', 'len', 'ty2', 'ty3', 'scr')
+envchr <- c('pCO2', 'Ara', 'Temp')
+ptechr <- c('abu', 'dis')
 
 dat_frm <- ptedat %>% 
   select(one_of('CTD', ptechr)) %>% 
@@ -262,26 +278,31 @@ mod_all <- env_cmb %>%
     # formula
     frm <- paste(x[1], '~', x[2], '*', x[3]) %>% 
       as.formula
-    
-    # if(x[1] == 'abu'){
-    #   
-    #   # zinf model
-    #   out <- zeroinfl(frm, data = dat_frm)
-    # 
-    # } else {
-    
+
     # model only
-    out <- lm(frm, data = dat)
+    datin <- dat[, x] %>% na.omit
+    modout <- lm(frm, data = datin, na.action = na.pass) %>% 
+      dredge %>% 
+      get.models(subset = 1) %>% 
+      .[[1]]
     
-    # }
+    # check pval
+    pval <- modout %>%
+      summary %>%
+      .$fstatistic
     
-    return(out)
+    # pval <- p.adjust(pval, method = 'holm', n = 88)
+    if(is.null(pval)) return(NA)
+    else pval <- pf(pval[1], pval[2], pval[3], lower.tail = F)
+    if(pval >= 0.05) return(NA)
+    
+    return(modout)    
     
   }) %>% 
   enframe('Model', 'Modobj') %>% 
   filter(!map(.$Modobj, is.logical) %>% unlist) %>% 
   mutate(
-    Model = gsub('^X', 'mod', Model), 
+    Model = paste0('mod', 1:nrow(.)),
     data = map(Modobj, function(x){
       
       # response
@@ -295,7 +316,7 @@ mod_all <- env_cmb %>%
       out <- x %>% 
         summary %>% 
         .$coefficients %>% 
-        .[-1, c(1, 4)] %>% 
+        .[-1, c(1, 4), drop = F] %>% 
         data.frame %>% 
         rownames_to_column('env_lab') %>% 
         mutate(

@@ -21,6 +21,7 @@ library(effects)
 library(shiny)
 library(plotly)
 library(GGally)
+library(grid)
 
 source("R/funcs.R")
 
@@ -32,27 +33,6 @@ envchr <- c('pCO2', 'pH', 'Ara', 'O2', 'Temp', 'Fluor')
 ptechr <- c('CAT', 'GR', 'GSHonGSSG', 'GST', 'LPX', 'ORAC', 'SOD', 'ORACvLPX')
 ```
 
-## Methods
-
-The response of pteropods to multiple stressors at the cellular, physiological, and population levels were evaluated using correlation analysis, multiple linear regression, and multivariate analysis. The general approach was to identify relationships among variables as potentially additive, synergistic, and antagonistic by evaluating pairwise effects of stressors on each response measure. Pearson correlations of environmental parameters (OA parameters, temperature, and chlorophyll) with cellular, physiological, and population response were first evaluated to identify potential associations with individual variables. Correlations between cellular and physiological responses were also evaluated to identify links between the two levels of biological organization. Non-continuous or skewed variables were transformed to better satisfy assumptions of the parametric tests (e.g., abundances were logarithmically transformed, proportions were arcsine transformed). All analyses were performed with the R statistical programming language (R Core Team 2017).
-
-Linear models were developed for every pairwise combination of environmental variables to evaluate additive and interactive effects on stressor response. Each model included separate terms for individual variables and a third term for the interaction of the pair. Evidence for additive effects were based solely on the magnitude of the estimated parameter for each variable, whereas synergistic or antagonistic effects were evaluated from the estimated parameter for the interaction. A positive interaction was evidence of a synergistic effect and a negative interaction was evidence of an antagonistic effect. Results of the linear models were further evaluated using effects plots to characterize the relationship of a pteropod response measure to continuous values for one stressor given two different values for the second stressor (constant at the minimum and maximum observed values). Thresholds for synergistic or antagonistic effects between two variables were identified from the effects plots as the intersection between the two fitted lines.
-
-Variance Inflation Factors (VIF) were quantified for all pairwise combinations of environmental variables used in the regression analysis to evaluate collinearity, such that:
-
-VIFj = 1 /( 1 − R2j) 		(1)
-
-where VIF is the reciprocal of the unexplained variance (1 − R2) of the linear regression of variable j against all other explanatory variables (Zuur et al., 2007). Although there are no specific VIF thresholds beyond which a variable is considered overly collinear, values less than 50 are generally considered adequate (Zuur et al. 2007). Comparisons of variables indicated that all VIF were below this threshold, except combinations of CO3/Aragonite (70.6), pCO2/CO3 (51.4), and ph/pCO2 (79.2).
-
-Finally, multivariate comparisons between the cellular response measures and environmental variables were assessed using redundancy analysis (RDA) to jointly characterize relationships between all sampling stations. This analysis is conceptually similar to principal components analysis with an additional constraint on the environmental matrix, where the relationships are further partitioned based on covariance among response measures at each site in addition to the covariance between environmental variables. The final triplot (two biplots of environmental and response matrices) can be used to evaluate which environmental variables are correlated, as well as their relationships to the cellular response measures at each site. The environmental and response matrices were standardized to range from 0-1 prior to RDA. The vegan package for R was used for standardization and RDA (Oksanen et al. 2017). 
-
-Oksanen, J., Guillaume Blanchet, F.,  Friendly, M., Kindt, R.,  Legendre, P., McGlinn, D., Minchin, P.R., O'Hara, R.B., Simpson, G.L., Solymos, P., Henry, M., Stevens, H., Szoecs, E., Wagner, H. 2017. vegan: Community Ecology Package. R package version 2.4-5. https://CRAN.R-project.org/package=vegan
-
-R Core Team (2017). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.  
-
-Zuur, A.F., Ieno, E.N., Smith, G.M. 2007. Analysing Ecological DAta. Springer, New York, NY. 
-MOntgomery, D.C., Peck, E.A. 1992. Introduction to Linear Regression Analysis. Wiley, New York, NY. 
-
 Pairs plot
 ```{r, fig.height = 8, fig.width = 8}
 dat <- ptedat %>% 
@@ -62,24 +42,6 @@ dat <- ptedat %>%
   select(one_of(c('CTD', envchr, ptechr)))
  
 pairs(dat[, -1], gap = 0, cex = 1, col = 'grey')
-```
-
-Pairs plot showing only LPX, SOD, ORAC/LPX with omega, O2, T:
-```{r, fig.height = 8, fig.width = 8}
-dat2 <- ptedat %>% 
-  inner_join(envdat, by = 'CTD') %>% 
-  select(one_of(c('LPX', 'SOD', 'ORACvLPX', 'Ara', 'O2', 'Temp')))
-
-# Function to return points and geom_smooth
-my_fn <- function(data, mapping, method="loess", ...){
-      p <- ggplot(data = data, mapping = mapping) + 
-      geom_point() + 
-      geom_smooth(method=method, ...)
-      p
-    }
-
-# Default loess curve    
-ggpairs(dat2, lower = list(continuous = my_fn))
 ```
 
 RDA triplot of biomarkers and environmental data
@@ -98,11 +60,20 @@ mod <- rda(pte, env)
 ggord(mod, ptslab = T, parse = T)
 ```
 
-# {.tabset}
+# Correlations
 
 ```{r}
+# physiology rda model
+dat_cor <- ptedat %>% 
+  select(one_of('CTD', ptechr)) %>% 
+  # na.omit %>% 
+  left_join(envdat, by = 'CTD') %>% 
+  data.frame %>% 
+  remove_rownames %>% 
+  column_to_rownames('CTD')
+
 # all correlations
-crs <- crossing(var1 = names(dat_frm), var2 = names(dat_frm)) %>% 
+crs <- crossing(var1 = names(dat_cor), var2 = names(dat_cor)) %>% 
   filter(var1 != var2) %>% 
   rownames_to_column() %>% 
   group_by(rowname) %>% 
@@ -111,100 +82,35 @@ crs <- crossing(var1 = names(dat_frm), var2 = names(dat_frm)) %>%
     crs = map(data, function(x){
       
       # variables
-      vr1 <- dat_frm[[x$var1]]
-      vr2 <- dat_frm[[x$var2]]
+      vr1 <- dat_cor[[x$var1]]
+      vr2 <- dat_cor[[x$var2]]
       
       # pearson
       pr_ts <- cor.test(vr1, vr2, method = 'pearson')
       pr_cr <- round(pr_ts$estimate, 2)
       pr_pv <- p_ast(pr_ts$p.value)
       pr <- paste(pr_cr, pr_pv)
-      
-      # spearman
-      sp_ts <- suppressWarnings(cor.test(vr1, vr2, method = 'spearman'))
-      sp_cr <- round(sp_ts$estimate, 2)
-      sp_pv <- p_ast(sp_ts$p.value)
-      sp <- paste(sp_cr, sp_pv)
-
-      out <- data.frame(pr = pr, sp = sp, stringsAsFactors = F)
+    
+      out <- data.frame(pr = pr, stringsAsFactors = F)
       return(out)
       
     })
   ) %>% 
   unnest %>% 
   select(-rowname)
-
-sp_cr <- crs %>% 
-  select(var1, var2, sp) %>% 
-  spread(var2, sp) %>% 
-  data.frame(stringsAsFactors = F) %>% 
-  remove_rownames %>% 
-  column_to_rownames('var1') 
-
-pr_cr <- crs %>% 
-  select(var1, var2, pr) %>% 
-  spread(var2, pr) %>% 
-  data.frame(stringsAsFactors = F) %>% 
-  remove_rownames %>% 
-  column_to_rownames('var1') 
 ```
 
-## Spearman correlations
-<div class="verysmall">
-
-```{r}
-knitr::kable(sp_cr, caption = 'Spearman rank correlations')
-```
-
-</div>
-
-```{r spheat, fig.height = 5, fig.width = 10}
-spplo <- crs %>% 
-  select(-pr) %>% 
-  separate(sp, c('cor', 'sig'), sep = ' ') %>% 
-  mutate(
-    cor = as.numeric(cor), 
-    var1 = factor(var1, levels = rev(unique(.$var1)))
-  )
-
-pbase <- theme(
-  panel.grid.major = element_blank(), 
-  panel.grid.minor = element_blank(), 
-  axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
-  axis.text.y = element_text(size = 8),
-  legend.position = 'top', 
-  plot.margin = grid::unit(c(2, 2, 2, 2), 'pt'), 
-  strip.background = element_blank(), 
-  strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
-  panel.background = element_rect(fill = 'black')
-  ) 
-
-p <- ggplot(spplo, aes(y = var1, x = var2, fill = cor)) + 
-  geom_tile(colour = 'black') + 
-  pbase +
-  scale_y_discrete('', expand = c(0, 0)) + 
-  scale_x_discrete('', expand = c(0, 0)) +
-  scale_fill_gradient2('Correlation', low = muted("green"), mid = "white", high = muted("blue"), midpoint = 0) +
-  guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0)))
-p
-```
-
-## Pearson correlations
-<div class="verysmall">
-
-```{r}
-knitr::kable(pr_cr, caption = 'Pearson correlations')
-```
-
-</div>
-
-```{r prheat, fig.height = 5, fig.width = 10}
+```{r, fig.height = 6, fig.width = 6}
+levs <- c(sort(envchr), sort(ptechr))
+labs <- c('Omega[ar]', 'chla', 'O[2]', 'pCO[2]', 'pH', 'Temp', 'CAT', 'GR', 'GSHonGSSG', 'GST', 'LPX', 'ORAC', 'SOD', 'ORACvLPX')
 prplo <- crs %>% 
-  select(-sp) %>% 
   separate(pr, c('cor', 'sig'), sep = ' ') %>% 
+  filter(var1 %in% levs & var2 %in% levs) %>%  
   mutate(
     cor = as.numeric(cor), 
-    var1 = factor(var1, levels = rev(unique(.$var1)))
+    var1 = factor(var1, levels = rev(levs), labels = rev(labs)), 
+    var2 = factor(var2, levels = rev(levs), labels = rev(labs)), 
+    sig = gsub('ns', '', sig)
   )
 
 pbase <- theme(
@@ -212,21 +118,41 @@ pbase <- theme(
   panel.grid.minor = element_blank(), 
   axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
   axis.text.y = element_text(size = 8),
-  legend.position = 'top', 
-  plot.margin = grid::unit(c(2, 2, 2, 2), 'pt'), 
+  legend.position = c(0.5, 1.2),
+  legend.direction = 'horizontal',
+  plot.margin = unit(c(8,4,0,0), "lines"),
   strip.background = element_blank(), 
   strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
   panel.background = element_rect(fill = 'black')
   ) 
 
-p <- ggplot(prplo, aes(y = var1, x = var2, fill = cor)) + 
-  geom_tile(colour = 'black') + 
+outlab <- data.frame(
+  y = c(4.5, 11.5), 
+  lab = c('Cellular', 'Environment')
+)
+
+p <- ggplot(prplo) + 
+  geom_tile(aes(y = var1, x = var2, fill = cor), colour = 'black') + 
+  geom_text(aes(y = var1, x = var2, label = sig)) +
+  annotation_custom(grob = textGrob(label = outlab$lab[1], hjust = 0, gp = gpar(cex = 0.7)),
+                    ymin = outlab$y[1], ymax = outlab$y[1], xmin = 15, xmax = 15) +
+  annotation_custom(grob = textGrob(label = outlab$lab[2], hjust = 0, gp = gpar(cex = 0.7)),
+                    ymin = outlab$y[2], ymax = outlab$y[2], xmin = 15, xmax = 15) +
+  annotation_custom(grob = textGrob(label = outlab$lab[1], hjust = 0.5, gp = gpar(cex = 0.7)),
+                    xmin = outlab$y[1], xmax = outlab$y[1], ymin = 15.5, ymax = 15.5) +
+  annotation_custom(grob = textGrob(label = outlab$lab[2], hjust = 0.5, gp = gpar(cex = 0.7)),
+                    xmin = outlab$y[2], xmax = outlab$y[2], ymin = 15.5, ymax = 15.5) +
   pbase +
-  scale_y_discrete('', expand = c(0, 0)) + 
-  scale_x_discrete('', expand = c(0, 0)) +
-  scale_fill_gradient2('Correlation', low = muted("green"), mid = "white", high = muted("blue"), midpoint = 0) +
-  guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0)))
-p
+  scale_y_discrete('', expand = c(0, 0), labels = parse(text = rev(labs))) + 
+  scale_x_discrete('', expand = c(0, 0), labels = parse(text = rev(labs))) +
+  scale_fill_gradient2('Correlation', low = muted("blue"), mid = "white", high = muted("red"), midpoint = 0) +
+  geom_hline(yintercept = 8.5, size = 1.5) +
+  geom_vline(xintercept = 8.5, size = 1.5) 
+
+# Code to override clipping
+gt <- ggplot_gtable(ggplot_build(p))
+gt$layout$clip[gt$layout$name == "panel"] <- "off"
+grid.draw(gt)
 ```
 
 # Pairwise VIF among environmental variables
@@ -270,15 +196,35 @@ knitr::kable(vifv, caption = 'VIF')
 
 </div>
 
-# {.tabset}
-
-Pairwise models with interactions for each biomarker, only pairwise models with VIF < 11 are shown
+# Model results {.tabset}
 
 ```{r}
 # model data
 mods <- biomod %>% 
   unnest(data)
 mod_all <- biomod
+```
+
+## LPX
+```{r}
+knitr::kable(filter(mods, pte_lab %in% 'LPX'), caption = 'LPX')
+```
+
+## ORAC
+```{r}
+knitr::kable(filter(mods, pte_lab %in% 'ORAC'), caption = 'ORAC')
+```
+
+## SOD
+```{r}
+knitr::kable(filter(mods, pte_lab %in% 'SOD'), caption = 'SOD')
+```
+
+# {.tabset}
+
+Pairwise models with interactions for relevant response measures, only pairwise models with VIF < 11 are shown
+
+```{r}
 
 selectInput("mod", "Choose model:", mod_all[['Model']])
 
@@ -292,28 +238,15 @@ md <- reactive({
   
 })
 
-levs1 <- reactive({
-  
-  levs1 <- quantile(md()$model[, 2],  c(0, 1)) %>% 
-    list
-  names(levs1) <- names(md()$model)[2]
-  return(levs1)
-  
-})
-
-
-levs2 <- reactive({
-  
-  levs2 <- quantile(md()$model[, 3], c(0, 1)) %>% 
-    list
-  names(levs2) <- names(md()$model)[3]
-  return(levs2)
-  
-})
-
 trm <- reactive({
   
-  md() %>% coefficients %>% names %>% .[4]
+  coefnms <- md() %>% coefficients %>% names
+  if(length(coefnms) < 3) return(NULL)
+  else out <- coefnms[3]
+  
+  if(input$cvr) out <- coefnms[2]
+  
+  return(out)
 
 })
 
@@ -353,42 +286,43 @@ renderPlot({
 
 }, height = 300, width = 600)
 
-renderPlot({
-  plot(effect(trm(), md(), xlevels = levs1()), multiline = T)
-}, height = 300, width = 600)
+selectInput("cvr", "Switch covariate:", c(F, T))
 
 renderPlot({
-  plot(effect(trm(), md(), xlevels = levs2()), multiline = T)
-}, height = 300, width = 600)
 
-renderPlot({
+  if(is.null(trm())) stop("Model is too simple, you broke me Nina!")
   
-  pbase <- theme(
-    panel.grid.major = element_blank(), 
-    panel.grid.minor = element_blank(), 
-    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 10), 
-    axis.text.y = element_text(size = 10),
-    legend.position = 'top', 
-    plot.margin = grid::unit(c(2, 2, 2, 2), 'pt'), 
-    strip.background = element_blank(), 
-    strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5)
-  ) 
+  # colors
+  cols <- RColorBrewer::brewer.pal(9, 'RdBu')
+  
+  # get data to plot
+  pl <- md() %>% 
+    get_pldat(., trm())
+  pl1 <- pl[[1]]
+  pl2 <- pl[[2]]
+  
+# names for aes_string
+nms <- names(pl1)
 
-  p <- ggplot(prd_vl(), aes_string(y = names(prd_vl())[2], x = names(prd_vl())[3], fill = names(prd_vl())[1])) + 
-    geom_tile(colour = 'black') + 
-    theme_bw(base_family = 'serif') +
-    pbase +
-    scale_y_continuous(expand = c(0, 0)) +
-    scale_x_continuous(expand = c(0, 0)) +
-    scale_fill_distiller(palette = 'Spectral') +
-    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 15, label.theme = element_text(size = 12, angle = 0)))
-  p
-}, height = 700, width = 700)
+p1 <- ggplot() +
+  geom_ribbon(data = pl1, aes_string(x = nms[3], ymin = 'lo', ymax = 'hi', group = nms[4]), alpha = 0.5, fill = 'grey') +
+  geom_line(data = pl1, aes_string(x = nms[3], y = nms[1], group = nms[4], colour = nms[4]), size = 1) + 
+  geom_text(data = pl2, aes(x= x, y = y, label = lab), hjust = 0) +
+  theme_bw() +
+  scale_x_continuous(nms[3]) +
+  scale_colour_gradientn(colours = cols) + 
+  scale_y_continuous(nms[1])
+
+return(p1)
+  
+}, height = 300, width = 600)
 
 renderPlotly({
   
   # observed data
   toplo <- md()$model
+  if(ncol(toplo) < 3) stop("Model is too simple, you broke me Nina!")
+  
   names(toplo) <- c('z', 'x', 'y')
   
   # surface data
@@ -413,44 +347,4 @@ renderPlotly({
     layout(scene = scene, width = 800, height = 400)
   p
 })
-```
-
-## CAT
-```{r}
-knitr::kable(filter(mods, pte_lab %in% 'CAT'), caption = 'CAT')
-```
-
-## GR
-```{r}
-knitr::kable(filter(mods, pte_lab %in% 'GR'), caption = 'GR')
-```
-
-## GSHonGSSG
-```{r}
-knitr::kable(filter(mods, pte_lab %in% 'GSHonGSSG'), caption = 'GSHonGSSG')
-```
-
-## GST
-```{r}
-knitr::kable(filter(mods, pte_lab %in% 'GST'), caption = 'GST')
-```
-
-## LPX
-```{r}
-knitr::kable(filter(mods, pte_lab %in% 'LPX'), caption = 'LPX')
-```
-
-## ORAC
-```{r}
-knitr::kable(filter(mods, pte_lab %in% 'ORAC'), caption = 'ORAC')
-```
-
-## SOD
-```{r}
-knitr::kable(filter(mods, pte_lab %in% 'SOD'), caption = 'SOD')
-```
-
-## ORACvLPX
-```{r}
-knitr::kable(filter(mods, pte_lab %in% 'ORACvLPX'), caption = 'ORACvLPX')
 ```

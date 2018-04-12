@@ -102,11 +102,16 @@ get_pldat <- function(modin, cvar, pos = c('left', 'right'), fct = NULL){
   nms <- names(x) 
   x <- crossing(x[[1]], x[[2]])
   names(x) <- nms
-  
+  x <- x[, c(names(x)[!names(x) %in% cvar], cvar)]
+
   # get predictions, combine with exp vars
   prd_vl <- predict(modin, newdata = x, se = T) %>% 
     data.frame(., x) %>% 
-    dplyr::select(-df, -residual.scale)
+    dplyr::select(-df, -residual.scale) %>% 
+    mutate(
+      hi = fit + se.fit, 
+      lo = fit - se.fit
+      )
   names(prd_vl)[1] <- all.vars(formula(modin))[1]
   
   # min x axis values for quantile labels

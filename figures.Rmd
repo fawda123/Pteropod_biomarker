@@ -31,7 +31,7 @@ data(ptedat)
 data(phymod)
 data(biomod)
 
-envchr <- c('Lat', 'pCO2', 'pH', 'CO3', 'Ara', 'O2', 'Temp', 'Fluor')
+envchr <- c('Lat', 'pCO2', 'pH', 'Ara', 'O2', 'Temp', 'Fluor')
 biochr <- c('CAT', 'GR', 'GSHonGSSG', 'GST', 'LPX', 'ORAC', 'SOD', 'ORACvLPX')
 phychr <- c('abu', 'dis', 'len', 'ty2', 'ty3', 'scr')
 ```
@@ -135,7 +135,7 @@ crs <- crossing(var1 = names(dat_cor), var2 = names(dat_cor)) %>%
 
 ```{r corplo, fig.height = 6, fig.width = 7}
 levs <- c(sort(envchr), sort(biochr), sort(phychr))
-labs <- c('Omega[ar]', 'CO[3]^-2', 'chla', 'Lat', 'O[2]', 'pCO[2]', 'pH', 'Temp', 'CAT', 'GR', 'GSHonGSSG', 'GST', ' LPX', 'ORAC', 'ORACvLPX', 'SOD', 'abundance', 'dissolution', 'growth', 'scarring', 'typeII', 'typeIII')
+labs <- c('Omega[ar]', 'chla', 'Lat', 'O[2]', 'pCO[2]', 'pH', 'Temp', 'CAT', 'GR', 'GSHonGSSG', 'GST', ' LPX', 'ORAC', 'ORACvLPX', 'SOD', 'abundance', 'dissolution', 'growth', 'scarring', 'typeII', 'typeIII')
 prplo <- crs %>% 
   separate(pr, c('cor', 'sig'), sep = ' ') %>% 
   filter(var1 %in% levs & var2 %in% levs) %>%  
@@ -168,17 +168,17 @@ p <- ggplot(prplo) +
   geom_tile(aes(y = var1, x = var2, fill = cor), colour = 'black') + 
   geom_text(aes(y = var1, x = var2, label = sig)) +
   annotation_custom(grob = textGrob(label = outlab$lab[1], hjust = 0, gp = gpar(cex = 0.7)),
-                    ymin = outlab$y[1], ymax = outlab$y[1], xmin = 23, xmax = 23) +
+                    ymin = outlab$y[1], ymax = outlab$y[1], xmin = 22, xmax = 22) +
   annotation_custom(grob = textGrob(label = outlab$lab[2], hjust = 0, gp = gpar(cex = 0.7)),
-                    ymin = outlab$y[2], ymax = outlab$y[2], xmin = 23, xmax = 23) +  
+                    ymin = outlab$y[2], ymax = outlab$y[2], xmin = 22, xmax = 22) +  
   annotation_custom(grob = textGrob(label = outlab$lab[3], hjust = 0, gp = gpar(cex = 0.7)),
-                    ymin = outlab$y[3], ymax = outlab$y[3], xmin = 23, xmax = 23) +
+                    ymin = outlab$y[3], ymax = outlab$y[3], xmin = 22, xmax = 22) +
   annotation_custom(grob = textGrob(label = outlab$lab[1], hjust = 0.5, gp = gpar(cex = 0.7)),
-                    xmin = outlab$y[1], xmax = outlab$y[1], ymin = 23.5, ymax = 23.5) +
+                    xmin = outlab$y[1], xmax = outlab$y[1], ymin = 22.5, ymax = 22.5) +
   annotation_custom(grob = textGrob(label = outlab$lab[2], hjust = 0.5, gp = gpar(cex = 0.7)),
-                    xmin = outlab$y[2], xmax = outlab$y[2], ymin = 23.5, ymax = 23.5) +  
+                    xmin = outlab$y[2], xmax = outlab$y[2], ymin = 22.5, ymax = 22.5) +  
   annotation_custom(grob = textGrob(label = outlab$lab[3], hjust = 0.5, gp = gpar(cex = 0.7)),
-                    xmin = outlab$y[3], xmax = outlab$y[3], ymin = 23.5, ymax = 23.5) +
+                    xmin = outlab$y[3], xmax = outlab$y[3], ymin = 22.5, ymax = 22.5) +
   pbase +
   scale_y_discrete('', expand = c(0, 0), labels = parse(text = rev(labs))) + 
   scale_x_discrete('', expand = c(0, 0), labels = parse(text = rev(labs))) +
@@ -196,7 +196,7 @@ grid.draw(gt)
 ```
 Fig. 2 Correlation matrix of environmental variables, cellular response endpoints, and population (abundance) and physiological response endpoints for pteropods.  Darker red values are strong positive correlations and darker purple values are strong negative correlations.  Significance values at alpha = 0.05 are shown by stars (p < 0.05 \*, p < 0.005 \*).
 
-```{r effbio, fig.height = 8, fig.width = 9}
+```{r effbio, fig.height = 8, fig.width = 9, eval = F}
 # cellular 92 (lpx, ara, ph - syn), 101 (lpx, ara, t - neg add), 164 (sod, ara, t, neg but no thrsh) 
 biosel <- biomod %>% 
   filter(Model %in% paste0('mod', c(92, 101, 164))) %>% 
@@ -260,7 +260,7 @@ grid.arrange(p1, p2, p3, ncol = 2)
 ```
 Fig. 3 Examples of model interactions of co-occuring environmental variables on cellular response measures.  Each subplot shows a different relationship as either additive or synergistic effects between the variables. All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum, 25th, median, 75th, and maximum values in the observed data.
 
-```{r effphy, fig.height = 4, fig.width = 9}
+```{r effphy, fig.height = 4, fig.width = 9, eval = F}
 
 # physio 4 (abu, o2, pco2 - pos additive), 38 (dis, ara, t - syn)
 physel <- phymod %>% 
@@ -304,7 +304,7 @@ grid.arrange(p4, p5, ncol = 2)
 ```
 Fig. 4 Examples of model interactions of co-occuring environmental variables on abundance and shell dissolution. Each subplot shows a different relationship as either additive or synergistic effects between the variables. All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum, 25th, median, 75th, and maximum values in the observed data.
 
-```{r}
+```{r, eval = F}
 mods <- readxl::read_excel('raw/info for table.xlsx') %>% 
   .[-1, -1] %>% 
   gather('var', 'Model', everything()) %>% 
@@ -371,7 +371,7 @@ names(biotab) <- vrs
 knitr::kable(biotab, caption = "Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables in each model are shown.  The overall R-squred value for each model is also shown.  Significance of each effect is noted as * p < 0.05, ** p < 0.005.")
 ```
 
-```{r}
+```{r, eval = F}
 phytab <- mods$phy %>% 
   left_join(phymod, by = 'Model') %>% 
   select(Model, data) %>%
