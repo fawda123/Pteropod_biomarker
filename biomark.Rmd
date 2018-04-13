@@ -215,6 +215,11 @@ knitr::kable(filter(mods, pte_lab %in% 'LPX'), caption = 'LPX')
 knitr::kable(filter(mods, pte_lab %in% 'ORAC'), caption = 'ORAC')
 ```
 
+## ORACvLPX
+```{r}
+knitr::kable(filter(mods, pte_lab %in% 'ORACvLPX'), caption = 'ORACvLPX')
+```
+
 ## SOD
 ```{r}
 knitr::kable(filter(mods, pte_lab %in% 'SOD'), caption = 'SOD')

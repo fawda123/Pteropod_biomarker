@@ -1,5 +1,6 @@
 library(readxl)
 library(tidyverse)
+library(MuMIn)
 
 source('R/funcs.R')
 
@@ -127,7 +128,7 @@ data(envdat)
 data(ptedat)
 
 envchr <- c('pCO2', 'Ara', 'Temp')
-ptechr <- c('LPX', 'ORAC', 'SOD')
+ptechr <- c('LPX', 'ORAC', 'ORACvLPX', 'SOD')
 
 dat_frm <- ptedat %>% 
   select(one_of('CTD', ptechr)) %>% 
@@ -230,8 +231,8 @@ save(biomod, file = 'data/biomod.RData', compress = 'xz')
 data(envdat)
 data(ptedat)
 
-envchr <- c('pCO2', 'Ara', 'Temp')
-ptechr <- c('abu', 'dis')
+envchr <- c('pCO2', 'Ara', 'Temp', 'O2')
+ptechr <- c('abu', 'dis', 'len')
 
 dat_frm <- ptedat %>% 
   select(one_of('CTD', ptechr)) %>% 
@@ -247,19 +248,12 @@ env_cmb <- envchr %>%
   combn(2) %>% 
   t %>% 
   data.frame(stringsAsFactors = F) %>%
+  filter(!(X1 %in% 'pCO2' & X2 %in% 'O2')) %>%  # remove pCO2 and O2 comps
   crossing(ptechr, .) %>% 
   t %>% 
   data.frame(stringsAsFactors = F) %>% 
   as.list
 
-# # back-transform abu for models
-# dat_frm <- dat_frm %>% 
-#   mutate(
-#     abu = (10^abu) - 1,
-#     abu = as.integer(round(abu, 0))
-#   )
-#   
-# models
 mod_all <- env_cmb %>%
   
   map(function(x, dat = dat_frm){
@@ -295,7 +289,7 @@ mod_all <- env_cmb %>%
     if(is.null(pval)) return(NA)
     else pval <- pf(pval[1], pval[2], pval[3], lower.tail = F)
     if(pval >= 0.05) return(NA)
-    
+
     return(modout)    
     
   }) %>% 
