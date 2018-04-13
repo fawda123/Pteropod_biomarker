@@ -201,6 +201,9 @@ mod_all <- env_cmb %>%
       rsq <- summary(x) %>% 
         .$r.squared
 
+      # n
+      n <- nrow(x$model)
+      
       # coeff summary
       out <- x %>% 
         summary %>% 
@@ -210,11 +213,12 @@ mod_all <- env_cmb %>%
         rownames_to_column('env_lab') %>% 
         mutate(
           pte_lab = yvar,
+          n = n, 
           Rsq = round(rsq, 2),
           Est = round(Estimate, 2), 
           Pvl = p_ast(Pr...t..)
         ) %>% 
-        select(pte_lab, env_lab, Rsq, Est, Pvl)
+        select(pte_lab, env_lab, n, Rsq, Est, Pvl)
       
       return(out)
       
@@ -306,6 +310,9 @@ mod_all <- env_cmb %>%
       rsq <- summary(x) %>% 
         .$r.squared
       
+      # n
+      n <- nrow(x$model)
+      
       # coeff summary
       out <- x %>% 
         summary %>% 
@@ -315,11 +322,12 @@ mod_all <- env_cmb %>%
         rownames_to_column('env_lab') %>% 
         mutate(
           pte_lab = yvar,
+          n = n,
           Rsq = round(rsq, 2),
           Est = round(Estimate, 2), 
           Pvl = p_ast(Pr...t..)
         ) %>% 
-        select(pte_lab, env_lab, Rsq, Est, Pvl)
+        select(pte_lab, env_lab, n, Rsq, Est, Pvl)
       
       return(out)
       

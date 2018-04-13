@@ -1,0 +1,35 @@
+---
+title: "Methods"
+output: 
+  bookdown::word_document2:
+    reference_docx: my_styles.docx
+urlcolor: blue
+link-citations: true
+---
+
+The general approach was to identify relationships among variables as potentially additive, synergistic, and antagonistic by evaluating pairwise effects of stressors on each response measure. Pearson correlations of environmental parameters (OA parameters, temperature, and chlorophyll) with cellular, physiological, and population response were first evaluated to identify potential associations with individual variables. Correlations between cellular and physiological responses were also evaluated to identify links between the two levels of biological organization. Non-continuous or skewed variables were transformed to better satisfy assumptions of parametric tests (e.g., abundances were logarithmically transformed, proportions were arcsine transformed). All analyses were performed with the R statistical programming language (R Core Team 2017).
+
+Multivariate comparisons between the cellular response measures and environmental variables were assessed using redundancy analysis (RDA) to jointly characterize relationships between all sampling stations. This analysis is conceptually similar to principal components analysis with an additional constraint on the environmental matrix, where the relationships are further partitioned based on covariance among response measures at each site in addition to the covariance between environmental variables. The final triplot (two biplots of environmental and response matrices) can be used to evaluate which environmental variables are correlated, as well as their relationships to the cellular response measures at each site. The environmental and response matrices were standardized to range from 0-1 prior to RDA. The vegan package for R was used for standardization and RDA (Oksanen et al. 2017). 
+
+Linear models were then developed for pairwise combinations of environmental variables to evaluate additive and interactive effects on stressor response. To reduce the likelihood of false positive results from multiple comparisons, variables were chosen a priori that were considered most relevant for describing pteropod response to stressors.  Only LPX, ORAC, ORACvLPX, and SOD biomarkers were evaluated for cellular response and only abundance, dissolution, and length were evaluated for physiological and population responses.  Environmental variables were selected for analysis that were orthogonal in multivariate space to reduce collinearity and included aragonite saturation, fluorescence, pCO2, and temperature. Oxygen and aragonite saturation were evaluated for relationships with physiologial and population response measures. 
+
+Variance Inflation Factors (VIF) were quantified for all pairwise combinations of environmental variables to estimate potential collinearity in each model, such that:
+  
+  VIFj = 1 /( 1 − R2j) 		(1)
+
+where VIF is the reciprocal of the unexplained variance (1 − R2) of the linear regression of variable j against all other explanatory variables. Zuur et al. (2007) suggest that VIF values less than fifty may be appropriate for analysis, but we chose a value of ten for excluding combinations of environmental variables. We chose this conservative value to further reduce the potential for false positive results by reducing the number of combinations that were evaluated, in addition to reducing the likelihood of spurious results from collinear explanatory variables. 
+
+Linear models for the selected pairwise combinations of environmental variables and response measures included separate terms for individual variables and a third term for the interaction of the pair.  A model selection procedure was then used to compare every smaller subset of the global model to identify the most parsimonious solution. The final model for each pairwise combination was chosen based on a minimization of corrected Akaike Information Criterion (Burnham and Anderson 2002, Barton 2018).  Further, models with probability values greater than alpha of 0.05 for the overall model fit were excluded. These p-values were not adjusted for multiple comparisons due to the relatively small sample sizes of each model (n = 11 for all, except n = 35 for abundance). 
+
+Evidence for additive effects were based solely on the magnitude of the estimated parameter for each variable, whereas synergistic or antagonistic effects were evaluated from the estimated parameter for the interaction if included. A positive interaction was evidence of a synergistic effect and a negative interaction was evidence of an antagonistic effect. Results of the linear models were further evaluated using effects plots to characterize the relationship of a pteropod response measure to continuous values for one stressor given two different values for the second stressor (constant at the minimum and maximum observed values). 
+
+Barton, K. 2018. MuMIn: Multi-Model Inference. R package version 1.40.4. https://CRAN.R-project.org/package=MuMIn
+
+Burnham, K.P., Anderson, D.R. 2002. Model selection and multimodel inference: a practical information-theoretic approach. 2nd ed. New York, Springer-Verlag.
+
+Oksanen, J., Guillaume Blanchet, F.,  Friendly, M., Kindt, R.,  Legendre, P., McGlinn, D., Minchin, P.R., O'Hara, R.B., Simpson, G.L., Solymos, P., Henry, M., Stevens, H., Szoecs, E., Wagner, H. 2017. vegan: Community Ecology Package. R package version 2.4-5. https://CRAN.R-project.org/package=vegan	
+	
+R Core Team (2017). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.  	
+	
+Zuur, A.F., Ieno, E.N., Smith, G.M. 2007. Analysing Ecological DAta. Springer, New York, NY. 	
+
