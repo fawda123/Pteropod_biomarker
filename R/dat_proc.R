@@ -6,10 +6,11 @@ source('R/funcs.R')
 
 # environmental data
 envdat <- read_excel('raw/MeanSurface100m2016WCOA.xlsx') %>% 
-  select(`CTD Station`, `Latitude`, `'pCO2'`, `'pH'`, `'Fluorescence'`, `'Aragonite'`, `'Oxygen'`, `'Temperature'`, `'Salinity'`, `'Alkalinity'`) %>% 
+  select(`CTD Station`, `Latitude`, `Longitude`, `'pCO2'`, `'pH'`, `'Fluorescence'`, `'Aragonite'`, `'Oxygen'`, `'Temperature'`, `'Salinity'`, `'Alkalinity'`) %>% 
   rename(
     CTD = `CTD Station`,
     Lat = `Latitude`,
+    Lon = `Longitude`,
     Ara = `'Aragonite'`, 
     O2 = `'Oxygen'`,
     pH = `'pH'`,
@@ -201,8 +202,10 @@ mod_all <- env_cmb %>%
       rsq <- summary(x) %>% 
         .$r.squared
 
-      # n
-      n <- nrow(x$model)
+      # pval
+      pval <- summary(x) %>%
+        .$fstatistic
+      pval <- pf(pval[1], pval[2], pval[3], lower.tail = F)
       
       # coeff summary
       out <- x %>% 
@@ -213,12 +216,12 @@ mod_all <- env_cmb %>%
         rownames_to_column('env_lab') %>% 
         mutate(
           pte_lab = yvar,
-          n = n, 
+          pval = p_ast(pval), 
           Rsq = round(rsq, 2),
           Est = round(Estimate, 2), 
           Pvl = p_ast(Pr...t..)
         ) %>% 
-        select(pte_lab, env_lab, n, Rsq, Est, Pvl)
+        select(pte_lab, env_lab, pval, Rsq, Est, Pvl)
       
       return(out)
       
@@ -310,8 +313,10 @@ mod_all <- env_cmb %>%
       rsq <- summary(x) %>% 
         .$r.squared
       
-      # n
-      n <- nrow(x$model)
+      # pval
+      pval <- summary(x) %>%
+        .$fstatistic
+      pval <- pf(pval[1], pval[2], pval[3], lower.tail = F)
       
       # coeff summary
       out <- x %>% 
@@ -322,12 +327,12 @@ mod_all <- env_cmb %>%
         rownames_to_column('env_lab') %>% 
         mutate(
           pte_lab = yvar,
-          n = n,
+          pval = p_ast(pval),
           Rsq = round(rsq, 2),
           Est = round(Estimate, 2), 
           Pvl = p_ast(Pr...t..)
         ) %>% 
-        select(pte_lab, env_lab, n, Rsq, Est, Pvl)
+        select(pte_lab, env_lab, pval, Rsq, Est, Pvl)
       
       return(out)
       

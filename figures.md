@@ -4,8 +4,10 @@ output:
     keep_md: yes
     self_contained: no
     code_folding: hide
+    css: styles.css
 ---
-<a href="https://your-url" class="github-corner" aria-label="View source on Github"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#FD6C6C; color:#fff; position: absolute; top: 0; border: 0; left: 0; transform: scale(-1, 1);" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+<a href="https://github.com/fawda123/Pteropod_biomarker/" class="github-corner" aria-label="View source on Github"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#FD6C6C; color:#fff; position: absolute; top: 0; border: 0; left: 0; transform: scale(-1, 1);" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
 
 # Pteropod stressor interaction: figures
   
@@ -19,6 +21,7 @@ library(effects)
 library(knitr)
 library(gridExtra)
 library(grid)
+library(stargazer)
 
 source("R/funcs.R")
 
@@ -267,7 +270,7 @@ p3 <- ggplot() +
 
 grid.arrange(p1, p2, p3, ncol = 2)
 ```
-Fig. 3 Examples of model interactions of co-occuring environmental variables on cellular response measures.  Each subplot shows a different relationship as either additive or synergistic effects between the variables. All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum, 25th, median, 75th, and maximum values in the observed data.
+<!-- Fig. 3 Examples of model interactions of co-occuring environmental variables on cellular response measures.  Each subplot shows a different relationship as either additive or synergistic effects between the variables. All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum, 25th, median, 75th, and maximum values in the observed data. -->
 
 
 ```r
@@ -311,135 +314,97 @@ p5 <- ggplot() +
 
 grid.arrange(p4, p5, ncol = 2)
 ```
-Fig. 4 Examples of model interactions of co-occuring environmental variables on abundance and shell dissolution. Each subplot shows a different relationship as either additive or synergistic effects between the variables. All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum, 25th, median, 75th, and maximum values in the observed data.
+<!-- Fig. 4 Examples of model interactions of co-occuring environmental variables on abundance and shell dissolution. Each subplot shows a different relationship as either additive or synergistic effects between the variables. All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum, 25th, median, 75th, and maximum values in the observed data. -->
 
 
 ```r
-mods <- readxl::read_excel('raw/info for table.xlsx') %>% 
-  .[-1, -1] %>% 
-  gather('var', 'Model', everything()) %>% 
-  mutate(
-    org = ifelse(var %in% c('abundance', 'dissolution', 'length'), 'phy', 'bio'),
-    Model = paste0('mod', Model)
-    ) %>% 
-  split(.$org)
-
-biotab <- mods$bio %>% 
-  left_join(biomod, by = 'Model') %>% 
-  select(Model, data) %>%
-  mutate(data = map(data, function(x){
-    x %>% mutate(vr = seq(1:nrow(.)))
-  })) %>% 
-  unnest %>% 
-  mutate(
-    Model = gsub('mod', '', Model),
-    Model = as.numeric(Model)
-    ) %>% 
+biotab <- biomod %>% 
+  unnest(data) %>% 
   group_by(Model) %>% 
-  mutate(
-    Pvl = gsub('ns', '', Pvl), 
-    Rsq = ifelse(duplicated(Rsq), '', Rsq)
-    ) %>% 
-  ungroup %>% 
-  unite('Est', Est, Pvl, sep = '') %>% 
-  gather('estnm', 'estvl', Rsq, Est) %>% 
-  unite('est', pte_lab, estnm, sep = ', ', remove = F) %>% 
-  select(-estnm) %>% 
-  split(.$pte_lab) %>%
-  lapply(., function(x){
-    
-    out <- spread(x, est, estvl) %>% 
-      select(-pte_lab) %>%
-      arrange(Model, vr) %>% 
-      select(-vr, -Model)
-    
-    if(!any(grepl('^LPX', names(out))))
-      out <- out %>% 
-        select(-env_lab)
-    
-    return(out)  
-    
-  }) %>% 
-  do.call('cbind', .) %>% 
-  mutate(
-    Model = rep(letters[1:(nrow(.)/3)], each = 3),
-    Model = paste0('(', Model, ')'),
-    Model = ifelse(duplicated(Model), '', Model)
-  ) %>% 
-  select(Model, everything())
+  mutate(n = n()) %>% 
+  filter(n > 1) %>% 
+  dplyr::select(-n)
+biotab <- filter(biomod, Model %in% unique(biotab$Model))
 
-names(biotab) <- gsub('^.*\\.', '', names(biotab))
-vrs <- gsub('(^.*),\\s.*$', '\\1', names(biotab))
-vrs[duplicated(vrs)] <- ''
-vrs <- paste0(vrs, '<br>')
-vrs[vrs %in% 'env_lab<br>'] <- 'Parameter<br>'
-vrs2 <- gsub('^.*,\\s|Model|env_lab', '', names(biotab))
-vrs <- paste(vrs, vrs2, sep = '')
-  
-names(biotab) <- vrs
+cap <- 'Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates with standard errors (in parentheses) are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same cellular response measure can be identified with the column names at the top.'
 
-knitr::kable(biotab, caption = "Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables in each model are shown.  The overall R-squred value for each model is also shown.  Significance of each effect is noted as * p < 0.05, ** p < 0.005.")
+stargazer(biotab$Modobj, type = 'html', title = cap, digits = 2, keep.stat = c('adj.rsq'), intercept.top = T, intercept.bottom = F, dep.var.caption = 'Cellular response measures')
 ```
+
+
+<table style="text-align:center"><caption><strong>Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown. Parameter estimates with standard errors (in parentheses) are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same cellular response measure can be identified with the column names at the top.</strong></caption>
+<tr><td colspan="9" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td colspan="8">Cellular response measures</td></tr>
+<tr><td></td><td colspan="8" style="border-bottom: 1px solid black"></td></tr>
+<tr><td style="text-align:left"></td><td colspan="2">LPX</td><td>ORAC</td><td colspan="3">ORACvLPX</td><td colspan="2">SOD</td></tr>
+<tr><td style="text-align:left"></td><td>(1)</td><td>(2)</td><td>(3)</td><td>(4)</td><td>(5)</td><td>(6)</td><td>(7)</td><td>(8)</td></tr>
+<tr><td colspan="9" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Constant</td><td>-2.00<sup>*</sup></td><td>-2.46</td><td>-460.05<sup>*</sup></td><td>206.22<sup>***</sup></td><td>232.37<sup>*</sup></td><td>-141.36<sup>**</sup></td><td>-126.74<sup>*</sup></td><td>-30.67</td></tr>
+<tr><td style="text-align:left"></td><td>(0.87)</td><td>(4.70)</td><td>(226.47)</td><td>(15.04)</td><td>(108.53)</td><td>(55.82)</td><td>(60.05)</td><td>(42.59)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Fluor</td><td>-11.07<sup>***</sup></td><td></td><td></td><td>320.02<sup>***</sup></td><td></td><td>256.12<sup>**</sup></td><td></td><td></td></tr>
+<tr><td style="text-align:left"></td><td>(3.07)</td><td></td><td></td><td>(52.80)</td><td></td><td>(87.68)</td><td></td><td></td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">pCO2</td><td>0.01<sup>***</sup></td><td></td><td>0.39<sup>**</sup></td><td>-0.27<sup>***</sup></td><td></td><td></td><td>0.10<sup>***</sup></td><td></td></tr>
+<tr><td style="text-align:left"></td><td>(0.002)</td><td></td><td>(0.16)</td><td>(0.03)</td><td></td><td></td><td>(0.03)</td><td></td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Ara</td><td></td><td>-8.43<sup>**</sup></td><td>278.81<sup>**</sup></td><td></td><td>227.87<sup>***</sup></td><td>132.98<sup>***</sup></td><td></td><td>-80.21<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(2.61)</td><td>(92.45)</td><td></td><td>(60.31)</td><td>(32.14)</td><td></td><td>(23.67)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Temp</td><td></td><td>1.82<sup>*</sup></td><td></td><td></td><td>-50.51<sup>**</sup></td><td></td><td>11.24<sup>*</sup></td><td>19.58<sup>**</sup></td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(0.80)</td><td></td><td></td><td>(18.49)</td><td></td><td>(4.89)</td><td>(7.26)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td colspan="9" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Adjusted R<sup>2</sup></td><td>0.72</td><td>0.50</td><td>0.46</td><td>0.87</td><td>0.58</td><td>0.61</td><td>0.54</td><td>0.50</td></tr>
+<tr><td colspan="9" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"><em>Note:</em></td><td colspan="8" style="text-align:right"><sup>*</sup>p<0.1; <sup>**</sup>p<0.05; <sup>***</sup>p<0.01</td></tr>
+</table>
 
 
 ```r
-phytab <- mods$phy %>% 
-  left_join(phymod, by = 'Model') %>% 
-  select(Model, data) %>%
-  mutate(data = map(data, function(x){
-    x %>% mutate(vr = seq(1:nrow(.)))
-  })) %>% 
-  unnest %>% 
-  mutate(
-    Model = gsub('mod', '', Model),
-    Model = as.numeric(Model)
-  ) %>% 
+phytab <- phymod %>% 
+  unnest(data) %>% 
   group_by(Model) %>% 
-  mutate(
-    Pvl = gsub('ns', '', Pvl), 
-    Rsq = ifelse(duplicated(Rsq), '', Rsq)
-  ) %>% 
-  ungroup %>% 
-  unite('Est', Est, Pvl, sep = '') %>% 
-  gather('estnm', 'estvl', Rsq, Est) %>% 
-  unite('est', pte_lab, estnm, sep = ', ', remove = F) %>% 
-  select(-estnm) %>% 
-  split(.$pte_lab) %>%
-  lapply(., function(x){
-    
-    out <- spread(x, est, estvl) %>% 
-      select(-pte_lab) %>%
-      arrange(Model, vr) %>% 
-      select(-vr, -Model)
-    
-    if(!any(grepl('^abu', names(out))))
-      out <- out %>% 
-        select(-env_lab)
-    
-    return(out)  
-    
-  }) %>% 
-  do.call('cbind', .) %>% 
-  mutate(
-    Model = rep(letters[1:(nrow(.)/3)], each = 3),
-    Model = paste0('(', Model, ')'),
-    Model = ifelse(duplicated(Model), '', Model)
-  ) %>% 
-  select(Model, everything())
+  mutate(n = n()) %>% 
+  filter(n > 1) %>% 
+  dplyr::select(-n)
+phytab <- filter(phymod, Model %in% unique(phytab$Model))
 
-names(phytab) <- gsub('^.*\\.', '', names(phytab))
-vrs <- gsub('(^.*),\\s.*$', '\\1', names(phytab))
-vrs[duplicated(vrs)] <- ''
-vrs <- paste0(vrs, '<br>')
-vrs[vrs %in% 'env_lab<br>'] <- 'Parameter<br>'
-vrs2 <- gsub('^.*,\\s|Model|env_lab', '', names(phytab))
-vrs <- paste(vrs, vrs2, sep = '')
-vrs <- gsub('abu', 'Abundance', vrs)
-vrs <- gsub('len', 'Length', vrs)
-vrs <- gsub('dis', 'Shell dissolution', vrs)
+cap <- 'Table 2: Model results for physiological and abundance responses to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates with standard errors (in parentheses) are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same response measure can be identified with the column names at the top.'
 
-names(phytab) <- vrs
-
-knitr::kable(phytab, caption = "Table 2: Model results for pteropod physiological and population response to pairs of co-occurring environmental variables. The estimated joint effects of variables in each model are shown.  The overall R-squred value for each model is also shown.  Significance of each effect is noted as * p < 0.05, ** p < 0.005.")
+stargazer(phytab$Modobj, type = 'html', title = cap, digits = 2, keep.stat = c('adj.rsq'), intercept.top = T, intercept.bottom = F, dep.var.caption = 'Physiological response measures', dep.var.labels = c('Abundance', 'Shell dissolution'))
 ```
+
+
+<table style="text-align:center"><caption><strong>Table 2: Model results for physiological and abundance responses to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown. Parameter estimates with standard errors (in parentheses) are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same response measure can be identified with the column names at the top.</strong></caption>
+<tr><td colspan="9" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td colspan="8">Physiological response measures</td></tr>
+<tr><td></td><td colspan="8" style="border-bottom: 1px solid black"></td></tr>
+<tr><td style="text-align:left"></td><td colspan="4">Abundance</td><td colspan="4">Shell dissolution</td></tr>
+<tr><td style="text-align:left"></td><td>(1)</td><td>(2)</td><td>(3)</td><td>(4)</td><td>(5)</td><td>(6)</td><td>(7)</td><td>(8)</td></tr>
+<tr><td colspan="9" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Constant</td><td>4.58<sup>***</sup></td><td>2.73<sup>***</sup></td><td>0.14</td><td>1.96<sup>***</sup></td><td>-0.12<sup>***</sup></td><td>1.51<sup>*</sup></td><td>1.01<sup>***</sup></td><td>1.82<sup>**</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.83)</td><td>(0.51)</td><td>(0.42)</td><td>(0.55)</td><td>(0.03)</td><td>(0.64)</td><td>(0.22)</td><td>(0.62)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Fluor</td><td></td><td></td><td></td><td></td><td>-0.33<sup>**</sup></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td>(0.13)</td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">pCO2</td><td>-0.002<sup>***</sup></td><td></td><td></td><td></td><td>0.0004<sup>***</sup></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left"></td><td>(0.0005)</td><td></td><td></td><td></td><td>(0.0001)</td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Ara</td><td></td><td>1.45<sup>***</sup></td><td>-1.54<sup>**</sup></td><td></td><td></td><td>-1.27<sup>***</sup></td><td>-0.41<sup>*</sup></td><td></td></tr>
+<tr><td style="text-align:left"></td><td></td><td>(0.30)</td><td>(0.67)</td><td></td><td></td><td>(0.33)</td><td>(0.22)</td><td></td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Temp</td><td>-0.31<sup>***</sup></td><td>-0.44<sup>***</sup></td><td></td><td>-0.30<sup>***</sup></td><td></td><td>-0.11</td><td></td><td>-0.15<sup>*</sup></td></tr>
+<tr><td style="text-align:left"></td><td>(0.06)</td><td>(0.07)</td><td></td><td>(0.06)</td><td></td><td>(0.08)</td><td></td><td>(0.07)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">O2:Temp</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>0.001<sup>**</sup></td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(0.0003)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">O2</td><td></td><td></td><td>0.01<sup>**</sup></td><td>0.01<sup>***</sup></td><td></td><td></td><td>-0.01<sup>***</sup></td><td>-0.01<sup>***</sup></td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td>(0.005)</td><td>(0.002)</td><td></td><td></td><td>(0.001)</td><td>(0.002)</td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Ara:Temp</td><td></td><td></td><td></td><td></td><td></td><td>0.10<sup>**</sup></td><td></td><td></td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td>(0.04)</td><td></td><td></td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Ara:O2</td><td></td><td></td><td></td><td></td><td></td><td></td><td>0.002<sup>**</sup></td><td></td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td>(0.001)</td><td></td></tr>
+<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td colspan="9" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Adjusted R<sup>2</sup></td><td>0.40</td><td>0.51</td><td>0.14</td><td>0.43</td><td>0.71</td><td>0.87</td><td>0.85</td><td>0.87</td></tr>
+<tr><td colspan="9" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"><em>Note:</em></td><td colspan="8" style="text-align:right"><sup>*</sup>p<0.1; <sup>**</sup>p<0.05; <sup>***</sup>p<0.01</td></tr>
+</table>
 
