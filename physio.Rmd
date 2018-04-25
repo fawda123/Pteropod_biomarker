@@ -21,6 +21,7 @@ library(effects)
 library(shiny)
 library(plotly)
 library(grid)
+library(MuMIn)
 
 source("R/funcs.R")
 
@@ -346,4 +347,31 @@ renderPlotly({
 })
 ```
 
+Three explanatory variables:
+
+```{r}
+envchr <- c('Ara', 'Temp', 'O2')
+ptechr <- c('dis')
+
+dat_frm <- ptedat %>% 
+  select(one_of('CTD', ptechr)) %>% 
+  left_join(envdat, by = 'CTD') %>% 
+  data.frame %>% 
+  remove_rownames %>% 
+  column_to_rownames('CTD') %>% 
+  na.omit
+
+frm <- formula(c('dis ~ (Ara + Temp + O2)^2'))
+modoutglo <- lm(frm, data = dat_frm, na.action = na.pass)
+
+modoutsel <- lm(frm, data = dat_frm, na.action = na.pass) %>% 
+  dredge %>% 
+  get.models(subset = 1) %>% 
+  .[[1]]
+
+summary(modoutglo)
+
+summary(modoutsel)
+
+```
 
