@@ -347,7 +347,9 @@ renderPlotly({
 })
 ```
 
-Three explanatory variables:
+### Three explanatory variables
+
+Shell dissolution:
 
 ```{r}
 envchr <- c('Ara', 'Temp', 'O2')
@@ -375,3 +377,30 @@ summary(modoutsel)
 
 ```
 
+Length/growth:
+
+```{r}
+envchr <- c('Ara', 'Temp', 'O2')
+ptechr <- c('len')
+
+dat_frm <- ptedat %>% 
+  select(one_of('CTD', ptechr)) %>% 
+  left_join(envdat, by = 'CTD') %>% 
+  data.frame %>% 
+  remove_rownames %>% 
+  column_to_rownames('CTD') %>% 
+  na.omit
+
+frm <- formula(c('len ~ (Ara + Temp + O2)^2'))
+modoutglo <- lm(frm, data = dat_frm, na.action = na.pass)
+
+modoutsel <- lm(frm, data = dat_frm, na.action = na.pass) %>% 
+  dredge %>% 
+  get.models(subset = 1) %>% 
+  .[[1]]
+
+summary(modoutglo)
+
+summary(modoutsel)
+
+```
