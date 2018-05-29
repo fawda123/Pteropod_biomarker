@@ -1,0 +1,10 @@
+---
+title: "Discussion"
+output: 
+  bookdown::word_document2:
+    reference_docx: my_styles.docx
+urlcolor: blue
+link-citations: true
+---
+
+Our analysis approach to evaluate the effects of co-occurring stressors on pteropod response measures was designed to balance the tradeoffs between characteristics of the dataset and the ability to identify an ecologically meaningful signal.  Several characteristics of the dataset presented challenges that required a conservative statistical design that was related primarily to the sample size and the occurrence of several correlated environmental variables.  Our restriction to evaluate only variables below our chosen threshold for collinearity and use of response measures that were chosen a priori reflects this limitation.  Further, our pairwise evaluation of co-occurring variables on the cellular and physiological response measures provided an indication of relative importance, but it is not a definitive explanation of mechanisms.  Causal description through purely correlative statistics is problematic in these cases.  The interpretation of our results must be considered in this context, yet patterns shown by the models are consistent with known mechanisms of pteropod response to OA stressors or changes in temperature. Our ability to evaluate joint effects of stressors is a novel contribution of this study and the interpretation within the limits of the analysis is supported by past work (citations).  This study is the first to evaluate pteropod response to both OA stressors and warming events as they occur in the environment and our statistical design could be used in similar contexts to address challenges that are common in environmental datasets. As such, the results can inform further work with the goal of identifying how multiple stressors interact to influence pteropods at multiple levels of biological organization.
