@@ -105,7 +105,7 @@ crs <- crossing(var1 = names(dat_cor), var2 = names(dat_cor)) %>%
 
 ```{r, fig.height = 6, fig.width = 6}
 levs <- c(sort(envchr), sort(ptechr))
-labs <- c('Omega[ar]', 'chla', 'O[2]', 'pCO[2]', 'pH', 'Temp', 'abundance', 'dissolution', 'growth', 'scarring', 'typeII', 'typeIII')
+labs <- c('Omega[ar]', 'chla', 'O[2]', 'pCO[2]', 'pH', 'Temp', 'abundance', 'dissolution', 'length', 'scarring', 'typeII', 'typeIII')
 prplo <- crs %>% 
   separate(pr, c('cor', 'sig'), sep = ' ') %>% 
   filter(var1 %in% levs & var2 %in% levs) %>%  
