@@ -96,10 +96,17 @@ alpha <- 0.8
 arrow <- 0.3
 cols <- 'lightblue'
 
+scalbio <- range(dat_bio$Lat)
+scalbio <- seq(scalbio[1], scalbio[2], length  = 5)
+scalphy <- range(dat_phy$Lat)
+scalphy <- seq(scalphy[1], scalphy[2], length  = 5)
+
 p1a <- ggord(biorda, ptslab = T, parse = T, repel = repel, coord_fix = coord_fix, addsize = addsize, size = dat_bio$Lat, sizelab = 'Latitude', alpha = alpha, arrow = arrow, ellipse = F) + 
-  ggtitle('(a) Cellular endpoints')
+  ggtitle('(a) Cellular endpoints') + 
+  scale_size(breaks = scalbio, labels = round(scalbio, 1), range = c(1, 8))
 p2a <- ggord(phyrda, ptslab = T, parse = T, repel = repel, coord_fix = coord_fix, addsize = addsize, size = dat_phy$Lat, sizelab = 'Latitude', alpha = alpha, arrow = arrow, ellipse = F) + 
-  ggtitle('(b) Physiological endpoints')
+  ggtitle('(b) Physiological endpoints') + 
+  scale_size(breaks = scalphy, labels = round(scalphy, 1), range = c(1, 8))
 
 grid.arrange(p1a, p2a, ncol = 2)
 ```
@@ -147,7 +154,7 @@ crs <- crossing(var1 = names(dat_cor), var2 = names(dat_cor)) %>%
 
 ```{r corplo, fig.height = 6, fig.width = 7}
 levs <- c(sort(envchr), sort(biochr), sort(phychr))
-labs <- c('Omega[ar]', 'chla', 'Lat', 'O[2]', 'pCO[2]', 'pH', 'Temp', 'CAT', 'GR', 'GSHonGSSG', 'GST', ' LPX', 'ORAC', 'ORACvLPX', 'SOD', 'abundance', 'dissolution', 'length', 'scarring', 'typeII', 'typeIII')
+labs <- c('Omega[ar]', 'Fluor', 'Lat', 'O[2]', 'pCO[2]', 'pH', 'Temp', 'CAT', 'GR', 'GSHonGSSG', 'GST', ' LPX', 'ORAC', 'ORACvLPX', 'SOD', 'abundance', 'dissolution', 'length', 'scarring', 'typeII', 'typeIII')
 prplo <- crs %>% 
   separate(pr, c('cor', 'sig'), sep = ' ') %>% 
   filter(var1 %in% levs & var2 %in% levs) %>%  
@@ -206,7 +213,7 @@ gt <- ggplot_gtable(ggplot_build(p))
 gt$layout$clip[gt$layout$name == "panel"] <- "off"
 grid.draw(gt)
 ```
-Fig. 3 Correlation matrix of environmental variables, cellular response endpoints, and population (abundance) and physiological response endpoints for pteropods.  Darker red values are strong positive correlations and darker purple values are strong negative correlations.  Significance values at alpha = 0.05 are shown by stars (p < 0.05 \*, p < 0.005 \*).
+Fig. 3 Correlation matrix of environmental variables, cellular response endpoints, and population (abundance) and physiological response endpoints for pteropods.  Darker red values are strong positive correlations and darker purple values are strong negative correlations.  Significance values at alpha = 0.05 are shown by stars (p < 0.05 \*, p < 0.005 \*\*).
 
 ```{r effbio, fig.height = 8, fig.width = 6, eval = T}
 toplo <- biomod %>% 
@@ -340,9 +347,9 @@ biotab <- biomod %>%
   dplyr::select(-n)
 biotab <- filter(biomod, Model %in% unique(biotab$Model))
 
-cap <- 'Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates with standard errors (in parentheses) are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same cellular response measure can be identified with the column names at the top.'
+cap <- 'Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same cellular response measure can be identified with the column names at the top.  * p < 0.1, ** p < 0.05, *** p < 0.01'
 
-stargazer(biotab$Modobj, type = 'html', title = cap, digits = 2, keep.stat = c('adj.rsq'), intercept.top = T, intercept.bottom = F, dep.var.caption = 'Cellular response measures')
+stargazer(biotab$Modobj, type = 'html', title = cap, digits = 2, keep.stat = c('adj.rsq'), intercept.top = T, intercept.bottom = F, dep.var.caption = 'Cellular response measures', report = 'vc*')
 ```
 
 ```{r, results = 'asis'}
@@ -354,9 +361,9 @@ phytab <- phymod %>%
   dplyr::select(-n)
 phytab <- filter(phymod, Model %in% unique(phytab$Model))
 
-cap <- 'Table 2: Model results for physiological and abundance responses to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates with standard errors (in parentheses) are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same response measure can be identified with the column names at the top.'
+cap <- 'Table 2: Model results for physiological and abundance responses to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same response measure can be identified with the column names at the top. * p < 0.1, ** p < 0.05, *** p < 0.01'
 
-stargazer(phytab$Modobj, type = 'html', title = cap, digits = 2, keep.stat = c('adj.rsq'), intercept.top = T, intercept.bottom = F, dep.var.caption = 'Physiological response measures', dep.var.labels = c('Abundance', 'Shell dissolution'))
+stargazer(phytab$Modobj, type = 'html', title = cap, digits = 2, keep.stat = c('adj.rsq'), intercept.top = T, intercept.bottom = F, dep.var.caption = 'Physiological response measures', dep.var.labels = c('Abundance', 'Shell dissolution'), report = 'vc*')
 
 ```
 
