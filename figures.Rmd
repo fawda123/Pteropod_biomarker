@@ -217,7 +217,7 @@ Fig. 3 Correlation matrix of environmental variables, cellular response endpoint
 
 ```{r effbio, fig.height = 8, fig.width = 6, eval = T}
 toplo <- biomod %>% 
-  filter(Model %in% c('mod3', 'mod4', 'mod17')) %>% 
+  filter(Model %in% c('mod3', 'mod4', 'mod24')) %>% 
   mutate(
     cvar = c('pCO2', 'Temp', 'Temp'),
     xvar = c('Fluorescence', 'Omega[ar]', 'Omega[ar]'), 

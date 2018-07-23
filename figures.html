@@ -11,7 +11,7 @@
 
 
 
-<title>figures.utf8</title>
+<title></title>
 
 <script src="figures_files/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -21,8 +21,8 @@
 <script src="figures_files/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="figures_files/navigation-1.1/tabsets.js"></script>
 <script src="figures_files/navigation-1.1/codefolding.js"></script>
-<link href="figures_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
-<script src="figures_files/highlightjs-9.12.0/highlight.js"></script>
+<link href="figures_files/highlightjs-1.1/default.css" rel="stylesheet" />
+<script src="figures_files/highlightjs-1.1/highlight.js"></script>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -31,12 +31,10 @@
   }
 </style>
 <script type="text/javascript">
-if (window.hljs) {
-  hljs.configure({languages: []});
-  hljs.initHighlightingOnLoad();
-  if (document.readyState && document.readyState === "complete") {
-    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
-  }
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
 }
 </script>
 
@@ -331,7 +329,7 @@ gt$layout$clip[gt$layout$name == &quot;panel&quot;] &lt;- &quot;off&quot;
 grid.draw(gt)</code></pre>
 <p><img src="figures_files/figure-html/corplo.png" width="100%" style="display: block; margin: auto;" /> Fig. 3 Correlation matrix of environmental variables, cellular response endpoints, and population (abundance) and physiological response endpoints for pteropods. Darker red values are strong positive correlations and darker purple values are strong negative correlations. Significance values at alpha = 0.05 are shown by stars (p &lt; 0.05 *, p &lt; 0.005 **).</p>
 <pre class="r"><code>toplo &lt;- biomod %&gt;% 
-  filter(Model %in% c(&#39;mod3&#39;, &#39;mod4&#39;, &#39;mod17&#39;)) %&gt;% 
+  filter(Model %in% c(&#39;mod3&#39;, &#39;mod4&#39;, &#39;mod24&#39;)) %&gt;% 
   mutate(
     cvar = c(&#39;pCO2&#39;, &#39;Temp&#39;, &#39;Temp&#39;),
     xvar = c(&#39;Fluorescence&#39;, &#39;Omega[ar]&#39;, &#39;Omega[ar]&#39;), 
@@ -461,35 +459,35 @@ stargazer(biotab$Modobj, type = &#39;html&#39;, title = cap, digits = 2, keep.st
 <strong>Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown. Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same cellular response measure can be identified with the column names at the top. * p &lt; 0.1, ** p &lt; 0.05, *** p &lt; 0.01</strong>
 </caption>
 <tr>
-<td colspan="9" style="border-bottom: 1px solid black">
+<td colspan="14" style="border-bottom: 1px solid black">
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
 </td>
-<td colspan="8">
+<td colspan="13">
 Cellular response measures
 </td>
 </tr>
 <tr>
 <td>
 </td>
-<td colspan="8" style="border-bottom: 1px solid black">
+<td colspan="13" style="border-bottom: 1px solid black">
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
 </td>
-<td colspan="2">
+<td colspan="4">
 LPX
 </td>
 <td>
 ORAC
 </td>
-<td colspan="3">
+<td colspan="4">
 ORACvLPX
 </td>
-<td colspan="2">
+<td colspan="4">
 SOD
 </td>
 </tr>
@@ -520,9 +518,24 @@ SOD
 <td>
 (8)
 </td>
+<td>
+(9)
+</td>
+<td>
+(10)
+</td>
+<td>
+(11)
+</td>
+<td>
+(12)
+</td>
+<td>
+(13)
+</td>
 </tr>
 <tr>
-<td colspan="9" style="border-bottom: 1px solid black">
+<td colspan="14" style="border-bottom: 1px solid black">
 </td>
 </tr>
 <tr>
@@ -534,6 +547,12 @@ Constant
 </td>
 <td>
 -2.46
+</td>
+<td>
+36.22<sup>***</sup>
+</td>
+<td>
+10.75<sup>***</sup>
 </td>
 <td>
 -460.05<sup>*</sup>
@@ -548,14 +567,33 @@ Constant
 -141.36<sup>**</sup>
 </td>
 <td>
+-137.07<sup>***</sup>
+</td>
+<td>
 -126.74<sup>*</sup>
 </td>
 <td>
 -30.67
 </td>
+<td>
+72.57<sup>***</sup>
+</td>
+<td>
+24.02
+</td>
 </tr>
 <tr>
 <td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
 </td>
 <td>
 </td>
@@ -586,6 +624,11 @@ Fluor
 <td>
 </td>
 <td>
+-7.64<sup>**</sup>
+</td>
+<td>
+</td>
+<td>
 320.02<sup>***</sup>
 </td>
 <td>
@@ -594,12 +637,29 @@ Fluor
 256.12<sup>**</sup>
 </td>
 <td>
+226.61<sup>***</sup>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
 </td>
 <td>
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
 </td>
 <td>
 </td>
@@ -628,6 +688,10 @@ pCO2
 <td>
 </td>
 <td>
+</td>
+<td>
+</td>
+<td>
 0.39<sup>**</sup>
 </td>
 <td>
@@ -638,13 +702,29 @@ pCO2
 <td>
 </td>
 <td>
+</td>
+<td>
 0.10<sup>***</sup>
+</td>
+<td>
+</td>
+<td>
 </td>
 <td>
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
 </td>
 <td>
 </td>
@@ -673,6 +753,11 @@ Ara
 -8.43<sup>**</sup>
 </td>
 <td>
+-14.85<sup>*</sup>
+</td>
+<td>
+</td>
+<td>
 278.81<sup>**</sup>
 </td>
 <td>
@@ -686,11 +771,28 @@ Ara
 <td>
 </td>
 <td>
+</td>
+<td>
 -80.21<sup>***</sup>
+</td>
+<td>
+64.75<sup>**</sup>
+</td>
+<td>
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
 </td>
 <td>
 </td>
@@ -723,7 +825,13 @@ Temp
 <td>
 </td>
 <td>
+</td>
+<td>
+</td>
+<td>
 -50.51<sup>**</sup>
+</td>
+<td>
 </td>
 <td>
 </td>
@@ -732,6 +840,11 @@ Temp
 </td>
 <td>
 19.58<sup>**</sup>
+</td>
+<td>
+</td>
+<td>
+9.39<sup>*</sup>
 </td>
 </tr>
 <tr>
@@ -753,9 +866,147 @@ Temp
 </td>
 <td>
 </td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
 </tr>
 <tr>
-<td colspan="9" style="border-bottom: 1px solid black">
+<td style="text-align:left">
+O2
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+-0.19<sup>***</sup>
+</td>
+<td>
+-0.03<sup>***</sup>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+0.91<sup>***</sup>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+-0.61<sup>***</sup>
+</td>
+<td>
+-0.35<sup>***</sup>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+Ara:O2
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+0.09<sup>**</sup>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td colspan="14" style="border-bottom: 1px solid black">
 </td>
 </tr>
 <tr>
@@ -767,6 +1018,12 @@ Adjusted R<sup>2</sup>
 </td>
 <td>
 0.50
+</td>
+<td>
+0.83
+</td>
+<td>
+0.74
 </td>
 <td>
 0.46
@@ -781,21 +1038,30 @@ Adjusted R<sup>2</sup>
 0.61
 </td>
 <td>
+0.88
+</td>
+<td>
 0.54
 </td>
 <td>
 0.50
 </td>
+<td>
+0.62
+</td>
+<td>
+0.61
+</td>
 </tr>
 <tr>
-<td colspan="9" style="border-bottom: 1px solid black">
+<td colspan="14" style="border-bottom: 1px solid black">
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
 <em>Note:</em>
 </td>
-<td colspan="8" style="text-align:right">
+<td colspan="13" style="text-align:right">
 <sup><em></sup>p&lt;0.1; <sup><strong></sup>p&lt;0.05; <sup></strong></em></sup>p&lt;0.01
 </td>
 </tr>

@@ -128,7 +128,7 @@ save(expdat, file = 'data/expdat.RData', compress = 'xz')
 data(envdat)
 data(ptedat)
 
-envchr <- c('pCO2', 'Ara', 'Temp', 'Fluor')
+envchr <- c('pCO2', 'Ara', 'Temp', 'O2', 'Fluor')
 ptechr <- c('LPX', 'ORAC', 'ORACvLPX', 'SOD')
 
 dat_frm <- ptedat %>% 
