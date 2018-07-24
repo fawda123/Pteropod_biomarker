@@ -11,7 +11,7 @@
 
 
 
-<title></title>
+<title>figures.utf8</title>
 
 <script src="figures_files/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -21,8 +21,8 @@
 <script src="figures_files/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="figures_files/navigation-1.1/tabsets.js"></script>
 <script src="figures_files/navigation-1.1/codefolding.js"></script>
-<link href="figures_files/highlightjs-1.1/default.css" rel="stylesheet" />
-<script src="figures_files/highlightjs-1.1/highlight.js"></script>
+<link href="figures_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="figures_files/highlightjs-9.12.0/highlight.js"></script>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -31,10 +31,12 @@
   }
 </style>
 <script type="text/javascript">
-if (window.hljs && document.readyState && document.readyState === "complete") {
-   window.setTimeout(function() {
-      hljs.initHighlighting();
-   }, 0);
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
 }
 </script>
 
@@ -329,7 +331,7 @@ gt$layout$clip[gt$layout$name == &quot;panel&quot;] &lt;- &quot;off&quot;
 grid.draw(gt)</code></pre>
 <p><img src="figures_files/figure-html/corplo.png" width="100%" style="display: block; margin: auto;" /> Fig. 3 Correlation matrix of environmental variables, cellular response endpoints, and population (abundance) and physiological response endpoints for pteropods. Darker red values are strong positive correlations and darker purple values are strong negative correlations. Significance values at alpha = 0.05 are shown by stars (p &lt; 0.05 *, p &lt; 0.005 **).</p>
 <pre class="r"><code>toplo &lt;- biomod %&gt;% 
-  filter(Model %in% c(&#39;mod3&#39;, &#39;mod4&#39;, &#39;mod24&#39;)) %&gt;% 
+  filter(Model %in% c(&#39;mod2&#39;, &#39;mod3&#39;, &#39;mod23&#39;)) %&gt;% 
   mutate(
     cvar = c(&#39;pCO2&#39;, &#39;Temp&#39;, &#39;Temp&#39;),
     xvar = c(&#39;Fluorescence&#39;, &#39;Omega[ar]&#39;, &#39;Omega[ar]&#39;), 
@@ -387,7 +389,7 @@ grid.arrange(
 )</code></pre>
 <p><img src="figures_files/figure-html/effbio.png" width="100%" style="display: block; margin: auto;" /> Fig. 4 Examples of model interactions of co-occuring environmental variables on pteropod cellular responses. Plot (a) shows a negative additive effect between aragonite saturation state (Ωar) and temperature on cellular toxicity (lipid peroxidation; LPX); plot (b) shows negative additive effects of food availability and pCO2 on LPX; plot (c) shows positive additive effects of temperature and Ωar on antioxidative activity (sodium dismutase, SOD). Both y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum and maximum values in the observed data.</p>
 <pre class="r"><code>toplo &lt;- phymod %&gt;% 
-  filter(Model %in% c(&#39;mod2&#39;, &#39;mod9&#39;)) %&gt;% 
+  filter(Model %in% c(&#39;mod2&#39;, &#39;mod8&#39;)) %&gt;% 
   mutate(
     cvar = c(&#39;Temp&#39;, &#39;Temp&#39;),
     xvar = c(&#39;Omega[ar]&#39;, &#39;Omega[ar]&#39;), 
@@ -481,10 +483,7 @@ Cellular response measures
 <td colspan="4">
 LPX
 </td>
-<td>
-ORAC
-</td>
-<td colspan="4">
+<td colspan="5">
 ORACvLPX
 </td>
 <td colspan="4">
@@ -549,13 +548,10 @@ Constant
 -2.46
 </td>
 <td>
-36.22<sup>***</sup>
-</td>
-<td>
 10.75<sup>***</sup>
 </td>
 <td>
--460.05<sup>*</sup>
+124.56<sup>***</sup>
 </td>
 <td>
 206.22<sup>***</sup>
@@ -570,16 +566,19 @@ Constant
 -137.07<sup>***</sup>
 </td>
 <td>
+-3,261.15<sup>***</sup>
+</td>
+<td>
 -126.74<sup>*</sup>
 </td>
 <td>
 -30.67
 </td>
 <td>
-72.57<sup>***</sup>
+24.02
 </td>
 <td>
-24.02
+1,263.49<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -622,11 +621,10 @@ Fluor
 <td>
 </td>
 <td>
-</td>
-<td>
 -7.64<sup>**</sup>
 </td>
 <td>
+-9.73<sup>**</sup>
 </td>
 <td>
 320.02<sup>***</sup>
@@ -638,6 +636,9 @@ Fluor
 </td>
 <td>
 226.61<sup>***</sup>
+</td>
+<td>
+287.36<sup>***</sup>
 </td>
 <td>
 </td>
@@ -692,10 +693,9 @@ pCO2
 <td>
 </td>
 <td>
-0.39<sup>**</sup>
+-0.27<sup>***</sup>
 </td>
 <td>
--0.27<sup>***</sup>
 </td>
 <td>
 </td>
@@ -753,12 +753,8 @@ Ara
 -8.43<sup>**</sup>
 </td>
 <td>
--14.85<sup>*</sup>
 </td>
 <td>
-</td>
-<td>
-278.81<sup>**</sup>
 </td>
 <td>
 </td>
@@ -773,10 +769,11 @@ Ara
 <td>
 </td>
 <td>
+</td>
+<td>
 -80.21<sup>***</sup>
 </td>
 <td>
-64.75<sup>**</sup>
 </td>
 <td>
 </td>
@@ -827,9 +824,9 @@ Temp
 <td>
 </td>
 <td>
+-50.51<sup>**</sup>
 </td>
 <td>
--50.51<sup>**</sup>
 </td>
 <td>
 </td>
@@ -842,9 +839,10 @@ Temp
 19.58<sup>**</sup>
 </td>
 <td>
+9.39<sup>*</sup>
 </td>
 <td>
-9.39<sup>*</sup>
+12.28<sup>**</sup>
 </td>
 </tr>
 <tr>
@@ -886,9 +884,6 @@ O2
 <td>
 </td>
 <td>
--0.19<sup>***</sup>
-</td>
-<td>
 -0.03<sup>***</sup>
 </td>
 <td>
@@ -907,52 +902,15 @@ O2
 <td>
 </td>
 <td>
--0.61<sup>***</sup>
 </td>
 <td>
 -0.35<sup>***</sup>
 </td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
 <td>
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
-Ara:O2
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-0.09<sup>**</sup>
 </td>
 <td>
 </td>
@@ -973,6 +931,46 @@ Ara:O2
 <td>
 </td>
 <td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+pH
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+-15.27<sup>***</sup>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+418.53<sup>***</sup>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+-169.62<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -1020,13 +1018,10 @@ Adjusted R<sup>2</sup>
 0.50
 </td>
 <td>
-0.83
-</td>
-<td>
 0.74
 </td>
 <td>
-0.46
+0.65
 </td>
 <td>
 0.87
@@ -1041,16 +1036,19 @@ Adjusted R<sup>2</sup>
 0.88
 </td>
 <td>
+0.82
+</td>
+<td>
 0.54
 </td>
 <td>
 0.50
 </td>
 <td>
-0.62
+0.61
 </td>
 <td>
-0.61
+0.55
 </td>
 </tr>
 <tr>
@@ -1151,10 +1149,10 @@ Constant
 2.73<sup>***</sup>
 </td>
 <td>
-0.14
+1.96<sup>***</sup>
 </td>
 <td>
-1.96<sup>***</sup>
+-20.96<sup>***</sup>
 </td>
 <td>
 -0.12<sup>***</sup>
@@ -1163,10 +1161,10 @@ Constant
 1.51<sup>*</sup>
 </td>
 <td>
-1.01<sup>***</sup>
+1.82<sup>**</sup>
 </td>
 <td>
-1.82<sup>**</sup>
+6.16<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -1284,7 +1282,6 @@ Ara
 1.45<sup>***</sup>
 </td>
 <td>
--1.54<sup>**</sup>
 </td>
 <td>
 </td>
@@ -1294,9 +1291,94 @@ Ara
 -1.27<sup>***</sup>
 </td>
 <td>
--0.41<sup>*</sup>
 </td>
 <td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+O2
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+0.01<sup>***</sup>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+-0.01<sup>***</sup>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td style="text-align:left">
+pH
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+3.12<sup>***</sup>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+</td>
+<td>
+-0.83<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -1330,9 +1412,10 @@ Temp
 -0.44<sup>***</sup>
 </td>
 <td>
+-0.30<sup>***</sup>
 </td>
 <td>
--0.30<sup>***</sup>
+-0.32<sup>***</sup>
 </td>
 <td>
 </td>
@@ -1340,96 +1423,10 @@ Temp
 -0.11
 </td>
 <td>
-</td>
-<td>
 -0.15<sup>*</sup>
 </td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
 <td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-O2:Temp
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-0.001<sup>**</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-O2
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-0.01<sup>**</sup>
-</td>
-<td>
-0.01<sup>***</sup>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
--0.01<sup>***</sup>
-</td>
-<td>
--0.01<sup>***</sup>
+0.05<sup>**</sup>
 </td>
 </tr>
 <tr>
@@ -1496,7 +1493,7 @@ Ara:Temp
 </tr>
 <tr>
 <td style="text-align:left">
-Ara:O2
+O2:Temp
 </td>
 <td>
 </td>
@@ -1511,7 +1508,7 @@ Ara:O2
 <td>
 </td>
 <td>
-0.002<sup>**</sup>
+0.001<sup>**</sup>
 </td>
 <td>
 </td>
@@ -1551,10 +1548,10 @@ Adjusted R<sup>2</sup>
 0.51
 </td>
 <td>
-0.14
+0.43
 </td>
 <td>
-0.43
+0.45
 </td>
 <td>
 0.71
@@ -1563,10 +1560,10 @@ Adjusted R<sup>2</sup>
 0.87
 </td>
 <td>
-0.85
+0.87
 </td>
 <td>
-0.87
+0.69
 </td>
 </tr>
 <tr>

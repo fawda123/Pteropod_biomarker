@@ -163,7 +163,7 @@ mod_all <- env_cmb %>%
     vif <- 1 / (1 - rsq)
       
     # exit if vif large
-    if(vif > 11) return(NA)
+    if(vif > 5) return(NA)
     
     # formula
     frm <- paste(x[1], '~', x[2], '*', x[3]) %>% 
@@ -274,7 +274,7 @@ mod_all <- env_cmb %>%
     vif <- 1 / (1 - rsq)
     
     # exit if vif large
-    if(vif > 11) return(NA)
+    if(vif > 5) return(NA)
     
     # formula
     frm <- paste(x[1], '~', x[2], '*', x[3]) %>% 

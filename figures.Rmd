@@ -217,7 +217,7 @@ Fig. 3 Correlation matrix of environmental variables, cellular response endpoint
 
 ```{r effbio, fig.height = 8, fig.width = 6, eval = T}
 toplo <- biomod %>% 
-  filter(Model %in% c('mod3', 'mod4', 'mod24')) %>% 
+  filter(Model %in% c('mod2', 'mod3', 'mod23')) %>% 
   mutate(
     cvar = c('pCO2', 'Temp', 'Temp'),
     xvar = c('Fluorescence', 'Omega[ar]', 'Omega[ar]'), 
@@ -279,7 +279,7 @@ Fig. 4 Examples of model interactions of co-occuring environmental variables on 
 
 ```{r effphy, fig.height = 5.33, fig.width = 6, eval = T}
 toplo <- phymod %>% 
-  filter(Model %in% c('mod2', 'mod9')) %>% 
+  filter(Model %in% c('mod2', 'mod8')) %>% 
   mutate(
     cvar = c('Temp', 'Temp'),
     xvar = c('Omega[ar]', 'Omega[ar]'), 
