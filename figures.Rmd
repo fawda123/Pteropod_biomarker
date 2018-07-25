@@ -347,9 +347,9 @@ biotab <- biomod %>%
   dplyr::select(-n)
 biotab <- filter(biomod, Model %in% unique(biotab$Model))
 
-cap <- 'Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same cellular response measure can be identified with the column names at the top.  * p < 0.1, ** p < 0.05, *** p < 0.01'
+cap <- 'Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same cellular response measure can be identified with the column names at the top.  * p < 0.05, ** p < 0.01'
 
-stargazer(biotab$Modobj, type = 'html', title = cap, digits = 2, keep.stat = c('adj.rsq'), intercept.top = T, intercept.bottom = F, dep.var.caption = 'Cellular response measures', report = 'vc*')
+stargazer(biotab$Modobj, type = 'html', title = cap, digits = 2, keep.stat = c('adj.rsq'), intercept.top = T, intercept.bottom = F, dep.var.caption = 'Cellular response measures', report = 'vc*', star.char = c("", "*", "**"), omit = 'Constant')
 ```
 
 ```{r, results = 'asis'}
@@ -361,9 +361,9 @@ phytab <- phymod %>%
   dplyr::select(-n)
 phytab <- filter(phymod, Model %in% unique(phytab$Model))
 
-cap <- 'Table 2: Model results for physiological and abundance responses to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same response measure can be identified with the column names at the top. * p < 0.1, ** p < 0.05, *** p < 0.01'
+cap <- 'Table 2: Model results for physiological and abundance responses to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same response measure can be identified with the column names at the top. * p < 0.05, ** p < 0.01'
 
-stargazer(phytab$Modobj, type = 'html', title = cap, digits = 2, keep.stat = c('adj.rsq'), intercept.top = T, intercept.bottom = F, dep.var.caption = 'Physiological response measures', dep.var.labels = c('Abundance', 'Shell dissolution'), report = 'vc*')
+stargazer(phytab$Modobj, type = 'html', title = cap, digits = 2, keep.stat = c('adj.rsq'), intercept.top = T, intercept.bottom = F, dep.var.caption = 'Physiological response measures', dep.var.labels = c('Abundance', 'Shell dissolution'), report = 'vc*', star.char = c("", "*", "**"), omit = 'Constant')
 
 ```
 

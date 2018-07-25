@@ -360,30 +360,28 @@ biotab <- biomod %>%
   dplyr::select(-n)
 biotab <- filter(biomod, Model %in% unique(biotab$Model))
 
-cap <- 'Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same cellular response measure can be identified with the column names at the top.  * p < 0.1, ** p < 0.05, *** p < 0.01'
+cap <- 'Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same cellular response measure can be identified with the column names at the top.  * p < 0.05, ** p < 0.01'
 
-stargazer(biotab$Modobj, type = 'html', title = cap, digits = 2, keep.stat = c('adj.rsq'), intercept.top = T, intercept.bottom = F, dep.var.caption = 'Cellular response measures', report = 'vc*')
+stargazer(biotab$Modobj, type = 'html', title = cap, digits = 2, keep.stat = c('adj.rsq'), intercept.top = T, intercept.bottom = F, dep.var.caption = 'Cellular response measures', report = 'vc*', star.char = c("", "*", "**"), omit = 'Constant')
 ```
 
 
-<table style="text-align:center"><caption><strong>Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown. Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same cellular response measure can be identified with the column names at the top. * p < 0.1, ** p < 0.05, *** p < 0.01</strong></caption>
+<table style="text-align:center"><caption><strong>Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown. Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same cellular response measure can be identified with the column names at the top. * p < 0.05, ** p < 0.01</strong></caption>
 <tr><td colspan="14" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td colspan="13">Cellular response measures</td></tr>
 <tr><td></td><td colspan="13" style="border-bottom: 1px solid black"></td></tr>
 <tr><td style="text-align:left"></td><td colspan="4">LPX</td><td colspan="5">ORACvLPX</td><td colspan="4">SOD</td></tr>
 <tr><td style="text-align:left"></td><td>(1)</td><td>(2)</td><td>(3)</td><td>(4)</td><td>(5)</td><td>(6)</td><td>(7)</td><td>(8)</td><td>(9)</td><td>(10)</td><td>(11)</td><td>(12)</td><td>(13)</td></tr>
-<tr><td colspan="14" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Constant</td><td>-2.00<sup>*</sup></td><td>-2.46</td><td>10.75<sup>***</sup></td><td>124.56<sup>***</sup></td><td>206.22<sup>***</sup></td><td>232.37<sup>*</sup></td><td>-141.36<sup>**</sup></td><td>-137.07<sup>***</sup></td><td>-3,261.15<sup>***</sup></td><td>-126.74<sup>*</sup></td><td>-30.67</td><td>24.02</td><td>1,263.49<sup>***</sup></td></tr>
+<tr><td colspan="14" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Fluor</td><td>-11.07<sup>**</sup></td><td></td><td>-7.64<sup>*</sup></td><td>-9.73<sup>*</sup></td><td>320.02<sup>**</sup></td><td></td><td>256.12<sup>*</sup></td><td>226.61<sup>**</sup></td><td>287.36<sup>**</sup></td><td></td><td></td><td></td><td></td></tr>
 <tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td style="text-align:left">Fluor</td><td>-11.07<sup>***</sup></td><td></td><td>-7.64<sup>**</sup></td><td>-9.73<sup>**</sup></td><td>320.02<sup>***</sup></td><td></td><td>256.12<sup>**</sup></td><td>226.61<sup>***</sup></td><td>287.36<sup>***</sup></td><td></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">pCO2</td><td>0.01<sup>**</sup></td><td></td><td></td><td></td><td>-0.27<sup>**</sup></td><td></td><td></td><td></td><td></td><td>0.10<sup>**</sup></td><td></td><td></td><td></td></tr>
 <tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td style="text-align:left">pCO2</td><td>0.01<sup>***</sup></td><td></td><td></td><td></td><td>-0.27<sup>***</sup></td><td></td><td></td><td></td><td></td><td>0.10<sup>***</sup></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Ara</td><td></td><td>-8.43<sup>*</sup></td><td></td><td></td><td></td><td>227.87<sup>**</sup></td><td>132.98<sup>**</sup></td><td></td><td></td><td></td><td>-80.21<sup>**</sup></td><td></td><td></td></tr>
 <tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td style="text-align:left">Ara</td><td></td><td>-8.43<sup>**</sup></td><td></td><td></td><td></td><td>227.87<sup>***</sup></td><td>132.98<sup>***</sup></td><td></td><td></td><td></td><td>-80.21<sup>***</sup></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Temp</td><td></td><td>1.82<sup></sup></td><td></td><td></td><td></td><td>-50.51<sup>*</sup></td><td></td><td></td><td></td><td>11.24<sup></sup></td><td>19.58<sup>*</sup></td><td>9.39<sup></sup></td><td>12.28<sup>*</sup></td></tr>
 <tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td style="text-align:left">Temp</td><td></td><td>1.82<sup>*</sup></td><td></td><td></td><td></td><td>-50.51<sup>**</sup></td><td></td><td></td><td></td><td>11.24<sup>*</sup></td><td>19.58<sup>**</sup></td><td>9.39<sup>*</sup></td><td>12.28<sup>**</sup></td></tr>
+<tr><td style="text-align:left">O2</td><td></td><td></td><td>-0.03<sup>**</sup></td><td></td><td></td><td></td><td></td><td>0.91<sup>**</sup></td><td></td><td></td><td></td><td>-0.35<sup>**</sup></td><td></td></tr>
 <tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td style="text-align:left">O2</td><td></td><td></td><td>-0.03<sup>***</sup></td><td></td><td></td><td></td><td></td><td>0.91<sup>***</sup></td><td></td><td></td><td></td><td>-0.35<sup>***</sup></td><td></td></tr>
-<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td style="text-align:left">pH</td><td></td><td></td><td></td><td>-15.27<sup>***</sup></td><td></td><td></td><td></td><td></td><td>418.53<sup>***</sup></td><td></td><td></td><td></td><td>-169.62<sup>***</sup></td></tr>
+<tr><td style="text-align:left">pH</td><td></td><td></td><td></td><td>-15.27<sup>**</sup></td><td></td><td></td><td></td><td></td><td>418.53<sup>**</sup></td><td></td><td></td><td></td><td>-169.62<sup>**</sup></td></tr>
 <tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td colspan="14" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Adjusted R<sup>2</sup></td><td>0.72</td><td>0.50</td><td>0.74</td><td>0.65</td><td>0.87</td><td>0.58</td><td>0.61</td><td>0.88</td><td>0.82</td><td>0.54</td><td>0.50</td><td>0.61</td><td>0.55</td></tr>
 <tr><td colspan="14" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"><em>Note:</em></td><td colspan="13" style="text-align:right"><sup>*</sup>p<0.1; <sup>**</sup>p<0.05; <sup>***</sup>p<0.01</td></tr>
@@ -399,34 +397,32 @@ phytab <- phymod %>%
   dplyr::select(-n)
 phytab <- filter(phymod, Model %in% unique(phytab$Model))
 
-cap <- 'Table 2: Model results for physiological and abundance responses to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same response measure can be identified with the column names at the top. * p < 0.1, ** p < 0.05, *** p < 0.01'
+cap <- 'Table 2: Model results for physiological and abundance responses to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same response measure can be identified with the column names at the top. * p < 0.05, ** p < 0.01'
 
-stargazer(phytab$Modobj, type = 'html', title = cap, digits = 2, keep.stat = c('adj.rsq'), intercept.top = T, intercept.bottom = F, dep.var.caption = 'Physiological response measures', dep.var.labels = c('Abundance', 'Shell dissolution'), report = 'vc*')
+stargazer(phytab$Modobj, type = 'html', title = cap, digits = 2, keep.stat = c('adj.rsq'), intercept.top = T, intercept.bottom = F, dep.var.caption = 'Physiological response measures', dep.var.labels = c('Abundance', 'Shell dissolution'), report = 'vc*', star.char = c("", "*", "**"), omit = 'Constant')
 ```
 
 
-<table style="text-align:center"><caption><strong>Table 2: Model results for physiological and abundance responses to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown. Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same response measure can be identified with the column names at the top. * p < 0.1, ** p < 0.05, *** p < 0.01</strong></caption>
+<table style="text-align:center"><caption><strong>Table 2: Model results for physiological and abundance responses to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown. Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same response measure can be identified with the column names at the top. * p < 0.05, ** p < 0.01</strong></caption>
 <tr><td colspan="9" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"></td><td colspan="8">Physiological response measures</td></tr>
 <tr><td></td><td colspan="8" style="border-bottom: 1px solid black"></td></tr>
 <tr><td style="text-align:left"></td><td colspan="4">Abundance</td><td colspan="4">Shell dissolution</td></tr>
 <tr><td style="text-align:left"></td><td>(1)</td><td>(2)</td><td>(3)</td><td>(4)</td><td>(5)</td><td>(6)</td><td>(7)</td><td>(8)</td></tr>
-<tr><td colspan="9" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Constant</td><td>4.58<sup>***</sup></td><td>2.73<sup>***</sup></td><td>1.96<sup>***</sup></td><td>-20.96<sup>***</sup></td><td>-0.12<sup>***</sup></td><td>1.51<sup>*</sup></td><td>1.82<sup>**</sup></td><td>6.16<sup>***</sup></td></tr>
+<tr><td colspan="9" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Fluor</td><td></td><td></td><td></td><td></td><td>-0.33<sup>*</sup></td><td></td><td></td><td></td></tr>
 <tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td style="text-align:left">Fluor</td><td></td><td></td><td></td><td></td><td>-0.33<sup>**</sup></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">pCO2</td><td>-0.002<sup>**</sup></td><td></td><td></td><td></td><td>0.0004<sup>**</sup></td><td></td><td></td><td></td></tr>
 <tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td style="text-align:left">pCO2</td><td>-0.002<sup>***</sup></td><td></td><td></td><td></td><td>0.0004<sup>***</sup></td><td></td><td></td><td></td></tr>
+<tr><td style="text-align:left">Ara</td><td></td><td>1.45<sup>**</sup></td><td></td><td></td><td></td><td>-1.27<sup>**</sup></td><td></td><td></td></tr>
 <tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td style="text-align:left">Ara</td><td></td><td>1.45<sup>***</sup></td><td></td><td></td><td></td><td>-1.27<sup>***</sup></td><td></td><td></td></tr>
+<tr><td style="text-align:left">O2</td><td></td><td></td><td>0.01<sup>**</sup></td><td></td><td></td><td></td><td>-0.01<sup>**</sup></td><td></td></tr>
 <tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td style="text-align:left">O2</td><td></td><td></td><td>0.01<sup>***</sup></td><td></td><td></td><td></td><td>-0.01<sup>***</sup></td><td></td></tr>
+<tr><td style="text-align:left">pH</td><td></td><td></td><td></td><td>3.12<sup>**</sup></td><td></td><td></td><td></td><td>-0.83<sup>**</sup></td></tr>
 <tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td style="text-align:left">pH</td><td></td><td></td><td></td><td>3.12<sup>***</sup></td><td></td><td></td><td></td><td>-0.83<sup>***</sup></td></tr>
+<tr><td style="text-align:left">Temp</td><td>-0.31<sup>**</sup></td><td>-0.44<sup>**</sup></td><td>-0.30<sup>**</sup></td><td>-0.32<sup>**</sup></td><td></td><td>-0.11</td><td>-0.15<sup></sup></td><td>0.05<sup>*</sup></td></tr>
 <tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td style="text-align:left">Temp</td><td>-0.31<sup>***</sup></td><td>-0.44<sup>***</sup></td><td>-0.30<sup>***</sup></td><td>-0.32<sup>***</sup></td><td></td><td>-0.11</td><td>-0.15<sup>*</sup></td><td>0.05<sup>**</sup></td></tr>
+<tr><td style="text-align:left">Ara:Temp</td><td></td><td></td><td></td><td></td><td></td><td>0.10<sup>*</sup></td><td></td><td></td></tr>
 <tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td style="text-align:left">Ara:Temp</td><td></td><td></td><td></td><td></td><td></td><td>0.10<sup>**</sup></td><td></td><td></td></tr>
-<tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td style="text-align:left">O2:Temp</td><td></td><td></td><td></td><td></td><td></td><td></td><td>0.001<sup>**</sup></td><td></td></tr>
+<tr><td style="text-align:left">O2:Temp</td><td></td><td></td><td></td><td></td><td></td><td></td><td>0.001<sup>*</sup></td><td></td></tr>
 <tr><td style="text-align:left"></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td colspan="9" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left">Adjusted R<sup>2</sup></td><td>0.40</td><td>0.51</td><td>0.43</td><td>0.45</td><td>0.71</td><td>0.87</td><td>0.87</td><td>0.69</td></tr>
 <tr><td colspan="9" style="border-bottom: 1px solid black"></td></tr><tr><td style="text-align:left"><em>Note:</em></td><td colspan="8" style="text-align:right"><sup>*</sup>p<0.1; <sup>**</sup>p<0.05; <sup>***</sup>p<0.01</td></tr>

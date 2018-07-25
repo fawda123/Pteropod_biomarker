@@ -453,12 +453,12 @@ grid.arrange(
   dplyr::select(-n)
 biotab &lt;- filter(biomod, Model %in% unique(biotab$Model))
 
-cap &lt;- &#39;Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same cellular response measure can be identified with the column names at the top.  * p &lt; 0.1, ** p &lt; 0.05, *** p &lt; 0.01&#39;
+cap &lt;- &#39;Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same cellular response measure can be identified with the column names at the top.  * p &lt; 0.05, ** p &lt; 0.01&#39;
 
-stargazer(biotab$Modobj, type = &#39;html&#39;, title = cap, digits = 2, keep.stat = c(&#39;adj.rsq&#39;), intercept.top = T, intercept.bottom = F, dep.var.caption = &#39;Cellular response measures&#39;, report = &#39;vc*&#39;)</code></pre>
+stargazer(biotab$Modobj, type = &#39;html&#39;, title = cap, digits = 2, keep.stat = c(&#39;adj.rsq&#39;), intercept.top = T, intercept.bottom = F, dep.var.caption = &#39;Cellular response measures&#39;, report = &#39;vc*&#39;, star.char = c(&quot;&quot;, &quot;*&quot;, &quot;**&quot;), omit = &#39;Constant&#39;)</code></pre>
 <table style="text-align:center">
 <caption>
-<strong>Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown. Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same cellular response measure can be identified with the column names at the top. * p &lt; 0.1, ** p &lt; 0.05, *** p &lt; 0.01</strong>
+<strong>Table 1: Model results for pteropod cellular response to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown. Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same cellular response measure can be identified with the column names at the top. * p &lt; 0.05, ** p &lt; 0.01</strong>
 </caption>
 <tr>
 <td colspan="14" style="border-bottom: 1px solid black">
@@ -539,106 +539,32 @@ SOD
 </tr>
 <tr>
 <td style="text-align:left">
-Constant
-</td>
-<td>
--2.00<sup>*</sup>
-</td>
-<td>
--2.46
-</td>
-<td>
-10.75<sup>***</sup>
-</td>
-<td>
-124.56<sup>***</sup>
-</td>
-<td>
-206.22<sup>***</sup>
-</td>
-<td>
-232.37<sup>*</sup>
-</td>
-<td>
--141.36<sup>**</sup>
-</td>
-<td>
--137.07<sup>***</sup>
-</td>
-<td>
--3,261.15<sup>***</sup>
-</td>
-<td>
--126.74<sup>*</sup>
-</td>
-<td>
--30.67
-</td>
-<td>
-24.02
-</td>
-<td>
-1,263.49<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
 Fluor
 </td>
 <td>
--11.07<sup>***</sup>
+-11.07<sup>**</sup>
 </td>
 <td>
 </td>
 <td>
--7.64<sup>**</sup>
+-7.64<sup>*</sup>
 </td>
 <td>
--9.73<sup>**</sup>
+-9.73<sup>*</sup>
 </td>
 <td>
-320.02<sup>***</sup>
+320.02<sup>**</sup>
 </td>
 <td>
 </td>
 <td>
-256.12<sup>**</sup>
+256.12<sup>*</sup>
 </td>
 <td>
-226.61<sup>***</sup>
+226.61<sup>**</sup>
 </td>
 <td>
-287.36<sup>***</sup>
+287.36<sup>**</sup>
 </td>
 <td>
 </td>
@@ -684,7 +610,7 @@ Fluor
 pCO2
 </td>
 <td>
-0.01<sup>***</sup>
+0.01<sup>**</sup>
 </td>
 <td>
 </td>
@@ -693,7 +619,7 @@ pCO2
 <td>
 </td>
 <td>
--0.27<sup>***</sup>
+-0.27<sup>**</sup>
 </td>
 <td>
 </td>
@@ -704,7 +630,7 @@ pCO2
 <td>
 </td>
 <td>
-0.10<sup>***</sup>
+0.10<sup>**</sup>
 </td>
 <td>
 </td>
@@ -750,7 +676,7 @@ Ara
 <td>
 </td>
 <td>
--8.43<sup>**</sup>
+-8.43<sup>*</sup>
 </td>
 <td>
 </td>
@@ -759,19 +685,19 @@ Ara
 <td>
 </td>
 <td>
-227.87<sup>***</sup>
+227.87<sup>**</sup>
 </td>
 <td>
-132.98<sup>***</sup>
-</td>
-<td>
-</td>
-<td>
+132.98<sup>**</sup>
 </td>
 <td>
 </td>
 <td>
--80.21<sup>***</sup>
+</td>
+<td>
+</td>
+<td>
+-80.21<sup>**</sup>
 </td>
 <td>
 </td>
@@ -815,7 +741,7 @@ Temp
 <td>
 </td>
 <td>
-1.82<sup>*</sup>
+1.82<sup></sup>
 </td>
 <td>
 </td>
@@ -824,7 +750,7 @@ Temp
 <td>
 </td>
 <td>
--50.51<sup>**</sup>
+-50.51<sup>*</sup>
 </td>
 <td>
 </td>
@@ -833,16 +759,16 @@ Temp
 <td>
 </td>
 <td>
-11.24<sup>*</sup>
+11.24<sup></sup>
 </td>
 <td>
-19.58<sup>**</sup>
+19.58<sup>*</sup>
 </td>
 <td>
-9.39<sup>*</sup>
+9.39<sup></sup>
 </td>
 <td>
-12.28<sup>**</sup>
+12.28<sup>*</sup>
 </td>
 </tr>
 <tr>
@@ -884,7 +810,7 @@ O2
 <td>
 </td>
 <td>
--0.03<sup>***</sup>
+-0.03<sup>**</sup>
 </td>
 <td>
 </td>
@@ -895,7 +821,7 @@ O2
 <td>
 </td>
 <td>
-0.91<sup>***</sup>
+0.91<sup>**</sup>
 </td>
 <td>
 </td>
@@ -904,7 +830,7 @@ O2
 <td>
 </td>
 <td>
--0.35<sup>***</sup>
+-0.35<sup>**</sup>
 </td>
 <td>
 </td>
@@ -950,7 +876,7 @@ pH
 <td>
 </td>
 <td>
--15.27<sup>***</sup>
+-15.27<sup>**</sup>
 </td>
 <td>
 </td>
@@ -961,7 +887,7 @@ pH
 <td>
 </td>
 <td>
-418.53<sup>***</sup>
+418.53<sup>**</sup>
 </td>
 <td>
 </td>
@@ -970,7 +896,7 @@ pH
 <td>
 </td>
 <td>
--169.62<sup>***</sup>
+-169.62<sup>**</sup>
 </td>
 </tr>
 <tr>
@@ -1072,12 +998,12 @@ Adjusted R<sup>2</sup>
   dplyr::select(-n)
 phytab &lt;- filter(phymod, Model %in% unique(phytab$Model))
 
-cap &lt;- &#39;Table 2: Model results for physiological and abundance responses to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same response measure can be identified with the column names at the top. * p &lt; 0.1, ** p &lt; 0.05, *** p &lt; 0.01&#39;
+cap &lt;- &#39;Table 2: Model results for physiological and abundance responses to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown.  Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same response measure can be identified with the column names at the top. * p &lt; 0.05, ** p &lt; 0.01&#39;
 
-stargazer(phytab$Modobj, type = &#39;html&#39;, title = cap, digits = 2, keep.stat = c(&#39;adj.rsq&#39;), intercept.top = T, intercept.bottom = F, dep.var.caption = &#39;Physiological response measures&#39;, dep.var.labels = c(&#39;Abundance&#39;, &#39;Shell dissolution&#39;), report = &#39;vc*&#39;)</code></pre>
+stargazer(phytab$Modobj, type = &#39;html&#39;, title = cap, digits = 2, keep.stat = c(&#39;adj.rsq&#39;), intercept.top = T, intercept.bottom = F, dep.var.caption = &#39;Physiological response measures&#39;, dep.var.labels = c(&#39;Abundance&#39;, &#39;Shell dissolution&#39;), report = &#39;vc*&#39;, star.char = c(&quot;&quot;, &quot;*&quot;, &quot;**&quot;), omit = &#39;Constant&#39;)</code></pre>
 <table style="text-align:center">
 <caption>
-<strong>Table 2: Model results for physiological and abundance responses to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown. Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same response measure can be identified with the column names at the top. * p &lt; 0.1, ** p &lt; 0.05, *** p &lt; 0.01</strong>
+<strong>Table 2: Model results for physiological and abundance responses to pairs of co-occurring environmental variables. The estimated joint effects of variables and their significance in each model are shown. Parameter estimates are included with overall model statistics (R-squared, F statistic) at the bottom. Models with the same response measure can be identified with the column names at the top. * p &lt; 0.05, ** p &lt; 0.01</strong>
 </caption>
 <tr>
 <td colspan="9" style="border-bottom: 1px solid black">
@@ -1140,55 +1066,6 @@ Shell dissolution
 </tr>
 <tr>
 <td style="text-align:left">
-Constant
-</td>
-<td>
-4.58<sup>***</sup>
-</td>
-<td>
-2.73<sup>***</sup>
-</td>
-<td>
-1.96<sup>***</sup>
-</td>
-<td>
--20.96<sup>***</sup>
-</td>
-<td>
--0.12<sup>***</sup>
-</td>
-<td>
-1.51<sup>*</sup>
-</td>
-<td>
-1.82<sup>**</sup>
-</td>
-<td>
-6.16<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-<td>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
 Fluor
 </td>
 <td>
@@ -1200,7 +1077,7 @@ Fluor
 <td>
 </td>
 <td>
--0.33<sup>**</sup>
+-0.33<sup>*</sup>
 </td>
 <td>
 </td>
@@ -1234,7 +1111,7 @@ Fluor
 pCO2
 </td>
 <td>
--0.002<sup>***</sup>
+-0.002<sup>**</sup>
 </td>
 <td>
 </td>
@@ -1243,7 +1120,7 @@ pCO2
 <td>
 </td>
 <td>
-0.0004<sup>***</sup>
+0.0004<sup>**</sup>
 </td>
 <td>
 </td>
@@ -1279,7 +1156,7 @@ Ara
 <td>
 </td>
 <td>
-1.45<sup>***</sup>
+1.45<sup>**</sup>
 </td>
 <td>
 </td>
@@ -1288,7 +1165,7 @@ Ara
 <td>
 </td>
 <td>
--1.27<sup>***</sup>
+-1.27<sup>**</sup>
 </td>
 <td>
 </td>
@@ -1324,7 +1201,7 @@ O2
 <td>
 </td>
 <td>
-0.01<sup>***</sup>
+0.01<sup>**</sup>
 </td>
 <td>
 </td>
@@ -1333,7 +1210,7 @@ O2
 <td>
 </td>
 <td>
--0.01<sup>***</sup>
+-0.01<sup>**</sup>
 </td>
 <td>
 </td>
@@ -1369,7 +1246,7 @@ pH
 <td>
 </td>
 <td>
-3.12<sup>***</sup>
+3.12<sup>**</sup>
 </td>
 <td>
 </td>
@@ -1378,7 +1255,7 @@ pH
 <td>
 </td>
 <td>
--0.83<sup>***</sup>
+-0.83<sup>**</sup>
 </td>
 </tr>
 <tr>
@@ -1406,16 +1283,16 @@ pH
 Temp
 </td>
 <td>
--0.31<sup>***</sup>
+-0.31<sup>**</sup>
 </td>
 <td>
--0.44<sup>***</sup>
+-0.44<sup>**</sup>
 </td>
 <td>
--0.30<sup>***</sup>
+-0.30<sup>**</sup>
 </td>
 <td>
--0.32<sup>***</sup>
+-0.32<sup>**</sup>
 </td>
 <td>
 </td>
@@ -1423,10 +1300,10 @@ Temp
 -0.11
 </td>
 <td>
--0.15<sup>*</sup>
+-0.15<sup></sup>
 </td>
 <td>
-0.05<sup>**</sup>
+0.05<sup>*</sup>
 </td>
 </tr>
 <tr>
@@ -1464,7 +1341,7 @@ Ara:Temp
 <td>
 </td>
 <td>
-0.10<sup>**</sup>
+0.10<sup>*</sup>
 </td>
 <td>
 </td>
@@ -1508,7 +1385,7 @@ O2:Temp
 <td>
 </td>
 <td>
-0.001<sup>**</sup>
+0.001<sup>*</sup>
 </td>
 <td>
 </td>
