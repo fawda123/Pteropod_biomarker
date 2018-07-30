@@ -115,7 +115,7 @@ grid.arrange(p1a, p2a, ncol = 2)
 
 <img src="figures_files/figure-html/rdaplo.png" width="100%" style="display: block; margin: auto;" />
 
-Fig. 2 Results of redundancy analyses for environmental variables with (a) cellular and (b) physiological endpoints of pteropod response to OA stressors.  Points are site locations in multivariate space with the size proportional to latitude. Separate RDAs were created for cellular and physiological endpoints because not all data were available across all stations.   
+Fig. 4 Results of redundancy analyses for environmental variables with (a) cellular and (b) physiological endpoints of pteropod response to OA stressors.  Points are site locations in multivariate space with the size proportional to latitude. Separate RDAs were created for cellular and physiological endpoints because not all data were available across all stations.   
 
 
 ```r
@@ -221,7 +221,7 @@ grid.draw(gt)
 ```
 
 <img src="figures_files/figure-html/corplo.png" width="100%" style="display: block; margin: auto;" />
-Fig. 3 Correlation matrix of environmental variables, cellular response endpoints, and population (abundance) and physiological response endpoints for pteropods.  Darker red values are strong positive correlations and darker purple values are strong negative correlations.  Significance values at alpha = 0.05 are shown by stars (p < 0.05 \*, p < 0.005 \*\*).
+Fig. 5 Correlation matrix of environmental variables, cellular response endpoints, and population (abundance) and physiological response endpoints for pteropods.  Darker red values are strong positive correlations and darker purple values are strong negative correlations.  Significance values at alpha = 0.05 are shown by stars (p < 0.05 \*, p < 0.005 \*\*).
 
 
 ```r
@@ -285,20 +285,24 @@ grid.arrange(
 ```
 
 <img src="figures_files/figure-html/effbio.png" width="100%" style="display: block; margin: auto;" />
-Fig. 4 Examples of model interactions of co-occuring environmental variables on pteropod cellular responses. Plot (a) shows a negative additive effect between aragonite saturation state (Ωar) and temperature on cellular toxicity (lipid peroxidation; LPX); plot (b) shows negative additive effects of food availability and pCO2 on LPX; plot (c) shows positive additive effects of temperature and Ωar on antioxidative activity (sodium dismutase, SOD). Both y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum and maximum values in the observed data.
+Fig. 6 Examples of model interactions of co-occuring environmental variables on pteropod cellular responses. Plot (a) shows a negative additive effect between aragonite saturation state (Ωar) and temperature on cellular toxicity (lipid peroxidation; LPX); plot (b) shows negative additive effects of food availability and pCO2 on LPX; plot (c) shows positive additive effects of temperature and Ωar on antioxidative activity (sodium dismutase, SOD). Both y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum and maximum values in the observed data.
 
 
 ```r
-toplo <- phymod %>% 
-  filter(Model %in% c('mod2', 'mod8')) %>% 
+toplo <- rbind(
+    phymod[phymod$Model == 'mod8', ],
+    phymod[phymod$Model == 'mod8', ],
+    phymod[phymod$Model == 'mod10', ],
+    phymod[phymod$Model == 'mod2', ]
+  ) %>% 
   mutate(
-    cvar = c('Temp', 'Temp'),
-    xvar = c('Omega[ar]', 'Omega[ar]'), 
-    yvar = c('Abundance', 'Dissolution'), 
-    legr = c('Temp', 'Temp'),
-    pos = c('left', 'right'), 
-    fct = c(0.92, 1.04), 
-    hjs = c(0, 1)
+    cvar = c('Temp', 'Ara', 'O2', 'Temp'),
+    xvar = c('Omega[ar]', 'Temp', 'Temp','Omega[ar]'), 
+    yvar = c('Dissolution', 'Dissolution', 'Dissolution', 'Abundance'), 
+    legr = c('Temp', 'Omega[ar]', 'O[2]','Temp'),
+    pos = c('right', 'left', 'left','left'), 
+    fct = c(1.04, 0.97, 0.97, 0.92), 
+    hjs = c(1, 0, 0, 0)
     ) %>% 
   mutate(
     pldat = pmap(list(Modobj, cvar, pos, fct), function(Modobj, cvar, pos, fct){
@@ -331,24 +335,30 @@ toplo <- phymod %>%
     })
   )
 
-p1 <- toplo$plos[[1]] + ggtitle('(b)')
-p2 <- toplo$plos[[2]] + ggtitle('(a)')
+p1 <- toplo$plos[[1]] + ggtitle('(a)')
+p2 <- toplo$plos[[2]] + ggtitle('(b)')
+p3 <- toplo$plos[[3]] + ggtitle('(c)')
+p4 <- toplo$plos[[4]] + ggtitle('(d)')
 
 pA <- ggplot_gtable(ggplot_build(p1))
 pB <- ggplot_gtable(ggplot_build(p2))
+pC <- ggplot_gtable(ggplot_build(p3))
+pD <- ggplot_gtable(ggplot_build(p4))
 
-maxWidth = grid::unit.pmax(pA$widths[2:3], pB$widths[2:3])
+maxWidth = grid::unit.pmax(pA$widths[2:3], pB$widths[2:3], pC$widths[2:3], pD$widths[2:3])
 
 pA$widths[2:3] <- maxWidth
 pB$widths[2:3] <- maxWidth
+pC$widths[2:3] <- maxWidth
+pD$widths[2:3] <- maxWidth
 
 grid.arrange(
- pB, pA, ncol = 1 
+ pA, pB, pC, pD, ncol = 2 
 )
 ```
 
 <img src="figures_files/figure-html/effphy.png" width="100%" style="display: block; margin: auto;" />
-Fig. 5 An example of model interactions of co-occuring environmental variables with biomineralization (shell dissolution) and population (abundance) responses. The interaction effects between aragonite saturation state (Ωar) and temperature on shell dissolution, as well as the interaction between Ωar and oxygen is synergistic (a, b, respectively). All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum and maximum values in the observed data.
+Fig. 7 Examples of model interactions and additive effects of co-occurring environmental variables with biomineralization (shell dissolution) and population (abundance) responses. Co-occurring effects between aragonite saturation state (Ωar) and temperature on shell dissolution are shown in (a, b), temperature and O2 on dissolution in (c), and temperature and aragonite saturation state on abundance in (d). All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum and maximum values in the observed data.
 
 
 ```r
