@@ -390,18 +390,17 @@ grid.arrange(
 <p><img src="figures_files/figure-html/effbio.png" width="100%" style="display: block; margin: auto;" /> Fig. 6 Examples of model interactions of co-occuring environmental variables on pteropod cellular responses. Plot (a) shows a negative additive effect between aragonite saturation state (Ωar) and temperature on cellular toxicity (lipid peroxidation; LPX); plot (b) shows negative additive effects of food availability and pCO2 on LPX; plot (c) shows positive additive effects of temperature and Ωar on antioxidative activity (sodium dismutase, SOD). Both y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum and maximum values in the observed data.</p>
 <pre class="r"><code>toplo &lt;- rbind(
     phymod[phymod$Model == &#39;mod8&#39;, ],
-    phymod[phymod$Model == &#39;mod8&#39;, ],
     phymod[phymod$Model == &#39;mod10&#39;, ],
     phymod[phymod$Model == &#39;mod2&#39;, ]
   ) %&gt;% 
   mutate(
-    cvar = c(&#39;Temp&#39;, &#39;Ara&#39;, &#39;O2&#39;, &#39;Temp&#39;),
-    xvar = c(&#39;Omega[ar]&#39;, &#39;Temp&#39;, &#39;Temp&#39;,&#39;Omega[ar]&#39;), 
-    yvar = c(&#39;Dissolution&#39;, &#39;Dissolution&#39;, &#39;Dissolution&#39;, &#39;Abundance&#39;), 
-    legr = c(&#39;Temp&#39;, &#39;Omega[ar]&#39;, &#39;O[2]&#39;,&#39;Temp&#39;),
-    pos = c(&#39;right&#39;, &#39;left&#39;, &#39;left&#39;,&#39;left&#39;), 
-    fct = c(1.04, 0.97, 0.97, 0.92), 
-    hjs = c(1, 0, 0, 0)
+    cvar = c(&#39;Temp&#39;, &#39;O2&#39;, &#39;Temp&#39;),
+    xvar = c(&#39;Omega[ar]&#39;, &#39;Temp&#39;,&#39;Omega[ar]&#39;), 
+    yvar = c(&#39;Dissolution&#39;, &#39;Dissolution&#39;, &#39;Abundance&#39;), 
+    legr = c(&#39;Temp&#39;, &#39;O[2]&#39;,&#39;Temp&#39;),
+    pos = c(&#39;right&#39;, &#39;left&#39;,&#39;left&#39;), 
+    fct = c(1.04, 0.97, 0.92), 
+    hjs = c(1, 0, 0)
     ) %&gt;% 
   mutate(
     pldat = pmap(list(Modobj, cvar, pos, fct), function(Modobj, cvar, pos, fct){
@@ -437,24 +436,22 @@ grid.arrange(
 p1 &lt;- toplo$plos[[1]] + ggtitle(&#39;(a)&#39;)
 p2 &lt;- toplo$plos[[2]] + ggtitle(&#39;(b)&#39;)
 p3 &lt;- toplo$plos[[3]] + ggtitle(&#39;(c)&#39;)
-p4 &lt;- toplo$plos[[4]] + ggtitle(&#39;(d)&#39;)
+
 
 pA &lt;- ggplot_gtable(ggplot_build(p1))
 pB &lt;- ggplot_gtable(ggplot_build(p2))
 pC &lt;- ggplot_gtable(ggplot_build(p3))
-pD &lt;- ggplot_gtable(ggplot_build(p4))
 
-maxWidth = grid::unit.pmax(pA$widths[2:3], pB$widths[2:3], pC$widths[2:3], pD$widths[2:3])
+maxWidth = grid::unit.pmax(pA$widths[2:3], pB$widths[2:3], pC$widths[2:3])
 
 pA$widths[2:3] &lt;- maxWidth
 pB$widths[2:3] &lt;- maxWidth
 pC$widths[2:3] &lt;- maxWidth
-pD$widths[2:3] &lt;- maxWidth
 
 grid.arrange(
- pA, pB, pC, pD, ncol = 2 
+ pA, pB, pC, ncol = 1 
 )</code></pre>
-<p><img src="figures_files/figure-html/effphy.png" width="100%" style="display: block; margin: auto;" /> Fig. 7 Examples of model interactions and additive effects of co-occurring environmental variables with biomineralization (shell dissolution) and population (abundance) responses. Co-occurring effects between aragonite saturation state (Ωar) and temperature on shell dissolution are shown in (a, b), temperature and O2 on dissolution in (c), and temperature and aragonite saturation state on abundance in (d). All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum and maximum values in the observed data.</p>
+<p><img src="figures_files/figure-html/effphy.png" width="100%" style="display: block; margin: auto;" /> Fig. 7 Examples of model interactions and additive effects of co-occurring environmental variables with biomineralization (shell dissolution) and population (abundance) responses. Co-occurring effects between aragonite saturation state (Ωar) and temperature on shell dissolution are shown in (a), temperature and O2 on dissolution in (b), and temperature and aragonite saturation state on abundance in (c). All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum and maximum values in the observed data.</p>
 <pre class="r"><code>biotab &lt;- biomod %&gt;% 
   unnest(data) %&gt;% 
   group_by(Model) %&gt;% 

@@ -291,18 +291,17 @@ Fig. 6 Examples of model interactions of co-occuring environmental variables on 
 ```r
 toplo <- rbind(
     phymod[phymod$Model == 'mod8', ],
-    phymod[phymod$Model == 'mod8', ],
     phymod[phymod$Model == 'mod10', ],
     phymod[phymod$Model == 'mod2', ]
   ) %>% 
   mutate(
-    cvar = c('Temp', 'Ara', 'O2', 'Temp'),
-    xvar = c('Omega[ar]', 'Temp', 'Temp','Omega[ar]'), 
-    yvar = c('Dissolution', 'Dissolution', 'Dissolution', 'Abundance'), 
-    legr = c('Temp', 'Omega[ar]', 'O[2]','Temp'),
-    pos = c('right', 'left', 'left','left'), 
-    fct = c(1.04, 0.97, 0.97, 0.92), 
-    hjs = c(1, 0, 0, 0)
+    cvar = c('Temp', 'O2', 'Temp'),
+    xvar = c('Omega[ar]', 'Temp','Omega[ar]'), 
+    yvar = c('Dissolution', 'Dissolution', 'Abundance'), 
+    legr = c('Temp', 'O[2]','Temp'),
+    pos = c('right', 'left','left'), 
+    fct = c(1.04, 0.97, 0.92), 
+    hjs = c(1, 0, 0)
     ) %>% 
   mutate(
     pldat = pmap(list(Modobj, cvar, pos, fct), function(Modobj, cvar, pos, fct){
@@ -338,27 +337,25 @@ toplo <- rbind(
 p1 <- toplo$plos[[1]] + ggtitle('(a)')
 p2 <- toplo$plos[[2]] + ggtitle('(b)')
 p3 <- toplo$plos[[3]] + ggtitle('(c)')
-p4 <- toplo$plos[[4]] + ggtitle('(d)')
+
 
 pA <- ggplot_gtable(ggplot_build(p1))
 pB <- ggplot_gtable(ggplot_build(p2))
 pC <- ggplot_gtable(ggplot_build(p3))
-pD <- ggplot_gtable(ggplot_build(p4))
 
-maxWidth = grid::unit.pmax(pA$widths[2:3], pB$widths[2:3], pC$widths[2:3], pD$widths[2:3])
+maxWidth = grid::unit.pmax(pA$widths[2:3], pB$widths[2:3], pC$widths[2:3])
 
 pA$widths[2:3] <- maxWidth
 pB$widths[2:3] <- maxWidth
 pC$widths[2:3] <- maxWidth
-pD$widths[2:3] <- maxWidth
 
 grid.arrange(
- pA, pB, pC, pD, ncol = 2 
+ pA, pB, pC, ncol = 1 
 )
 ```
 
 <img src="figures_files/figure-html/effphy.png" width="100%" style="display: block; margin: auto;" />
-Fig. 7 Examples of model interactions and additive effects of co-occurring environmental variables with biomineralization (shell dissolution) and population (abundance) responses. Co-occurring effects between aragonite saturation state (Ωar) and temperature on shell dissolution are shown in (a, b), temperature and O2 on dissolution in (c), and temperature and aragonite saturation state on abundance in (d). All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum and maximum values in the observed data.
+Fig. 7 Examples of model interactions and additive effects of co-occurring environmental variables with biomineralization (shell dissolution) and population (abundance) responses. Co-occurring effects between aragonite saturation state (Ωar) and temperature on shell dissolution are shown in (a), temperature and O2 on dissolution in (b), and temperature and aragonite saturation state on abundance in (c). All y-axes are transformed to conform to model output. Covarying environmental variables were held constant at the minimum and maximum values in the observed data.
 
 
 ```r
