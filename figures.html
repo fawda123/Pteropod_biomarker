@@ -181,6 +181,7 @@ dat_bio &lt;- ptedat %&gt;%
 
 envphy &lt;- select(dat_bio, one_of(envchr)) %&gt;% 
   select(-Lat) %&gt;% 
+  rename(Chla = Fluor) %&gt;% 
   decostand(method = &#39;range&#39;)
 ptephy &lt;- select(dat_bio, one_of(biochr)) %&gt;% 
   decostand(method = &#39;range&#39;)
@@ -206,7 +207,8 @@ dat_phy &lt;- ptedat %&gt;%
   )
 
 envphy &lt;- select(dat_phy, one_of(envchr)) %&gt;% 
-  select(-Lat) %&gt;% 
+  select(-Lat) %&gt;%
+  rename(Chla = Fluor) %&gt;% 
   decostand(method = &#39;range&#39;)
 ptephy &lt;- select(dat_phy, -one_of(envchr)) %&gt;% 
   decostand(method = &#39;range&#39;)
@@ -271,7 +273,7 @@ crs &lt;- crossing(var1 = names(dat_cor), var2 = names(dat_cor)) %&gt;%
   unnest %&gt;% 
   select(-rowname)</code></pre>
 <pre class="r"><code>levs &lt;- c(sort(envchr), sort(biochr), sort(phychr))
-labs &lt;- c(&#39;Omega[ar]&#39;, &#39;Fluor&#39;, &#39;Lat&#39;, &#39;O[2]&#39;, &#39;pCO[2]&#39;, &#39;pH&#39;, &#39;Temp&#39;, &#39;CAT&#39;, &#39;GR&#39;, &#39;GSHonGSSG&#39;, &#39;GST&#39;, &#39; LPX&#39;, &#39;ORAC&#39;, &#39;ORACvLPX&#39;, &#39;SOD&#39;, &#39;abundance&#39;, &#39;dissolution&#39;, &#39;length&#39;, &#39;scarring&#39;, &#39;typeII&#39;, &#39;typeIII&#39;)
+labs &lt;- c(&#39;Omega[ar]&#39;, &#39;Chla&#39;, &#39;Lat&#39;, &#39;O[2]&#39;, &#39;pCO[2]&#39;, &#39;pH&#39;, &#39;Temp&#39;, &#39;CAT&#39;, &#39;GR&#39;, &#39;GSHonGSSG&#39;, &#39;GST&#39;, &#39; LPX&#39;, &#39;ORAC&#39;, &#39;ORACvLPX&#39;, &#39;SOD&#39;, &#39;abundance&#39;, &#39;dissolution&#39;, &#39;length&#39;, &#39;scarring&#39;, &#39;typeII&#39;, &#39;typeIII&#39;)
 prplo &lt;- crs %&gt;% 
   separate(pr, c(&#39;cor&#39;, &#39;sig&#39;), sep = &#39; &#39;) %&gt;% 
   filter(var1 %in% levs &amp; var2 %in% levs) %&gt;%  
@@ -370,7 +372,7 @@ grid.draw(gt)</code></pre>
     })
   )
 
-p1 &lt;- toplo$plos[[1]] + ggtitle(&#39;(b)&#39;)
+p1 &lt;- toplo$plos[[1]] + ggtitle(&#39;(b)&#39;) + xlab(&#39;Chla&#39;)
 p2 &lt;- toplo$plos[[2]] + ggtitle(&#39;(a)&#39;)
 p3 &lt;- toplo$plos[[3]] + ggtitle(&#39;(c)&#39;)
 

@@ -55,6 +55,7 @@ dat_bio <- ptedat %>%
 
 envphy <- select(dat_bio, one_of(envchr)) %>% 
   select(-Lat) %>% 
+  rename(Chla = Fluor) %>% 
   decostand(method = 'range')
 ptephy <- select(dat_bio, one_of(biochr)) %>% 
   decostand(method = 'range')
@@ -80,7 +81,8 @@ dat_phy <- ptedat %>%
   )
 
 envphy <- select(dat_phy, one_of(envchr)) %>% 
-  select(-Lat) %>% 
+  select(-Lat) %>%
+  rename(Chla = Fluor) %>% 
   decostand(method = 'range')
 ptephy <- select(dat_phy, -one_of(envchr)) %>% 
   decostand(method = 'range')
@@ -160,7 +162,7 @@ crs <- crossing(var1 = names(dat_cor), var2 = names(dat_cor)) %>%
 
 ```r
 levs <- c(sort(envchr), sort(biochr), sort(phychr))
-labs <- c('Omega[ar]', 'Fluor', 'Lat', 'O[2]', 'pCO[2]', 'pH', 'Temp', 'CAT', 'GR', 'GSHonGSSG', 'GST', ' LPX', 'ORAC', 'ORACvLPX', 'SOD', 'abundance', 'dissolution', 'length', 'scarring', 'typeII', 'typeIII')
+labs <- c('Omega[ar]', 'Chla', 'Lat', 'O[2]', 'pCO[2]', 'pH', 'Temp', 'CAT', 'GR', 'GSHonGSSG', 'GST', ' LPX', 'ORAC', 'ORACvLPX', 'SOD', 'abundance', 'dissolution', 'length', 'scarring', 'typeII', 'typeIII')
 prplo <- crs %>% 
   separate(pr, c('cor', 'sig'), sep = ' ') %>% 
   filter(var1 %in% levs & var2 %in% levs) %>%  
@@ -265,7 +267,7 @@ toplo <- biomod %>%
     })
   )
 
-p1 <- toplo$plos[[1]] + ggtitle('(b)')
+p1 <- toplo$plos[[1]] + ggtitle('(b)') + xlab('Chla')
 p2 <- toplo$plos[[2]] + ggtitle('(a)')
 p3 <- toplo$plos[[3]] + ggtitle('(c)')
 
