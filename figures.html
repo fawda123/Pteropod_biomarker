@@ -347,24 +347,30 @@ grid.draw(gt)</code></pre>
       get_pldat(Modobj, cvar, fct = fct)
     
     }),
-    plos = pmap(list(pldat, xvar, legr), function(pldat, xvar, legr){
+    plos = pmap(list(pldat, xvar, cvar, legr), function(pldat, xvar, cvar, legr){
       
       pl1 &lt;- pldat[[1]]
       pl2 &lt;- pldat[[2]]
+      
+      # leg vals as factor 
+      pl1[[cvar]] &lt;- factor(pl1[[cvar]], 
+                            levels = sort(unique(pl1[[cvar]]), decreasing = T),
+                            labels = round(sort(unique(pl1[[cvar]]), decreasing = T), 1)
+      )
       
       # colors
       cols &lt;- RColorBrewer::brewer.pal(9, &#39;RdBu&#39;)
       
       # names for aes_string
       nms &lt;- names(pl1)
-      
+  
       p1 &lt;- ggplot() +
         geom_ribbon(data = pl1, aes_string(x = nms[3], ymin = &#39;lo&#39;, ymax = &#39;hi&#39;, group = nms[4]), alpha = 0.5, fill = &#39;grey&#39;) +
         geom_line(data = pl1, aes_string(x = nms[3], y = nms[1], group = nms[4], colour = nms[4]), size = 1) + 
         geom_text(data = pl2, aes(x= x, y = y, label = lab), hjust = 0) +
         theme_bw() +
         xlab(parse(text = xvar)) +
-        scale_colour_gradientn(parse(text = legr), colours = cols) +
+        scale_colour_manual(parse(text = legr), values = c(rev(cols)[1], cols[1])) +
         scale_y_continuous(nms[1])
       
       return(p1)
@@ -410,10 +416,16 @@ grid.arrange(
       get_pldat(Modobj, cvar, pos = pos, fct = fct)
     
     }),
-    plos = pmap(list(pldat, xvar, yvar, legr, hjs), function(pldat, xvar, yvar, legr, hjs){
+    plos = pmap(list(pldat, xvar, yvar, cvar, legr, hjs), function(pldat, xvar, yvar, cvar, legr, hjs){
       
       pl1 &lt;- pldat[[1]]
       pl2 &lt;- pldat[[2]]
+      
+      # leg vals as factor 
+      pl1[[cvar]] &lt;- factor(pl1[[cvar]], 
+                            levels = sort(unique(pl1[[cvar]]), decreasing = T),
+                            labels = round(sort(unique(pl1[[cvar]]), decreasing = T), 1)
+      )
       
       # colors
       cols &lt;- RColorBrewer::brewer.pal(9, &#39;RdBu&#39;)
@@ -427,7 +439,7 @@ grid.arrange(
         geom_text(data = pl2, aes(x= x, y = y, label = lab), hjust = hjs) +
         theme_bw() +
         xlab(parse(text = xvar)) +
-        scale_colour_gradientn(parse(text = legr), colours = cols) +
+        scale_colour_manual(parse(text = legr), values = c(rev(cols)[1], cols[1])) +
         scale_y_continuous(yvar)
       
       return(p1)

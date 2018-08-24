@@ -233,24 +233,30 @@ toplo <- biomod %>%
       get_pldat(Modobj, cvar, fct = fct)
     
     }),
-    plos = pmap(list(pldat, xvar, legr), function(pldat, xvar, legr){
+    plos = pmap(list(pldat, xvar, cvar, legr), function(pldat, xvar, cvar, legr){
       
       pl1 <- pldat[[1]]
       pl2 <- pldat[[2]]
+      
+      # leg vals as factor 
+      pl1[[cvar]] <- factor(pl1[[cvar]], 
+                            levels = sort(unique(pl1[[cvar]]), decreasing = T),
+                            labels = round(sort(unique(pl1[[cvar]]), decreasing = T), 1)
+      )
       
       # colors
       cols <- RColorBrewer::brewer.pal(9, 'RdBu')
       
       # names for aes_string
       nms <- names(pl1)
-      
+  
       p1 <- ggplot() +
         geom_ribbon(data = pl1, aes_string(x = nms[3], ymin = 'lo', ymax = 'hi', group = nms[4]), alpha = 0.5, fill = 'grey') +
         geom_line(data = pl1, aes_string(x = nms[3], y = nms[1], group = nms[4], colour = nms[4]), size = 1) + 
         geom_text(data = pl2, aes(x= x, y = y, label = lab), hjust = 0) +
         theme_bw() +
         xlab(parse(text = xvar)) +
-        scale_colour_gradientn(parse(text = legr), colours = cols) +
+        scale_colour_manual(parse(text = legr), values = c(rev(cols)[1], cols[1])) +
         scale_y_continuous(nms[1])
       
       return(p1)
@@ -300,10 +306,16 @@ toplo <- rbind(
       get_pldat(Modobj, cvar, pos = pos, fct = fct)
     
     }),
-    plos = pmap(list(pldat, xvar, yvar, legr, hjs), function(pldat, xvar, yvar, legr, hjs){
+    plos = pmap(list(pldat, xvar, yvar, cvar, legr, hjs), function(pldat, xvar, yvar, cvar, legr, hjs){
       
       pl1 <- pldat[[1]]
       pl2 <- pldat[[2]]
+      
+      # leg vals as factor 
+      pl1[[cvar]] <- factor(pl1[[cvar]], 
+                            levels = sort(unique(pl1[[cvar]]), decreasing = T),
+                            labels = round(sort(unique(pl1[[cvar]]), decreasing = T), 1)
+      )
       
       # colors
       cols <- RColorBrewer::brewer.pal(9, 'RdBu')
@@ -317,7 +329,7 @@ toplo <- rbind(
         geom_text(data = pl2, aes(x= x, y = y, label = lab), hjust = hjs) +
         theme_bw() +
         xlab(parse(text = xvar)) +
-        scale_colour_gradientn(parse(text = legr), colours = cols) +
+        scale_colour_manual(parse(text = legr), values = c(rev(cols)[1], cols[1])) +
         scale_y_continuous(yvar)
       
       return(p1)
