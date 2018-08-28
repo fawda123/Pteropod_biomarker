@@ -1,5 +1,7 @@
 # README
 
+[![DOI](https://zenodo.org/badge/123340327.svg)](https://zenodo.org/badge/latestdoi/123340327)
+
 Materials for evaluating pteropod cellular biomarkers ([link](https://sccwrp.shinyapps.io/Pteropod_biomarker/biomark.Rmd)),
 physiology ([link](https://sccwrp.shinyapps.io/Pteropod_biomarker/physio.Rmd)) in response to OA, figures [here](https://fawda123.github.io/Pteropod_biomarker/figures.html)
 
