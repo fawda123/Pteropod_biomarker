@@ -1,0 +1,168 @@
+---
+output:
+  html_document:
+  keep_md: yes
+self_contained: no
+code_folding: hide
+---
+  
+```{r, echo = F, warning = F, message = F}
+
+knitr::opts_chunk$set(echo = F, warning = F, message = F)
+library(tidyverse)
+library(vegan)
+library(ggord)
+library(scales)
+library(effects)
+library(knitr)
+library(gridExtra)
+library(grid)
+library(stargazer)
+library(ggord)
+
+source("../R/funcs.R")
+
+load(file = '../data/envdat.RData')
+load(file = '../data/ptedat.RData')
+load(file = '../data/phymod.RData')
+load(file = '../data/biomod.RData')
+
+envchr <- c('Lat', 'pCO2', 'pH', 'Ara', 'O2', 'Temp', 'Fluor')
+biochr <- c('CAT', 'GR', 'GSHonGSSG', 'GST', 'LPX', 'ORAC', 'SOD', 'ORACvLPX')
+phychr <- c('abu', 'dis', 'len', 'ty2', 'ty3', 'scr')
+
+# physiology rda model
+envpca <- ptedat %>% 
+  select(one_of('CTD', phychr, biochr)) %>% 
+  # na.omit %>% 
+  left_join(envdat, by = 'CTD') %>% 
+  data.frame %>% 
+  remove_rownames %>% 
+  column_to_rownames('CTD') %>% 
+  select(one_of(envchr)) %>% 
+  na.omit
+prmod <- prcomp(envpca, center = T, scale = T)
+```
+
+### Principal components analysis of all environmental variables.  
+
+```{r pcaplo, fig.height = 5, fig.width = 8}
+p1 <- ggord(prmod, vec_ext = 5, size = 2, alpha = 0.5)
+p2 <- ggord(prmod, axes = c(2, 3), vec_ext = 5, size = 2, alpha = 0.5)
+grid.arrange(p1, p2, ncol = 2)
+```
+
+Axes 1, 2, and 3 explain ~ 99% of the variation among environmental parameters: axis one explain OA parameters, axis 2 explains temp/lat, and axis 3 explains fluorescence.
+```{r}
+prmod
+summary(prmod)
+```
+
+###  Correlation plot
+
+The OA parameters oxygen, pH, aragonite saturation, and pCO2 were replaced with the first principal component axis for the correlation plot. 
+
+```{r corploPC1, fig.height = 6, fig.width = 7}
+# physiology rda model
+PC1 <- prmod$x[, 'PC1'] %>% 
+  data.frame(PC1 = .) %>% 
+  rownames_to_column('CTD') %>% 
+  mutate(CTD = as.numeric(CTD))
+
+dat_cor <- ptedat %>% 
+  select(one_of('CTD', phychr, biochr)) %>% 
+  # na.omit %>% 
+  left_join(envdat, by = 'CTD') %>% 
+  data.frame %>% 
+  remove_rownames %>% 
+  left_join(PC1, by = 'CTD') %>% 
+  column_to_rownames('CTD') %>% 
+  select(-Ara, -pCO2, -O2, -pH)
+
+# all correlations
+crs <- crossing(var1 = names(dat_cor), var2 = names(dat_cor)) %>%
+  filter(var1 != var2) %>%
+  rownames_to_column() %>%
+  group_by(rowname) %>%
+  nest %>%
+  mutate(
+    crs = map(data, function(x){
+
+      # variables
+      vr1 <- dat_cor[[x$var1]]
+      vr2 <- dat_cor[[x$var2]]
+
+      # pearson
+      pr_ts <- cor.test(vr1, vr2, method = 'pearson')
+      pr_cr <- round(pr_ts$estimate, 2)
+      pr_pv <- p_ast(pr_ts$p.value)
+      pr <- paste(pr_cr, pr_pv)
+
+      out <- data.frame(pr = pr, stringsAsFactors = F)
+      return(out)
+
+    })
+  ) %>%
+  unnest %>%
+  select(-rowname)
+
+levs <- c("Fluor", "Lat", "PC1", "Temp", sort(biochr), sort(phychr))
+labs <- c('Chla', 'Lat', 'PC1', 'Temp', 'CAT', 'GR', 'GSHonGSSG', 'GST', ' LPX', 'ORAC', 'ORACvLPX', 'SOD', 'abundance', 'dissolution', 'length', 'scarring', 'typeII', 'typeIII')
+prplo <- crs %>%
+  separate(pr, c('cor', 'sig'), sep = ' ') %>%
+  filter(var1 %in% levs & var2 %in% levs) %>%
+  mutate(
+    cor = as.numeric(cor),
+    var1 = factor(var1, levels = rev(levs), labels = rev(labs)),
+    var2 = factor(var2, levels = rev(levs), labels = rev(labs)),
+    sig = gsub('ns', '', sig)
+  )
+
+pbase <- theme(
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8),
+  axis.text.y = element_text(size = 8),
+  legend.position = c(0.5, 1.12),
+  legend.direction = 'horizontal',
+  plot.margin = unit(c(4,4,0,0), "lines"),
+  strip.background = element_blank(),
+  strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5),
+  panel.background = element_rect(fill = 'black')
+)
+
+outlab <- data.frame(
+  y = c(3.5, 10.5, 16.5),
+  lab = c('Population/\nPhysiology', 'Cellular', 'Environment')
+)
+
+p <- ggplot(prplo) +
+  geom_tile(aes(y = var1, x = var2, fill = cor), colour = 'black') +
+  geom_text(aes(y = var1, x = var2, label = sig)) +
+  annotation_custom(grob = textGrob(label = outlab$lab[1], hjust = 0, gp = gpar(cex = 0.7)),
+                    ymin = outlab$y[1], ymax = outlab$y[1], xmin = 19, xmax = 19) +
+  annotation_custom(grob = textGrob(label = outlab$lab[2], hjust = 0, gp = gpar(cex = 0.7)),
+                    ymin = outlab$y[2], ymax = outlab$y[2], xmin = 19, xmax = 19) +
+  annotation_custom(grob = textGrob(label = outlab$lab[3], hjust = 0, gp = gpar(cex = 0.7)),
+                    ymin = outlab$y[3], ymax = outlab$y[3], xmin = 19, xmax = 19) +
+  annotation_custom(grob = textGrob(label = outlab$lab[1], hjust = 0.5, gp = gpar(cex = 0.7)),
+                    xmin = outlab$y[1], xmax = outlab$y[1], ymin = 19.5, ymax = 19.5) +
+  annotation_custom(grob = textGrob(label = outlab$lab[2], hjust = 0.5, gp = gpar(cex = 0.7)),
+                    xmin = outlab$y[2], xmax = outlab$y[2], ymin = 19.5, ymax = 19.5) +
+  annotation_custom(grob = textGrob(label = outlab$lab[3], hjust = 0.5, gp = gpar(cex = 0.7)),
+                    xmin = outlab$y[3], xmax = outlab$y[3], ymin = 19.5, ymax = 19.5) +
+  pbase +
+  scale_y_discrete('', expand = c(0, 0), labels = parse(text = rev(labs))) +
+  scale_x_discrete('', expand = c(0, 0), labels = parse(text = rev(labs))) +
+  scale_fill_gradient2('Correlation', low = muted("blue"), mid = "white", high = muted("red"), midpoint = 0) +
+  guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0))) +
+  geom_hline(yintercept = 6.5, size = 1.5) +
+  geom_hline(yintercept = 14.5, size = 1.5) +
+  geom_vline(xintercept = 6.5, size = 1.5) +
+  geom_vline(xintercept = 14.5, size = 1.5)
+
+# Code to override clipping
+gt <- ggplot_gtable(ggplot_build(p))
+gt$layout$clip[gt$layout$name == "panel"] <- "off"
+grid.draw(gt)
+```
