@@ -85,7 +85,7 @@ dat_cor <- ptedat %>%
   remove_rownames %>% 
   left_join(PC1, by = 'CTD') %>% 
   column_to_rownames('CTD') %>% 
-  select(-Ara, -pCO2, -O2, -pH)
+  select(-Ara, -pCO2, -O2, -pH, -Lat)
 
 # all correlations
 crs <- crossing(var1 = names(dat_cor), var2 = names(dat_cor)) %>%
@@ -114,8 +114,8 @@ crs <- crossing(var1 = names(dat_cor), var2 = names(dat_cor)) %>%
   unnest %>%
   select(-rowname)
 
-levs <- c("Fluor", "Lat", "PC1", "Temp", sort(biochr), sort(phychr))
-labs <- c('Chla', 'Lat', 'PC1', 'Temp', 'CAT', 'GR', 'GSHonGSSG', 'GST', ' LPX', 'ORAC', 'ORACvLPX', 'SOD', 'abundance', 'dissolution', 'length', 'scarring', 'typeII', 'typeIII')
+levs <- c("Fluor", "PC1", "Temp", sort(biochr), sort(phychr))
+labs <- c('Chla', 'PC1', 'Temp', 'CAT', 'GR', 'GSHonGSSG', 'GST', ' LPX', 'ORAC', 'ORACvLPX', 'SOD', 'abundance', 'dissolution', 'length', 'scarring', 'typeII', 'typeIII')
 prplo <- crs %>%
   separate(pr, c('cor', 'sig'), sep = ' ') %>%
   filter(var1 %in% levs & var2 %in% levs) %>%
@@ -140,7 +140,7 @@ pbase <- theme(
 )
 
 outlab <- data.frame(
-  y = c(3.5, 10.5, 16.5),
+  y = c(3.5, 10.5, 16),
   lab = c('Population/\nPhysiology', 'Cellular', 'Environment')
 )
 
@@ -148,17 +148,17 @@ p <- ggplot(prplo) +
   geom_tile(aes(y = var1, x = var2, fill = cor), colour = 'black') +
   geom_text(aes(y = var1, x = var2, label = sig)) +
   annotation_custom(grob = textGrob(label = outlab$lab[1], hjust = 0, gp = gpar(cex = 0.7)),
-                    ymin = outlab$y[1], ymax = outlab$y[1], xmin = 19, xmax = 19) +
+                    ymin = outlab$y[1], ymax = outlab$y[1], xmin = 18, xmax = 18) +
   annotation_custom(grob = textGrob(label = outlab$lab[2], hjust = 0, gp = gpar(cex = 0.7)),
-                    ymin = outlab$y[2], ymax = outlab$y[2], xmin = 19, xmax = 19) +
+                    ymin = outlab$y[2], ymax = outlab$y[2], xmin = 18, xmax = 18) +
   annotation_custom(grob = textGrob(label = outlab$lab[3], hjust = 0, gp = gpar(cex = 0.7)),
-                    ymin = outlab$y[3], ymax = outlab$y[3], xmin = 19, xmax = 19) +
+                    ymin = outlab$y[3], ymax = outlab$y[3], xmin = 18, xmax = 18) +
   annotation_custom(grob = textGrob(label = outlab$lab[1], hjust = 0.5, gp = gpar(cex = 0.7)),
-                    xmin = outlab$y[1], xmax = outlab$y[1], ymin = 19.5, ymax = 19.5) +
+                    xmin = outlab$y[1], xmax = outlab$y[1], ymin = 18.5, ymax = 18.5) +
   annotation_custom(grob = textGrob(label = outlab$lab[2], hjust = 0.5, gp = gpar(cex = 0.7)),
-                    xmin = outlab$y[2], xmax = outlab$y[2], ymin = 19.5, ymax = 19.5) +
+                    xmin = outlab$y[2], xmax = outlab$y[2], ymin = 18.5, ymax = 18.5) +
   annotation_custom(grob = textGrob(label = outlab$lab[3], hjust = 0.5, gp = gpar(cex = 0.7)),
-                    xmin = outlab$y[3], xmax = outlab$y[3], ymin = 19.5, ymax = 19.5) +
+                    xmin = outlab$y[3], xmax = outlab$y[3], ymin = 18.5, ymax = 18.5) +
   pbase +
   scale_y_discrete('', expand = c(0, 0), labels = parse(text = rev(labs))) +
   scale_x_discrete('', expand = c(0, 0), labels = parse(text = rev(labs))) +
