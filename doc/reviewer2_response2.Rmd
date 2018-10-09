@@ -18,9 +18,12 @@ We also emphasize that the text noted by the reviewer on p. 6, line 240 was not 
 We feel there is still some disagreement about presenting correlation results in Figure 5 among multiple variables that co-vary, such as the parameters pH, pCO2, omega, and O2.  We recreated Figure 5 using the first principal component axis of a PCA of all environmental variables.  Nearly 100% of the variance was described by the first three axes: axis one explained the OA parameters pCO2, pH, O2, and Omega, axis 2 explained temperature and latitude, and axis 3 explained fluorescence.   
 
 ![](prcompex_files/figure-html/pcaplo.png)
+Figure: Results of principal components analysis of the environmental data.  The first plot shows the estimated axis scores for the first and second principal components and the second plot shows the scores for the second and third principal components.  The first three axes explained nearly 99% of the variation among the observations.  Length and direction of each vector shows the relative loadings of each variable with the axes.
+
 The first axis above was used in place of the four correlated OA parameters in the original Figure 5:          
 
 ![](prcompex_files/figure-html/corploPC1.png)
+Figure: Modified correlation matrix of environmental variables, cellular response endpoints, and population (abundance) and physiological response endpoints for pteropods.  Correlated environmental variables related to ocean acidification were combined into a single principal component axis represented by PC1.  Darker red values are strong positive correlations and darker purple values are strong negative correlations.  Significance values at alpha = 0.05 are shown by stars (p < 0.05 \*, p < 0.005 \*\*).
 
 Although this addresses the reviewer's concern, we feel this presentation complicates evaluation of the study system.  A reader would have to know which variables were described by PC1 and the approximate loadings.  We feel this presentation lacks the transparency provided by the original figure, nor does it change any of our conclusions.
 
