@@ -5,6 +5,6 @@ account: sccwrp
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 410692
-bundleId: 1558634
+bundleId: 1827586
 url: https://sccwrp.shinyapps.io/pteropod_biomarker/
-when: 1535487142.97721
+when: 1548100405.51158

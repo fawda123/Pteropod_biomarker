@@ -294,8 +294,10 @@ renderPlot({
 selectInput("cvr", "Switch covariate:", c(F, T))
 
 renderPlot({
-
-  if(is.null(trm())) stop("Model is too simple, you broke me Nina!")
+  
+  validate(
+    need(!is.null(trm()), 'Cannot show plots for models with one predictor')
+  )
   
   # colors
   cols <- RColorBrewer::brewer.pal(9, 'RdBu')
@@ -326,7 +328,7 @@ renderPlotly({
   
   # observed data
   toplo <- md()$model
-  if(ncol(toplo) < 3) stop("Model is too simple, you broke me Nina!")
+  req(ncol(toplo) >= 3)
   
   names(toplo) <- c('z', 'x', 'y')
   
