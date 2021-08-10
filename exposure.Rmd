@@ -1,0 +1,99 @@
+---
+output:
+  html_document:
+    self_contained: no
+    code_folding: hide
+    css: styles.css
+---
+
+```{r setup, warning = F, message = F}
+library(knitr)
+opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = 'transparent'), eval = T)
+
+library(tidyverse)
+library(patchwork)
+library(here)
+
+data(expdat)
+```
+
+```{r, results = 'hide'}
+toplo <- expdat %>% 
+  unite('temp, pCO2', temp_trt, pco2_trt, sep = '/') %>% 
+  mutate(
+    `temp, pCO2` = factor(`temp, pCO2`, levels = c('lo/lo', 'lo/hi', 'hi/lo' ,'hi/hi'))
+  )
+
+p1 <- ggplot(toplo, aes(x = `temp, pCO2`, y = alive)) +
+  scale_y_continuous('% alive') +
+  geom_boxplot(outlier.size = -1) +
+  geom_jitter(alpha = 0.3, width = 0.15) + 
+  theme_bw(base_family = 'serif', base_size = 14) + 
+  labs(x = 'Temp, pCO2')
+
+toplo <- expdat %>% 
+  group_by(temp_trt, pco2_trt) %>% 
+  summarize(
+    ave = mean(alive, na.rm = T),
+    lov = t.test(alive)$conf.int[1],
+    hiv = t.test(alive)$conf.int[2]
+  ) %>% 
+  ungroup %>% 
+  mutate(
+    temp_trt = factor(temp_trt, levels = c('lo', 'hi')),
+    pco2_trt = factor(pco2_trt, levels = c('lo', 'hi'))
+  )
+
+allv <- expdat %>% 
+  mutate(
+    temp_trt = factor(temp_trt, levels = c('lo', 'hi')),
+    pco2_trt = factor(pco2_trt, levels = c('lo', 'hi'))
+  ) %>%
+  select(alive, temp_trt, pco2_trt, CTD) %>% 
+  group_by(temp_trt, pco2_trt, CTD) %>%
+  mutate(
+    rep = 1, 
+    rep = cumsum(rep)
+  ) %>% 
+  unite('uni', CTD, temp_trt, rep, remove = F)
+
+p2 <- ggplot(toplo, aes(x = pco2_trt, colour = temp_trt)) + 
+  # geom_line(data = allv, aes(y = alive, group = uni), linetype = 'dotted') +
+  geom_point(size = 5, aes(y = ave)) + 
+  geom_errorbar(aes(ymin = lov, ymax = hiv), width = 0.1, size = 1.5) +
+  geom_line(aes(y = ave, group = temp_trt), size = 1.5) +
+  theme_bw(base_family = 'serif', base_size = 14) + 
+  labs(
+    x = 'pCO2', 
+    y = '% alive', 
+    colour = 'Temp'
+  ) +
+  theme(legend.position = c(0.9, 0.2))
+
+p <- p1 + p2 + plot_layout(ncol = 1)
+
+png(here('raw/survive.png'), height = 6.5, width = 6.5, family = 'serif', res = 300, units = 'in')
+print(p)
+dev.off()
+```
+
+[download figure](raw/survive.png)
+
+```{r, out.width = '80%'}
+knitr::include_graphics(here('raw/survive.png'))
+```
+
+Run a simple test:
+```{r}
+mod <- lm(asin(alive / 100) ~ temp_trt * pco2_trt, data = expdat)
+summary(mod)
+anova(mod)
+```
+
+No interaction:
+```{r}
+mod <- lm(asin(alive / 100) ~ temp_trt + pco2_trt, data = expdat)
+summary(mod)
+anova(mod)
+```
+  

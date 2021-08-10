@@ -26,7 +26,7 @@ source("R/funcs.R")
 data(envdat)
 data(expdat)
 
-envchr <- c('pCO2', 'pH', 'CO3', 'Ara', 'O2', 'Temp', 'Fluor')
+envchr <- c('pCO2', 'pH', 'TA', 'Ara', 'O2', 'Temp', 'Fluor')
 ```
 
 A simple plot:

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>exposure.knit</title>
+
+<script src="exposure_files/header-attrs-2.8/header-attrs.js"></script>
+<script src="exposure_files/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="exposure_files/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="exposure_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="exposure_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="exposure_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="exposure_files/navigation-1.1/tabsets.js"></script>
+<script src="exposure_files/navigation-1.1/codefolding.js"></script>
+<link href="exposure_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="exposure_files/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+<link rel="stylesheet" href="styles.css" type="text/css" />
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div id="header">
+
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+
+</div>
+
+
+<pre class="r"><code>library(knitr)
+opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = &#39;transparent&#39;), eval = T)
+
+library(tidyverse)
+library(patchwork)
+library(here)
+
+data(expdat)</code></pre>
+<pre class="r"><code>toplo &lt;- expdat %&gt;% 
+  unite(&#39;temp, pCO2&#39;, temp_trt, pco2_trt, sep = &#39;/&#39;) %&gt;% 
+  mutate(
+    `temp, pCO2` = factor(`temp, pCO2`, levels = c(&#39;lo/lo&#39;, &#39;lo/hi&#39;, &#39;hi/lo&#39; ,&#39;hi/hi&#39;))
+  )
+
+p1 &lt;- ggplot(toplo, aes(x = `temp, pCO2`, y = alive)) +
+  scale_y_continuous(&#39;% alive&#39;) +
+  geom_boxplot(outlier.size = -1) +
+  geom_jitter(alpha = 0.3, width = 0.15) + 
+  theme_bw(base_family = &#39;serif&#39;, base_size = 14) + 
+  labs(x = &#39;Temp, pCO2&#39;)
+
+toplo &lt;- expdat %&gt;% 
+  group_by(temp_trt, pco2_trt) %&gt;% 
+  summarize(
+    ave = mean(alive, na.rm = T),
+    lov = t.test(alive)$conf.int[1],
+    hiv = t.test(alive)$conf.int[2]
+  ) %&gt;% 
+  ungroup %&gt;% 
+  mutate(
+    temp_trt = factor(temp_trt, levels = c(&#39;lo&#39;, &#39;hi&#39;)),
+    pco2_trt = factor(pco2_trt, levels = c(&#39;lo&#39;, &#39;hi&#39;))
+  )
+
+allv &lt;- expdat %&gt;% 
+  mutate(
+    temp_trt = factor(temp_trt, levels = c(&#39;lo&#39;, &#39;hi&#39;)),
+    pco2_trt = factor(pco2_trt, levels = c(&#39;lo&#39;, &#39;hi&#39;))
+  ) %&gt;%
+  select(alive, temp_trt, pco2_trt, CTD) %&gt;% 
+  group_by(temp_trt, pco2_trt, CTD) %&gt;%
+  mutate(
+    rep = 1, 
+    rep = cumsum(rep)
+  ) %&gt;% 
+  unite(&#39;uni&#39;, CTD, temp_trt, rep, remove = F)
+
+p2 &lt;- ggplot(toplo, aes(x = pco2_trt, colour = temp_trt)) + 
+  # geom_line(data = allv, aes(y = alive, group = uni), linetype = &#39;dotted&#39;) +
+  geom_point(size = 5, aes(y = ave)) + 
+  geom_errorbar(aes(ymin = lov, ymax = hiv), width = 0.1, size = 1.5) +
+  geom_line(aes(y = ave, group = temp_trt), size = 1.5) +
+  theme_bw(base_family = &#39;serif&#39;, base_size = 14) + 
+  labs(
+    x = &#39;pCO2&#39;, 
+    y = &#39;% alive&#39;, 
+    colour = &#39;Temp&#39;
+  ) +
+  theme(legend.position = c(0.9, 0.2))
+
+p &lt;- p1 + p2 + plot_layout(ncol = 1)
+
+png(here(&#39;raw/survive.png&#39;), height = 6.5, width = 6.5, family = &#39;serif&#39;, res = 300, units = &#39;in&#39;)
+print(p)
+dev.off()</code></pre>
+<p><a href="raw/survive.png">download figure</a></p>
+<pre class="r"><code>knitr::include_graphics(here(&#39;raw/survive.png&#39;))</code></pre>
+<p><img src="raw/survive.png" width="80%" /></p>
+<p>Run a simple test:</p>
+<pre class="r"><code>mod &lt;- lm(asin(alive / 100) ~ temp_trt * pco2_trt, data = expdat)
+summary(mod)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = asin(alive/100) ~ temp_trt * pco2_trt, data = expdat)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.48834 -0.07345  0.00000  0.07161  0.50868 
+## 
+## Coefficients:
+##                         Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)           -4.532e-17  8.927e-02   0.000 1.000000    
+## temp_trtlo             5.604e-01  1.383e-01   4.052 0.000623 ***
+## pco2_trtlo             3.448e-01  1.262e-01   2.731 0.012873 *  
+## temp_trtlo:pco2_trtlo  9.202e-02  1.956e-01   0.470 0.643097    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.2362 on 20 degrees of freedom
+## Multiple R-squared:  0.7314, Adjusted R-squared:  0.6911 
+## F-statistic: 18.15 on 3 and 20 DF,  p-value: 6.285e-06</code></pre>
+<pre class="r"><code>anova(mod)</code></pre>
+<pre><code>## Analysis of Variance Table
+## 
+## Response: asin(alive/100)
+##                   Df  Sum Sq Mean Sq F value    Pr(&gt;F)    
+## temp_trt           1 2.14509 2.14509 38.4536  4.67e-06 ***
+## pco2_trt           1 0.88070 0.88070 15.7877 0.0007487 ***
+## temp_trt:pco2_trt  1 0.01235 0.01235  0.2214 0.6430966    
+## Residuals         20 1.11568 0.05578                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>No interaction:</p>
+<pre class="r"><code>mod &lt;- lm(asin(alive / 100) ~ temp_trt + pco2_trt, data = expdat)
+summary(mod)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = asin(alive/100) ~ temp_trt + pco2_trt, data = expdat)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.51517 -0.09454  0.01917  0.05580  0.48951 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -0.01917    0.07794  -0.246 0.808103    
+## temp_trtlo   0.60641    0.09596   6.319 2.89e-06 ***
+## pco2_trtlo   0.38312    0.09462   4.049 0.000578 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.2318 on 21 degrees of freedom
+## Multiple R-squared:  0.7284, Adjusted R-squared:  0.7026 
+## F-statistic: 28.16 on 2 and 21 DF,  p-value: 1.137e-06</code></pre>
+<pre class="r"><code>anova(mod)</code></pre>
+<pre><code>## Analysis of Variance Table
+## 
+## Response: asin(alive/100)
+##           Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+## temp_trt   1 2.1451 2.14509  39.934 2.885e-06 ***
+## pco2_trt   1 0.8807 0.88070  16.396 0.0005777 ***
+## Residuals 21 1.1280 0.05372                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
